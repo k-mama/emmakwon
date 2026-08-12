@@ -5,25 +5,29 @@
   padding: var(--section-space) 0;
 }
 
-/* One shared translucent panel groups the copy and portrait so they read
-   as a single, unified introduction rather than two separate columns. */
+/* One shared, genuinely transparent panel groups the copy and portrait so
+   they read as a single introduction — a barely-present surface boundary,
+   not a card. The colorful global atmosphere must stay clearly visible
+   through it; only the small portrait card below is meant to be solid. */
 .panel {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
   align-items: center;
-  gap: clamp(40px, 4vw, 56px);
+  gap: clamp(40px, 3vw, 48px);
   padding: clamp(48px, 5vw, 56px);
-  background: rgba(252, 249, 243, 0.86);
-  border: 1px solid var(--color-hairline);
+  max-width: 1040px;
+  margin: 0 auto;
+  background: rgba(255, 252, 247, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: var(--panel-radius-lg);
-  box-shadow: var(--panel-shadow);
+  box-shadow: 0 20px 40px -28px rgba(24, 38, 74, 0.14);
 }
 
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .panel {
-    background: rgba(252, 249, 243, 0.72);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
+    background: rgba(255, 252, 247, 0.28);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
   }
 }
 
