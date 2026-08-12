@@ -5,10 +5,12 @@ export default function CuratedWorlds() {
   return (
     <section id="inside-the-house" className={styles.section} aria-labelledby="house-heading">
       <div className="container">
-        <p className={styles.eyebrow}>{curatedWorlds.eyebrow}</p>
-        <h2 id="house-heading" className={styles.headline}>
-          {curatedWorlds.headline}
-        </h2>
+        <div className={styles.headingWrap}>
+          <p className={styles.eyebrow}>{curatedWorlds.eyebrow}</p>
+          <h2 id="house-heading" className={styles.headline}>
+            {curatedWorlds.headline}
+          </h2>
+        </div>
 
         <div className={styles.rooms}>
           {curatedWorlds.worlds.map((world) => (

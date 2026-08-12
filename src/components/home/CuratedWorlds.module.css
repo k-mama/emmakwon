@@ -5,6 +5,15 @@
   padding: var(--section-space) 0;
 }
 
+/* Constrains the heading to the same centered width as .rooms below so its
+   left edge lines up with the room cards' left edge, without centering the
+   text itself. */
+.headingWrap {
+  max-width: 896px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .eyebrow {
   margin: 0;
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
