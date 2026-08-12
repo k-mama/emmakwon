@@ -87,7 +87,7 @@ export type DoorPath = {
 export const closing = {
   headline: "Where would you like to go next?",
   paths: [
-    { label: "EXPLORE THE WORLDS", href: "#worlds" },
+    { label: "EXPLORE THE WORLDS", href: "#house" },
     { label: "ENTER THE STUDIO", href: "#studio" },
     { label: "READ THE NOTES", href: "#notes" },
   ] satisfies DoorPath[],

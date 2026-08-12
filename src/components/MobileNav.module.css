@@ -97,21 +97,52 @@
   color: var(--soft-text);
 }
 
-.children {
+.rooms {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.room {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.roomLabel {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--title-primary);
+}
+
+.roomIndex {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--soft-text);
+}
+
+.roomLinks {
   margin: 0;
   padding: 0 0 0 4px;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
-.childLink {
+.roomLink {
   display: block;
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 500;
-  color: var(--title-primary);
+  color: var(--body-text);
 }
 
 .link {

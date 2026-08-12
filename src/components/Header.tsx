@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { primaryNav } from "@/content/navigation";
 import VisualGlobeIcon from "./VisualGlobeIcon";
-import WorkMenu from "./WorkMenu";
+import HouseMenu from "./HouseMenu";
 import MobileNav from "./MobileNav";
 import styles from "./Header.module.css";
 
@@ -17,8 +17,8 @@ export default function Header() {
 
         <nav className={styles.nav} aria-label="Primary">
           {primaryNav.map((item) =>
-            item.children ? (
-              <WorkMenu key={item.label} item={item} triggerClassName={styles.navLink} />
+            item.groups ? (
+              <HouseMenu key={item.label} item={item} triggerClassName={styles.navLink} />
             ) : (
               <a key={item.label} href={item.href} className={styles.navLink}>
                 {item.label}

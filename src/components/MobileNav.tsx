@@ -37,8 +37,8 @@ export default function MobileNav({ items }: MobileNavProps) {
     triggerRef.current?.focus();
   };
 
-  const work = items.find((item) => item.children);
-  const rest = items.filter((item) => !item.children);
+  const house = items.find((item) => item.groups);
+  const rest = items.filter((item) => !item.groups);
 
   return (
     <>
@@ -76,18 +76,28 @@ export default function MobileNav({ items }: MobileNavProps) {
           </div>
 
           <nav className={styles.nav} aria-label="Primary">
-            {work && (
+            {house && (
               <div className={styles.group}>
-                <span className={styles.groupLabel}>{work.label}</span>
-                <ul className={styles.children}>
-                  {work.children?.map((child) => (
-                    <li key={child.label}>
-                      <a href={child.href} className={styles.childLink} onClick={handleClose}>
-                        {child.label}
-                      </a>
-                    </li>
+                <span className={styles.groupLabel}>{house.label}</span>
+                <div className={styles.rooms}>
+                  {house.groups?.map((room, index) => (
+                    <div key={room.label} className={styles.room}>
+                      <p className={styles.roomLabel}>
+                        <span className={styles.roomIndex}>{String(index + 1).padStart(2, "0")}</span>
+                        {room.label}
+                      </p>
+                      <ul className={styles.roomLinks}>
+                        {room.links.map((link) => (
+                          <li key={link.label}>
+                            <a href={link.href} className={styles.roomLink} onClick={handleClose}>
+                              {link.label}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
 

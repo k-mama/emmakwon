@@ -2,17 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { NavItem } from "@/content/navigation";
-import styles from "./WorkMenu.module.css";
+import styles from "./HouseMenu.module.css";
 
-type WorkMenuProps = {
+type HouseMenuProps = {
   item: NavItem;
   triggerClassName?: string;
 };
 
-export default function WorkMenu({ item, triggerClassName }: WorkMenuProps) {
+export default function HouseMenu({ item, triggerClassName }: HouseMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const children = item.children ?? [];
+  const groups = item.groups ?? [];
 
   useEffect(() => {
     if (!open) return;
@@ -49,16 +49,23 @@ export default function WorkMenu({ item, triggerClassName }: WorkMenuProps) {
 
       {open && (
         <div className={styles.panel} role="menu">
-          {children.map((child) => (
-            <a
-              key={child.label}
-              href={child.href}
-              role="menuitem"
-              className={styles.panelLink}
-              onClick={() => setOpen(false)}
-            >
-              {child.label}
-            </a>
+          {groups.map((group) => (
+            <div key={group.label} className={styles.column}>
+              <p className={styles.columnLabel}>{group.label}</p>
+              <div className={styles.columnLinks}>
+                {group.links.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    role="menuitem"
+                    className={styles.columnLink}
+                    onClick={() => setOpen(false)}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       )}
