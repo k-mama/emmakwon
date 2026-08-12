@@ -75,83 +75,73 @@
 }
 
 .nav > * {
-  padding: 20px 0;
+  padding: 17px 0;
 }
 
 .nav > * + * {
   border-top: 1px solid var(--color-hairline);
 }
 
-.group {
+.item {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
-.groupLabel {
-  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--soft-text);
-}
-
-.rooms {
+.itemRow {
   display: flex;
-  flex-direction: column;
-  gap: 22px;
-}
-
-.room {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.roomLabel {
-  margin: 0;
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--title-primary);
-}
-
-.roomIndex {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--soft-text);
-}
-
-.roomLinks {
-  margin: 0;
-  padding: 0 0 0 4px;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
-}
-
-.roomLink {
-  display: block;
-  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--body-text);
 }
 
 .link {
   display: block;
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 500;
   letter-spacing: 0.01em;
   color: var(--title-primary);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  margin: -6px;
+  color: var(--soft-text);
+}
+
+.chevron {
+  width: 8px;
+  height: 8px;
+  border-right: 1.4px solid currentColor;
+  border-bottom: 1.4px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+}
+
+.toggle[aria-expanded="true"] .chevron {
+  transform: rotate(-135deg);
+}
+
+.sublist {
+  margin: 16px 0 0;
+  padding: 0 0 0 4px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.sublink {
+  display: block;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--body-text);
 }
 
 .overlayFooter {
