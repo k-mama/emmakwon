@@ -1,14 +1,8 @@
 .hero {
   position: relative;
-  width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  /* Plain page background — the video is the Hero surface itself, not a
-     card sitting inside a colored field. Breathing room comes from this
-     padding (matching the page's own horizontal rhythm), not a wrapper. */
-  background: var(--color-ivory);
-  padding: clamp(28px, 4.5vw, 64px) var(--content-pad) clamp(40px, 6vw, 88px);
+  align-items: stretch;
+  width: 100%;
   /* Pulled up under the sticky, transparent header (see Header.module.css)
      so the media begins at the very top of the viewport instead of below
      a space-reserving bar. */
@@ -18,13 +12,48 @@
 @media (max-width: 640px) {
   .hero {
     margin-top: calc(-1 * var(--header-height-mobile));
-    padding: 0;
   }
+}
+
+.field {
+  flex: 0 0 18.5vw;
+}
+
+.fieldLeft {
+  background: linear-gradient(
+    165deg,
+    var(--field-left-1) 0%,
+    var(--field-left-2) 30%,
+    var(--field-left-3) 55%,
+    var(--field-left-4) 76%,
+    var(--field-left-5) 100%
+  );
+}
+
+.fieldRight {
+  background: linear-gradient(
+    165deg,
+    var(--field-right-1) 0%,
+    var(--field-right-2) 26%,
+    var(--field-right-3) 55%,
+    var(--field-right-4) 80%,
+    var(--field-right-5) 100%
+  );
+}
+
+/* No background, no padding: the center column exists only to center the
+   video between the two color fields — never a colored gutter or an
+   ivory panel of its own. */
+.center {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .videoWrap {
   position: relative;
-  width: clamp(300px, 53vw, 740px);
+  width: clamp(300px, 56vw, 760px);
   aspect-ratio: 1080 / 1290;
   border-radius: var(--radius-video);
   overflow: hidden;
@@ -80,6 +109,10 @@
 }
 
 @media (max-width: 640px) {
+  .field {
+    display: none;
+  }
+
   .videoWrap {
     width: 100%;
     max-width: none;
