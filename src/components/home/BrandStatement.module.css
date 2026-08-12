@@ -8,7 +8,7 @@
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
-  gap: clamp(40px, 6vw, 96px);
+  gap: clamp(28px, 3.5vw, 56px);
   align-items: start;
 }
 

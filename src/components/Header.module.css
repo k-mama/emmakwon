@@ -24,12 +24,12 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: clamp(16px, 1.8vw, 30px);
+  gap: clamp(20px, 2.2vw, 36px);
 }
 
 .navLink {
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 13px;
+  font-size: 14.5px;
   font-weight: 500;
   letter-spacing: 0.02em;
   color: var(--soft-text);

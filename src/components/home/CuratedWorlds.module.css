@@ -24,23 +24,47 @@
 }
 
 .rooms {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  align-items: stretch;
+  display: flex;
+  flex-direction: column;
   gap: clamp(18px, 2vw, 28px);
   margin: clamp(56px, 8vw, 104px) 0 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: stretch;
+  gap: clamp(18px, 2vw, 28px);
+}
+
+@media (min-width: 901px) {
+  /* Refined editorial variation, not a masonry grid: each row splits
+     unevenly (~42/58 and ~54/46) instead of four uniform columns. */
+  .rowA {
+    grid-template-columns: 42fr 58fr;
+  }
+
+  .rowB {
+    grid-template-columns: 54fr 46fr;
+  }
 }
 
 .room {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
   min-height: 240px;
-  padding: clamp(22px, 2.4vw, 28px);
+  padding: clamp(24px, 2.6vw, 32px);
   border: 1px solid var(--color-hairline);
   border-radius: var(--panel-radius);
   box-shadow: var(--panel-shadow);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+@media (min-width: 901px) {
+  .room {
+    min-height: clamp(280px, 24vw, 340px);
+  }
 }
 
 .room:hover {
@@ -75,6 +99,14 @@
   height: 68px;
   border-radius: 12px;
   overflow: hidden;
+}
+
+@media (min-width: 901px) {
+  .thumb {
+    width: 92px;
+    height: 92px;
+    border-radius: 14px;
+  }
 }
 
 .thumbImage {
@@ -124,20 +156,4 @@
 
 .room:hover .cta {
   color: var(--hover-accent);
-}
-
-@media (max-width: 900px) {
-  .rooms {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 560px) {
-  .rooms {
-    grid-template-columns: 1fr;
-  }
-
-  .room {
-    min-height: 0;
-  }
 }
