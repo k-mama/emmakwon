@@ -49,11 +49,10 @@ export default function MobileNav({ items, overlay = false }: MobileNavProps) {
         aria-expanded={open}
         onClick={() => setOpen(true)}
       >
-        <svg width="20" height="14" viewBox="0 0 20 14" fill="none" aria-hidden="true">
-          <line x1="0" y1="1" x2="20" y2="1" stroke="currentColor" strokeWidth="1.4" />
-          <line x1="0" y1="7" x2="20" y2="7" stroke="currentColor" strokeWidth="1.4" />
-          <line x1="0" y1="13" x2="20" y2="13" stroke="currentColor" strokeWidth="1.4" />
-        </svg>
+        <span className={styles.triggerLines} aria-hidden="true">
+          <span className={styles.triggerLineTop} />
+          <span className={styles.triggerLineBottom} />
+        </span>
       </button>
 
       {open && (
@@ -67,10 +66,10 @@ export default function MobileNav({ items, overlay = false }: MobileNavProps) {
               aria-label="Close menu"
               onClick={handleClose}
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <line x1="1" y1="1" x2="15" y2="15" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-                <line x1="15" y1="1" x2="1" y2="15" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-              </svg>
+              <span className={styles.closeLines} aria-hidden="true">
+                <span className={styles.closeLineA} />
+                <span className={styles.closeLineB} />
+              </span>
             </button>
           </div>
 

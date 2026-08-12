@@ -2,7 +2,10 @@
   display: none;
   align-items: center;
   justify-content: center;
-  padding: 6px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin: 0 -8px 0 -12px;
   color: var(--soft-text);
   transition: color 0.25s ease;
 }
@@ -16,8 +19,33 @@
   .trigger {
     display: inline-flex;
     order: -1;
-    margin-right: 12px;
   }
+}
+
+/* Two thin, typographic lines rather than a heavy 3-bar hamburger. */
+.triggerLines {
+  position: relative;
+  width: 19px;
+  height: 10px;
+}
+
+.triggerLineTop,
+.triggerLineBottom {
+  position: absolute;
+  left: 0;
+  height: 1.2px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.triggerLineTop {
+  top: 0;
+  width: 19px;
+}
+
+.triggerLineBottom {
+  top: 9px;
+  width: 15px;
 }
 
 /* Translucent frosted editorial glass: the Hero video should stay softly
@@ -74,12 +102,68 @@
 
 .closeBtn {
   display: inline-flex;
-  padding: 6px;
-  color: var(--soft-text);
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin-right: -12px;
+  color: var(--title-primary);
+  transition: color 0.2s ease;
 }
 
 .closeBtn:hover {
-  color: var(--title-primary);
+  color: var(--hover-accent);
+}
+
+/* The two lines rotate in to form a minimal X — quiet, no bounce. */
+.closeLines {
+  position: relative;
+  width: 17px;
+  height: 17px;
+}
+
+.closeLineA,
+.closeLineB {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.2px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.closeLineA {
+  animation: closeLineInA 200ms ease-out both;
+}
+
+.closeLineB {
+  animation: closeLineInB 200ms ease-out both;
+}
+
+@keyframes closeLineInA {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) rotate(0deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(-50%) rotate(45deg);
+  }
+}
+
+@keyframes closeLineInB {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) rotate(0deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(-50%) rotate(-45deg);
+  }
 }
 
 .nav {
