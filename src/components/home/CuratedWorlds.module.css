@@ -63,7 +63,8 @@
 
 @media (min-width: 901px) {
   .room {
-    min-height: clamp(280px, 24vw, 340px);
+    gap: 16px;
+    min-height: clamp(216px, 19vw, 264px);
   }
 }
 
@@ -126,6 +127,12 @@
   flex-direction: column;
   gap: 6px;
   margin-top: auto;
+}
+
+@media (min-width: 901px) {
+  .body {
+    margin-top: 0;
+  }
 }
 
 .name {
