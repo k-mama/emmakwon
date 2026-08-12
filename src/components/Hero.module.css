@@ -10,19 +10,23 @@
 
 .fieldLeft {
   background: linear-gradient(
-    180deg,
+    165deg,
     var(--field-left-1) 0%,
-    var(--field-left-2) 52%,
-    var(--field-left-3) 100%
+    var(--field-left-2) 30%,
+    var(--field-left-3) 55%,
+    var(--field-left-4) 76%,
+    var(--field-left-5) 100%
   );
 }
 
 .fieldRight {
   background: linear-gradient(
-    180deg,
+    165deg,
     var(--field-right-1) 0%,
-    var(--field-right-2) 52%,
-    var(--field-right-3) 100%
+    var(--field-right-2) 26%,
+    var(--field-right-3) 55%,
+    var(--field-right-4) 80%,
+    var(--field-right-5) 100%
   );
 }
 
@@ -56,9 +60,9 @@
   inset: 0;
   background: linear-gradient(
     135deg,
-    rgba(10, 9, 8, 0.4) 0%,
-    rgba(10, 9, 8, 0.16) 32%,
-    rgba(10, 9, 8, 0) 55%
+    rgba(14, 15, 28, 0.42) 0%,
+    rgba(14, 15, 28, 0.16) 32%,
+    rgba(14, 15, 28, 0) 55%
   );
   pointer-events: none;
 }
@@ -73,23 +77,23 @@
 
 .headline {
   margin: 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-weight: 500;
   font-size: clamp(13px, 1.35vw, 20px);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   line-height: 1.4;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 18px rgba(8, 10, 22, 0.45), 0 1px 3px rgba(8, 10, 22, 0.5);
 }
 
 .sub {
   margin: 8px 0 0;
-  font-family: var(--font-serif);
-  font-style: italic;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-weight: 400;
   font-size: clamp(12px, 1.2vw, 17px);
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   line-height: 1.4;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+  opacity: 0.82;
+  text-shadow: 0 2px 14px rgba(8, 10, 22, 0.4);
 }
 
 @media (max-width: 640px) {

@@ -1,24 +1,41 @@
 :root {
-  --color-ivory: #f4ede1;
-  --color-header: #f7f2e8;
-  --color-ink: #1c1a17;
-  --color-ink-soft: rgba(28, 26, 23, 0.62);
-  --color-hairline: rgba(28, 26, 23, 0.1);
+  /* Emma Kwon color DNA — source of truth */
+  --cream-white: #f8f5f2;
+  --title-primary: #18264a;
+  --body-text: #4c4a63;
+  --soft-text: #7c748a;
 
-  --field-left-1: #868c68;
-  --field-left-2: #a2c4bd;
-  --field-left-3: #6d8ba9;
+  --rare-orange: #e97a0a;
+  --candy-pink: #f38da1;
+  --playful-violet: #b15fd1;
+  --sky-aqua: #8fdae0;
+  --tiger-gold: #b88a3b;
+  --soft-periwinkle: #a0a6dd;
+  --ice-cream-lavender: #cea0d8;
+  --hover-accent: #c23bcb;
 
-  --field-right-1: #c67b48;
-  --field-right-2: #e3aa8d;
-  --field-right-3: #c88fa1;
+  /* structural aliases */
+  --color-ivory: var(--cream-white);
+  --color-header: var(--cream-white);
+  --color-ink: var(--title-primary);
+  --color-ink-soft: var(--soft-text);
+  --color-hairline: rgba(24, 38, 74, 0.1);
 
-  --font-serif: ui-serif, Georgia, "Times New Roman", serif;
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --field-left-1: #eef8f2;
+  --field-left-2: var(--sky-aqua);
+  --field-left-3: #b3c3ea;
+  --field-left-4: var(--soft-periwinkle);
+  --field-left-5: var(--ice-cream-lavender);
+
+  --field-right-1: var(--rare-orange);
+  --field-right-2: #f0965d;
+  --field-right-3: var(--candy-pink);
+  --field-right-4: #d17dc0;
+  --field-right-5: var(--playful-violet);
 
   --radius-video: 30px;
-  --shadow-video: 0 30px 60px -24px rgba(28, 26, 23, 0.28),
-    0 10px 24px -14px rgba(28, 26, 23, 0.2);
+  --shadow-video: 0 30px 60px -24px rgba(24, 38, 74, 0.24),
+    0 10px 24px -14px rgba(24, 38, 74, 0.16);
 
   --header-height: 76px;
   --header-height-mobile: 56px;
@@ -41,8 +58,8 @@ body {
 
 body {
   background: var(--color-ivory);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
+  color: var(--body-text);
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
