@@ -1,0 +1,58 @@
+.section {
+  background: var(--color-ivory);
+  padding: clamp(56px, 8vw, 96px) 0;
+}
+
+.inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px clamp(24px, 4vw, 56px);
+  max-width: 880px;
+}
+
+.label {
+  margin: 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft-text);
+}
+
+.lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px clamp(20px, 3vw, 36px);
+}
+
+.line {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  color: var(--body-text);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dotOne {
+  background: var(--rare-orange);
+}
+
+.dotTwo {
+  background: var(--playful-violet);
+}
+
+.dotThree {
+  background: var(--sky-aqua);
+}

@@ -1,0 +1,164 @@
+.section {
+  background: var(--color-ivory);
+  padding: var(--section-space) 0;
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft-text);
+}
+
+.heading {
+  margin: 14px 0 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: clamp(26px, 3.6vw, 42px);
+  letter-spacing: -0.01em;
+  color: var(--title-primary);
+}
+
+.rooms {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-areas:
+    "emmaestro emmaestro emmaestro emmaestro emmaestro emmaestro emmaestro bornrare bornrare bornrare bornrare bornrare"
+    "emmaestro emmaestro emmaestro emmaestro emmaestro emmaestro emmaestro slyfairy slyfairy slyfairy kmama kmama"
+    "atp atp atp atp atp atp atp atp atp atp atp atp";
+  gap: clamp(14px, 1.6vw, 24px);
+  margin: clamp(48px, 7vw, 96px) 0 0;
+}
+
+.room {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.room:nth-of-type(1) {
+  grid-area: emmaestro;
+}
+
+.room:nth-of-type(2) {
+  grid-area: bornrare;
+}
+
+.room:nth-of-type(3) {
+  grid-area: slyfairy;
+}
+
+.room:nth-of-type(4) {
+  grid-area: kmama;
+}
+
+.room:nth-of-type(5) {
+  grid-area: atp;
+}
+
+.l {
+  min-height: clamp(300px, 28vw, 420px);
+}
+
+.m {
+  min-height: clamp(200px, 18vw, 280px);
+}
+
+.s {
+  min-height: clamp(120px, 9vw, 156px);
+}
+
+.hasImage {
+  color: #fdfbf7;
+}
+
+.roomImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.room:hover .roomImage {
+  transform: scale(1.03);
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(24, 38, 74, 0.62) 0%, rgba(24, 38, 74, 0.08) 55%, rgba(24, 38, 74, 0) 75%);
+  pointer-events: none;
+}
+
+.plain {
+  background: #f2ebdd;
+  color: var(--title-primary);
+}
+
+.roomContent {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: clamp(18px, 2.2vw, 32px);
+}
+
+.roomName {
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 600;
+  font-size: clamp(16px, 1.6vw, 22px);
+  letter-spacing: 0.01em;
+}
+
+.xl .roomName {
+  font-size: clamp(22px, 2.6vw, 34px);
+}
+
+.roomDescriptor {
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  opacity: 0.86;
+}
+
+.roomExplore {
+  margin-top: 10px;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+@media (max-width: 900px) {
+  .rooms {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "emmaestro"
+      "bornrare"
+      "slyfairy"
+      "kmama"
+      "atp";
+  }
+
+  .l,
+  .m {
+    min-height: clamp(220px, 60vw, 320px);
+  }
+
+  .xl {
+    min-height: clamp(280px, 84vw, 420px);
+  }
+
+  .s {
+    min-height: 120px;
+  }
+}

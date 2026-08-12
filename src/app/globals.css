@@ -39,6 +39,19 @@
 
   --header-height: 76px;
   --header-height-mobile: 56px;
+
+  /* shared editorial rhythm for HOME sections below the Hero */
+  --content-max: 1360px;
+  --content-pad: clamp(20px, 4vw, 64px);
+  --section-space: clamp(64px, 11vw, 168px);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding-left: var(--content-pad);
+  padding-right: var(--content-pad);
 }
 
 *,
