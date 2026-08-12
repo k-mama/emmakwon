@@ -10,10 +10,10 @@ const sizeClass: Record<string, string> = {
 
 export default function CuratedWorlds() {
   return (
-    <section id="work" className={styles.section} aria-labelledby="work-heading">
+    <section id="worlds" className={styles.section} aria-labelledby="worlds-heading">
       <div className="container">
         <p className={styles.eyebrow}>{curatedWorlds.eyebrow}</p>
-        <h2 id="work-heading" className={styles.headline}>
+        <h2 id="worlds-heading" className={styles.headline}>
           {curatedWorlds.headline}
         </h2>
 

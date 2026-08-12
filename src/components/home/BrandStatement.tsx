@@ -3,12 +3,12 @@ import styles from "./BrandStatement.module.css";
 
 export default function BrandStatement() {
   return (
-    <section id="about" className={styles.section} aria-labelledby="about-heading">
+    <section id="emma" className={styles.section} aria-labelledby="emma-heading">
       <div className="container">
         <div className={styles.grid}>
           <div className={styles.copy}>
             <p className={styles.eyebrow}>{brandStatement.eyebrow}</p>
-            <h2 id="about-heading" className={styles.headline}>
+            <h2 id="emma-heading" className={styles.headline}>
               {brandStatement.headline}
             </h2>
             <p className={styles.lede}>{brandStatement.lede}</p>

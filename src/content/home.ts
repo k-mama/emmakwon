@@ -60,7 +60,7 @@ const worlds: World[] = [
 ];
 
 export const curatedWorlds = {
-  eyebrow: "WORK",
+  eyebrow: "WORLDS",
   headline: "Five worlds. One house.",
   worlds,
 };
@@ -87,7 +87,7 @@ export type DoorPath = {
 export const closing = {
   headline: "Where would you like to go next?",
   paths: [
-    { label: "EXPLORE THE WORK", href: "#work" },
+    { label: "EXPLORE THE WORLDS", href: "#worlds" },
     { label: "ENTER THE STUDIO", href: "#studio" },
     { label: "READ THE NOTES", href: "#notes" },
   ] satisfies DoorPath[],

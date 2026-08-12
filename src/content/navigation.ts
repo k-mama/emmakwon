@@ -1,9 +1,9 @@
 // Site-wide primary navigation. Separate from homepage section content
 // (src/content/home.ts) since the header renders on every page.
 //
-// WORK is the umbrella entrance to Emma Kwon's creative worlds; its children
+// WORLDS is the umbrella entrance to Emma Kwon's creative worlds; its children
 // don't have dedicated pages yet, so they stay as placeholder hrefs until
-// those internal routes exist. STUDIO / NOTES / ABOUT anchor to the matching
+// those internal routes exist. STUDIO / NOTES / EMMA anchor to the matching
 // section on this homepage; CONTACT has no destination yet.
 
 export type NavChild = {
@@ -26,9 +26,9 @@ export const workChildren: NavChild[] = [
 ];
 
 export const primaryNav: NavItem[] = [
-  { label: "WORK", href: "#work", children: workChildren },
+  { label: "WORLDS", href: "#worlds", children: workChildren },
   { label: "STUDIO", href: "#studio" },
   { label: "NOTES", href: "#notes" },
-  { label: "ABOUT", href: "#about" },
+  { label: "EMMA", href: "#emma" },
   { label: "CONTACT", href: "#" },
 ];
