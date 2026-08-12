@@ -11,7 +11,6 @@ type MobileNavProps = {
 
 export default function MobileNav({ items }: MobileNavProps) {
   const [open, setOpen] = useState(false);
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const closeRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -33,26 +32,9 @@ export default function MobileNav({ items }: MobileNavProps) {
     };
   }, [open]);
 
-  const handleOpen = () => {
-    setExpanded(new Set());
-    setOpen(true);
-  };
-
   const handleClose = () => {
     setOpen(false);
     triggerRef.current?.focus();
-  };
-
-  const toggleExpanded = (label: string) => {
-    setExpanded((previous) => {
-      const next = new Set(previous);
-      if (next.has(label)) {
-        next.delete(label);
-      } else {
-        next.add(label);
-      }
-      return next;
-    });
   };
 
   return (
@@ -63,7 +45,7 @@ export default function MobileNav({ items }: MobileNavProps) {
         className={styles.trigger}
         aria-label="Open menu"
         aria-expanded={open}
-        onClick={handleOpen}
+        onClick={() => setOpen(true)}
       >
         <svg width="20" height="14" viewBox="0 0 20 14" fill="none" aria-hidden="true">
           <line x1="0" y1="1" x2="20" y2="1" stroke="currentColor" strokeWidth="1.4" />
@@ -91,43 +73,11 @@ export default function MobileNav({ items }: MobileNavProps) {
           </div>
 
           <nav className={styles.nav} aria-label="Primary">
-            {items.map((item) => {
-              const isExpandable = Boolean(item.links && item.links.length > 0);
-              const isOpen = expanded.has(item.label);
-
-              return (
-                <div key={item.label} className={styles.item}>
-                  <div className={styles.itemRow}>
-                    <a href={item.href} className={styles.link} onClick={handleClose}>
-                      {item.label}
-                    </a>
-                    {isExpandable && (
-                      <button
-                        type="button"
-                        className={styles.toggle}
-                        aria-expanded={isOpen}
-                        aria-label={`${isOpen ? "Collapse" : "Expand"} ${item.label}`}
-                        onClick={() => toggleExpanded(item.label)}
-                      >
-                        <span className={styles.chevron} aria-hidden="true" />
-                      </button>
-                    )}
-                  </div>
-
-                  {isExpandable && isOpen && (
-                    <ul className={styles.sublist}>
-                      {item.links?.map((link) => (
-                        <li key={link.label}>
-                          <a href={link.href} className={styles.sublink} onClick={handleClose}>
-                            {link.label}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              );
-            })}
+            {items.map((item) => (
+              <a key={item.label} href={item.href} className={styles.link} onClick={handleClose}>
+                {item.label}
+              </a>
+            ))}
           </nav>
 
           <div className={styles.overlayFooter}>

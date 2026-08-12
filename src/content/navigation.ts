@@ -1,72 +1,31 @@
 // Site-wide primary navigation. Separate from homepage section content
 // (src/content/home.ts) since the header renders on every page.
 //
-// Direct-access navigation: each major creative identity is a real
-// top-level destination, with a lightweight dropdown (hover/focus) for its
-// own sub-pages. None of those sub-pages exist yet, so their links stay as
-// placeholder hrefs until those internal routes exist. STUDIO / EMMA anchor
-// to the matching section on this homepage; CONTACT has no destination yet.
+// The homepage itself is Emma's house — visitors are already inside it on
+// arrival, so there is no HOUSE/WORLDS umbrella item. Navigation goes
+// straight to Emma Kwon's creative identities, in this intentional order:
+// the most distinctive character IP first, then music, children's work,
+// books, and finally STUDIO last (what she makes, then how she makes it).
 //
-// Note: "Sly Fairy — Album" (an EMMAESTRO release) is distinct from the
-// top-level "SLY FAIRY" item (the character/narrative IP that grew out of
-// it) — kept as two separate entries so the brand distinction stays visible.
-
-export type NavLink = {
-  label: string;
-  href: string;
-};
+// Dedicated pages for these identities don't exist yet, so their hrefs stay
+// as placeholders until those internal routes are built. STUDIO is the
+// exception: it anchors to the matching section on this homepage, which
+// already exists. EMMA and CONTACT are intentionally not top-level nav
+// items — Emma's story and Contact live inside the homepage itself.
+//
+// Note: "Sly Fairy — Album" is a release inside EMMAESTRO's music catalog,
+// distinct from the top-level "SLY FAIRY" destination (the character/
+// narrative IP that grew out of it).
 
 export type NavItem = {
   label: string;
   href: string;
-  links?: NavLink[];
 };
 
 export const primaryNav: NavItem[] = [
-  {
-    label: "EMMAESTRO",
-    href: "#",
-    links: [
-      { label: "Aussie", href: "#" },
-      { label: "Sly Fairy — Album", href: "#" },
-      { label: "No Deadline To Be Okay", href: "#" },
-      { label: "Music Videos", href: "#" },
-    ],
-  },
-  {
-    label: "BOOKS",
-    href: "#",
-    links: [
-      { label: "BORN RARE", href: "#" },
-      { label: "Amazing Tiger Publishing", href: "#" },
-    ],
-  },
-  {
-    label: "K-MAMA",
-    href: "#",
-    links: [
-      { label: "Coloring Books", href: "#" },
-      { label: "Kids Songs", href: "#" },
-    ],
-  },
-  {
-    label: "SLY FAIRY",
-    href: "#",
-    links: [
-      { label: "Character & World", href: "#" },
-      { label: "Stories", href: "#" },
-      { label: "Films", href: "#" },
-    ],
-  },
-  {
-    label: "STUDIO",
-    href: "#studio",
-    links: [
-      { label: "Watch Me Build", href: "#" },
-      { label: "Studio Notes", href: "#" },
-      { label: "AI Process", href: "#" },
-    ],
-  },
-  { label: "EMMA", href: "#emma" },
-  { label: "CONTACT", href: "#" },
+  { label: "SLY FAIRY", href: "#" },
+  { label: "EMMAESTRO", href: "#" },
+  { label: "K-MAMA", href: "#" },
+  { label: "BOOKS", href: "#" },
+  { label: "STUDIO", href: "#studio" },
 ];

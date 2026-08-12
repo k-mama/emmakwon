@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { primaryNav } from "@/content/navigation";
 import VisualGlobeIcon from "./VisualGlobeIcon";
-import NavDropdown from "./NavDropdown";
 import MobileNav from "./MobileNav";
 import styles from "./Header.module.css";
 
@@ -17,7 +16,9 @@ export default function Header() {
 
         <nav className={styles.nav} aria-label="Primary">
           {primaryNav.map((item) => (
-            <NavDropdown key={item.label} item={item} linkClassName={styles.navLink} />
+            <a key={item.label} href={item.href} className={styles.navLink}>
+              {item.label}
+            </a>
           ))}
           <button type="button" className={styles.iconBtn} aria-label="Change language">
             <VisualGlobeIcon />
