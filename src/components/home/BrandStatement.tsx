@@ -5,7 +5,7 @@ export default function BrandStatement() {
   return (
     <section id="emma" className={styles.section} aria-labelledby="emma-heading">
       <div className="container">
-        <div className={styles.grid}>
+        <div className={styles.panel}>
           <div className={styles.copy}>
             <p className={styles.eyebrow}>{brandStatement.eyebrow}</p>
             <h2 id="emma-heading" className={styles.headline}>

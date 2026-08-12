@@ -5,11 +5,26 @@
   padding: var(--section-space) 0;
 }
 
-.grid {
+/* One shared translucent panel groups the copy and portrait so they read
+   as a single, unified introduction rather than two separate columns. */
+.panel {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
-  gap: clamp(28px, 3.5vw, 56px);
-  align-items: start;
+  align-items: center;
+  gap: clamp(40px, 4vw, 56px);
+  padding: clamp(48px, 5vw, 56px);
+  background: rgba(252, 249, 243, 0.86);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--panel-radius-lg);
+  box-shadow: var(--panel-shadow);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .panel {
+    background: rgba(252, 249, 243, 0.72);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
 }
 
 .copy {
@@ -91,8 +106,10 @@
 }
 
 @media (max-width: 860px) {
-  .grid {
+  .panel {
     grid-template-columns: 1fr;
+    gap: clamp(28px, 6vw, 40px);
+    padding: clamp(28px, 6vw, 40px);
   }
 
   .card {
