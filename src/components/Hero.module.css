@@ -1,16 +1,18 @@
-/* Desktop is height-driven: the Hero stage IS exactly one viewport tall,
-   the video fills that height edge to edge (width follows from its own
-   aspect ratio via the "auto" middle track), and the two atmospheric
-   fields fill all remaining horizontal space with no gutter — so the
-   next section (in normal flow, no negative margins here) can never
-   appear until the visitor scrolls past a full screen of Hero. */
+/* Desktop is height-driven: the Hero stage IS exactly one viewport tall
+   and the video matches that height exactly. The two OUTER color fields
+   have a fixed viewport-based width; the CENTER region between them takes
+   all remaining width and simply centers the (narrower, height-locked)
+   video inside it — so the continuous global atmosphere shows through as
+   breathing space on both sides of the video before the solid outer
+   fields begin. This is a deliberate three-zone composition, not an edge-
+   to-edge one. */
 .hero {
   position: relative;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
   height: 100svh;
   min-height: 100svh;
-  width: 100%;
   /* Pulled up under the sticky, transparent header (see Header.module.css)
      so the media begins at the very top of the viewport instead of below
      a space-reserving bar. */
@@ -22,14 +24,23 @@
     /* Mobile is width-driven instead (see .videoWrap below): the stage
        height simply follows the video's own aspect-ratio height, it is
        not locked to the viewport. */
-    grid-template-columns: 1fr;
     height: auto;
     margin-top: calc(-1 * var(--header-height-mobile));
   }
 }
 
 .field {
-  height: 100%;
+  flex: 0 0 18.5vw;
+}
+
+/* No background, no padding: the center region exists only to center the
+   video between the two outer color fields, leaving the global atmosphere
+   visible as breathing space on either side of the (narrower) video. */
+.center {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .fieldLeft {
