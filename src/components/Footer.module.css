@@ -18,14 +18,9 @@
   color: var(--soft-text);
 }
 
-.link {
+.year {
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 12px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   color: var(--soft-text);
-  transition: color 0.2s ease;
-}
-
-.link:hover {
-  color: var(--title-primary);
 }

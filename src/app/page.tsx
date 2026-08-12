@@ -4,8 +4,7 @@ import Footer from "@/components/Footer";
 import BrandStatement from "@/components/home/BrandStatement";
 import CuratedWorlds from "@/components/home/CuratedWorlds";
 import StudioMethod from "@/components/home/StudioMethod";
-import NotesTeaser from "@/components/home/NotesTeaser";
-import Closing from "@/components/home/Closing";
+import Contact from "@/components/home/Contact";
 
 export default function Home() {
   return (
@@ -15,8 +14,7 @@ export default function Home() {
       <BrandStatement />
       <CuratedWorlds />
       <StudioMethod />
-      <NotesTeaser />
-      <Closing />
+      <Contact />
       <Footer />
     </main>
   );

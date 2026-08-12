@@ -62,3 +62,26 @@
   border-radius: 2px;
   background: var(--sky-aqua);
 }
+
+.links {
+  margin: clamp(40px, 6vw, 64px) 0 0;
+  padding-top: clamp(24px, 3vw, 32px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(18px, 2.4vw, 36px);
+  border-top: 1px solid rgba(253, 251, 247, 0.14);
+}
+
+.link {
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(253, 251, 247, 0.55);
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #fdfbf7;
+}

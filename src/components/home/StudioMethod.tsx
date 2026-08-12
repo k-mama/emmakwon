@@ -15,6 +15,14 @@ export default function StudioMethod() {
             <span className={styles.pullQuoteMark} aria-hidden="true" />
             {studioMethod.pullQuote}
           </p>
+
+          <div className={styles.links}>
+            {studioMethod.links.map((link) => (
+              <a key={link.label} href={link.href} className={styles.link}>
+                {link.label}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </section>

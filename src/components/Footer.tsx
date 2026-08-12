@@ -6,12 +6,8 @@ export default function Footer() {
     <footer className={styles.footer}>
       <div className="container">
         <div className={styles.inner}>
-          <span className={styles.brand}>
-            © {footer.year} {footer.brand}
-          </span>
-          <a href={footer.contact.href} className={styles.link}>
-            {footer.contact.label}
-          </a>
+          <span className={styles.brand}>{footer.brand}</span>
+          <span className={styles.year}>© {footer.year}</span>
         </div>
       </div>
     </footer>

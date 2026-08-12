@@ -1,14 +1,9 @@
 import { curatedWorlds } from "@/content/home";
 import styles from "./CuratedWorlds.module.css";
 
-const sizeClass: Record<string, string> = {
-  large: styles.large,
-  medium: styles.medium,
-};
-
 export default function CuratedWorlds() {
   return (
-    <section id="house" className={styles.section} aria-labelledby="house-heading">
+    <section id="inside-the-house" className={styles.section} aria-labelledby="house-heading">
       <div className="container">
         <p className={styles.eyebrow}>{curatedWorlds.eyebrow}</p>
         <h2 id="house-heading" className={styles.headline}>
@@ -20,19 +15,18 @@ export default function CuratedWorlds() {
             <a
               key={world.name}
               href={world.href}
-              className={`${styles.room} ${sizeClass[world.size]} ${world.image ? styles.hasImage : styles.plain}`}
+              className={styles.room}
               aria-label={`${world.name} — ${world.descriptor}`}
             >
-              {world.image && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={world.image} alt="" className={styles.roomImage} loading="lazy" />
-              )}
-              {world.image && <span className={styles.scrim} aria-hidden="true" />}
-              <span className={styles.roomContent}>
-                <span className={styles.roomName}>{world.name}</span>
-                <span className={styles.roomDescriptor}>{world.descriptor}</span>
-                <span className={styles.roomExplore}>Explore</span>
-              </span>
+              <div className={styles.thumb}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={world.image} alt="" className={styles.thumbImage} loading="lazy" />
+              </div>
+              <div className={styles.body}>
+                <span className={styles.name}>{world.name}</span>
+                <span className={styles.descriptor}>{world.descriptor}</span>
+                <span className={styles.cta}>{world.cta}</span>
+              </div>
             </a>
           ))}
         </div>

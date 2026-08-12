@@ -1,0 +1,83 @@
+.section {
+  padding: clamp(72px, 10vw, 120px) 0 clamp(96px, 12vw, 160px);
+  background: radial-gradient(60% 60% at 50% 100%, rgba(184, 138, 59, 0.1) 0%, rgba(184, 138, 59, 0) 60%),
+    radial-gradient(55% 50% at 85% 0%, rgba(243, 141, 161, 0.08) 0%, rgba(243, 141, 161, 0) 60%), var(--color-ivory);
+}
+
+.panel {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(48px, 8vw, 88px) clamp(28px, 6vw, 72px);
+  text-align: center;
+  background: #fdfdfc;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--panel-radius-lg);
+  box-shadow: var(--panel-shadow);
+}
+
+.headline {
+  margin: 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: clamp(26px, 3.8vw, 42px);
+  letter-spacing: -0.01em;
+  color: var(--title-primary);
+}
+
+.supporting {
+  margin: 18px auto 0;
+  max-width: 46ch;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(15px, 1.3vw, 17px);
+  line-height: 1.6;
+  color: var(--body-text);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: clamp(36px, 5vw, 52px);
+  padding-bottom: 6px;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--title-primary);
+  border-bottom: 1px solid var(--title-primary);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.cta:hover {
+  color: var(--hover-accent);
+  border-color: var(--hover-accent);
+}
+
+.ctaArrow {
+  transition: transform 0.2s ease;
+}
+
+.cta:hover .ctaArrow {
+  transform: translateX(3px);
+}
+
+.methods {
+  margin-top: clamp(36px, 5vw, 52px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 2.4vw, 28px);
+}
+
+.method {
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--soft-text);
+  transition: color 0.2s ease;
+}
+
+.method:hover {
+  color: var(--title-primary);
+}
