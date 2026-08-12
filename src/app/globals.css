@@ -26,18 +26,6 @@
   --color-ink-soft: var(--soft-text);
   --color-hairline: rgba(24, 38, 74, 0.1);
 
-  --field-left-1: #eef8f2;
-  --field-left-2: var(--sky-aqua);
-  --field-left-3: #b3c3ea;
-  --field-left-4: var(--soft-periwinkle);
-  --field-left-5: var(--ice-cream-lavender);
-
-  --field-right-1: var(--rare-orange);
-  --field-right-2: #f0965d;
-  --field-right-3: var(--candy-pink);
-  --field-right-4: #d17dc0;
-  --field-right-5: var(--playful-violet);
-
   --radius-video: 30px;
   /* Layered elevation for a floating/lifted feel: a tight near-shadow for
      grounding, a mid shadow, and a large soft far shadow for ambient lift. */

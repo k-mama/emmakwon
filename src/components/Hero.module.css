@@ -1,8 +1,14 @@
 .hero {
   position: relative;
-  display: flex;
-  align-items: stretch;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Plain page background — the video is the Hero surface itself, not a
+     card sitting inside a colored field. Breathing room comes from this
+     padding (matching the page's own horizontal rhythm), not a wrapper. */
+  background: var(--color-ivory);
+  padding: clamp(28px, 4.5vw, 64px) var(--content-pad) clamp(40px, 6vw, 88px);
   /* Pulled up under the sticky, transparent header (see Header.module.css)
      so the media begins at the very top of the viewport instead of below
      a space-reserving bar. */
@@ -12,52 +18,8 @@
 @media (max-width: 640px) {
   .hero {
     margin-top: calc(-1 * var(--header-height-mobile));
+    padding: 0;
   }
-}
-
-.field {
-  flex: 0 0 18.5vw;
-}
-
-.fieldLeft {
-  background: linear-gradient(
-    165deg,
-    var(--field-left-1) 0%,
-    var(--field-left-2) 30%,
-    var(--field-left-3) 55%,
-    var(--field-left-4) 76%,
-    var(--field-left-5) 100%
-  );
-}
-
-.fieldRight {
-  background: linear-gradient(
-    165deg,
-    var(--field-right-1) 0%,
-    var(--field-right-2) 26%,
-    var(--field-right-3) 55%,
-    var(--field-right-4) 80%,
-    var(--field-right-5) 100%
-  );
-}
-
-.canvas {
-  flex: 1 1 auto;
-  /* Continues the colorful atmospheric field across the center — no ivory
-     panel behind the video. Bridges the left field's closing hue
-     (ice-cream-lavender) into the right field's opening hue (rare-orange)
-     using tokens already established by those two gradients. */
-  background: linear-gradient(
-    165deg,
-    var(--ice-cream-lavender) 0%,
-    var(--candy-pink) 40%,
-    #f0965d 72%,
-    var(--rare-orange) 100%
-  );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(40px, 6vw, 96px) clamp(20px, 4vw, 64px);
 }
 
 .videoWrap {
@@ -118,14 +80,6 @@
 }
 
 @media (max-width: 640px) {
-  .field {
-    display: none;
-  }
-
-  .canvas {
-    padding: 0;
-  }
-
   .videoWrap {
     width: 100%;
     max-width: none;
