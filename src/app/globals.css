@@ -97,6 +97,39 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* One continuous Emma Kwon atmosphere behind the whole homepage — the
+   original site-wide conic-gradient, restored as a single fixed layer
+   rather than repeated per-section. Section surfaces sit as translucent
+   veils above it; --color-ivory (body's own background) is the fallback
+   underneath. */
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: conic-gradient(
+    from 45deg,
+    var(--rare-orange),
+    var(--candy-pink),
+    var(--playful-violet),
+    var(--sky-aqua),
+    var(--tiger-gold),
+    var(--rare-orange)
+  );
+  animation: rareLightDrift 24s ease-in-out infinite;
+}
+
+@keyframes rareLightDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(1%, -1.5%, 0) scale(1.03);
+  }
+}
+
 img,
 video {
   display: block;

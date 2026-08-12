@@ -1,7 +1,8 @@
+/* The global atmosphere (see src/app/globals.css .atmosphere) shows softly
+   through this translucent veil instead of local decorative blooms. */
 .section {
   padding: clamp(72px, 10vw, 120px) 0 clamp(96px, 12vw, 160px);
-  background: radial-gradient(70% 65% at 50% 100%, rgba(184, 138, 59, 0.16) 0%, rgba(184, 138, 59, 0) 64%),
-    radial-gradient(62% 58% at 85% 0%, rgba(243, 141, 161, 0.14) 0%, rgba(243, 141, 161, 0) 62%), var(--color-ivory);
+  background: rgba(248, 245, 242, 0.72);
 }
 
 .panel {

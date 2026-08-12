@@ -1,8 +1,8 @@
+/* The global atmosphere (see src/app/globals.css .atmosphere) shows softly
+   through this translucent warm veil instead of a locally-drawn gradient. */
 .section {
-  position: relative;
   padding: var(--section-space) 0;
-  background: radial-gradient(70% 60% at 12% 8%, rgba(160, 166, 221, 0.14) 0%, rgba(160, 166, 221, 0) 62%),
-    radial-gradient(60% 55% at 92% 90%, rgba(206, 160, 216, 0.12) 0%, rgba(206, 160, 216, 0) 60%), var(--color-ivory);
+  background: rgba(248, 245, 242, 0.8);
 }
 
 .grid {

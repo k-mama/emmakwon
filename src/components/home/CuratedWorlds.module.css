@@ -1,53 +1,9 @@
+/* The global atmosphere (see src/app/globals.css .atmosphere) now provides
+   the color — this section only adds an almost-white translucent veil so
+   the room cards stay the brightest layer. */
 .section {
-  position: relative;
-  overflow: hidden;
   padding: var(--section-space) 0;
-  background: var(--chalk-ivory);
-}
-
-/* Original Emma Kwon atmospheric field, transplanted from the site-wide
-   conic-gradient in emmakwon-com's SiteShell (rare-orange -> candy-pink ->
-   playful-violet -> sky-aqua -> tiger-gold -> rare-orange), scoped to this
-   section and blended into the ivory base rather than shown at full
-   strength — the foundation, not a rainbow. */
-.section::before {
-  content: "";
-  position: absolute;
-  inset: -15%;
-  z-index: 0;
-  pointer-events: none;
-  background: conic-gradient(
-    from 45deg at 50% 120%,
-    rgba(233, 122, 10, 0.16) 0deg,
-    rgba(243, 141, 161, 0.16) 72deg,
-    rgba(177, 95, 209, 0.16) 144deg,
-    rgba(143, 218, 224, 0.16) 216deg,
-    rgba(184, 138, 59, 0.16) 288deg,
-    rgba(233, 122, 10, 0.16) 360deg
-  );
-  animation: rareLightDrift 24s ease-in-out infinite;
-}
-
-@keyframes rareLightDrift {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  50% {
-    transform: translate3d(1%, -1.5%, 0) scale(1.03);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .section::before {
-    animation: none;
-  }
-}
-
-.section :global(.container) {
-  position: relative;
-  z-index: 1;
+  background: rgba(250, 247, 241, 0.7);
 }
 
 .eyebrow {

@@ -1,6 +1,8 @@
+/* Lets the global atmosphere (see src/app/globals.css .atmosphere) show
+   through around the dark panel — the navy room floats inside the House. */
 .section {
   padding: var(--section-space) 0;
-  background: var(--color-ivory);
+  background: rgba(248, 245, 242, 0.5);
 }
 
 .panel {

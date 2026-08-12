@@ -1,5 +1,7 @@
+/* Lets the global atmosphere (see src/app/globals.css .atmosphere) carry
+   through to the very bottom of the site. */
 .footer {
-  background: var(--color-ivory);
+  background: rgba(248, 245, 242, 0.72);
   border-top: 1px solid var(--color-hairline);
 }
 
