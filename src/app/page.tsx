@@ -1,29 +1,23 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import ProofFirst from "@/components/home/ProofFirst";
-import TheQuestion from "@/components/home/TheQuestion";
-import InsideTheStudio from "@/components/home/InsideTheStudio";
-import TheHouse from "@/components/home/TheHouse";
-import WatchMeBuild from "@/components/home/WatchMeBuild";
-import StudioNotes from "@/components/home/StudioNotes";
-import CurrentlyMaking from "@/components/home/CurrentlyMaking";
-import Emma from "@/components/home/Emma";
-import FinalDoor from "@/components/home/FinalDoor";
+import Footer from "@/components/Footer";
+import BrandStatement from "@/components/home/BrandStatement";
+import CuratedWorlds from "@/components/home/CuratedWorlds";
+import StudioMethod from "@/components/home/StudioMethod";
+import NotesTeaser from "@/components/home/NotesTeaser";
+import Closing from "@/components/home/Closing";
 
 export default function Home() {
   return (
     <main>
       <Header />
       <Hero />
-      <ProofFirst />
-      <TheQuestion />
-      <InsideTheStudio />
-      <TheHouse />
-      <WatchMeBuild />
-      <StudioNotes />
-      <CurrentlyMaking />
-      <Emma />
-      <FinalDoor />
+      <BrandStatement />
+      <CuratedWorlds />
+      <StudioMethod />
+      <NotesTeaser />
+      <Closing />
+      <Footer />
     </main>
   );
 }

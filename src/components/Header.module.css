@@ -54,14 +54,11 @@
   color: var(--title-primary);
 }
 
-.menuBtn {
-  display: none;
-}
-
 @media (max-width: 640px) {
   .inner {
     height: var(--header-height-mobile);
     padding: 0 16px;
+    justify-content: flex-start;
   }
 
   .brand {
@@ -72,15 +69,5 @@
 
   .nav {
     display: none;
-  }
-
-  .menuBtn {
-    display: inline-flex;
-    order: -1;
-    margin-right: 12px;
-  }
-
-  .inner {
-    justify-content: flex-start;
   }
 }

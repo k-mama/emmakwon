@@ -1,6 +1,6 @@
 .section {
+  padding: clamp(88px, 13vw, 176px) 0 clamp(56px, 8vw, 96px);
   background: var(--color-ivory);
-  padding: clamp(96px, 15vw, 200px) 0 clamp(64px, 9vw, 120px);
 }
 
 .inner {
@@ -45,7 +45,7 @@
 
 .contact {
   display: inline-block;
-  margin-top: clamp(48px, 8vw, 80px);
+  margin-top: clamp(40px, 6vw, 64px);
   font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 13px;
   color: var(--soft-text);

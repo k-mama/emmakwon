@@ -1,6 +1,6 @@
 .section {
-  background: var(--color-ivory);
   padding: var(--section-space) 0;
+  background: var(--color-ivory);
 }
 
 .eyebrow {
@@ -13,11 +13,11 @@
   color: var(--soft-text);
 }
 
-.heading {
-  margin: 14px 0 0;
+.headline {
+  margin: 16px 0 0;
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-weight: 500;
-  font-size: clamp(26px, 3.6vw, 42px);
+  font-size: clamp(30px, 4.2vw, 48px);
   letter-spacing: -0.01em;
   color: var(--title-primary);
 }
@@ -29,15 +29,15 @@
     "emmaestro emmaestro emmaestro emmaestro emmaestro emmaestro emmaestro bornrare bornrare bornrare bornrare bornrare"
     "emmaestro emmaestro emmaestro emmaestro emmaestro emmaestro emmaestro slyfairy slyfairy slyfairy kmama kmama"
     "atp atp atp atp atp atp atp atp atp atp atp atp";
-  gap: clamp(14px, 1.6vw, 24px);
-  margin: clamp(48px, 7vw, 96px) 0 0;
+  gap: clamp(16px, 1.8vw, 28px);
+  margin: clamp(56px, 8vw, 104px) 0 0;
 }
 
 .room {
   position: relative;
   display: flex;
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: var(--panel-radius);
 }
 
 .room:nth-of-type(1) {
@@ -108,7 +108,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: clamp(18px, 2.2vw, 32px);
+  padding: clamp(20px, 2.4vw, 34px);
 }
 
 .roomName {

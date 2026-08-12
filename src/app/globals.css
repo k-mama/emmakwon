@@ -44,6 +44,13 @@
   --content-max: 1360px;
   --content-pad: clamp(20px, 4vw, 64px);
   --section-space: clamp(64px, 11vw, 168px);
+
+  /* large rounded panels + atmospheric surfaces */
+  --panel-radius: 24px;
+  --panel-radius-lg: 28px;
+  --panel-dark-1: #101a35;
+  --panel-dark-2: #1c2650;
+  --panel-shadow: 0 32px 64px -28px rgba(24, 38, 74, 0.26);
 }
 
 .container {

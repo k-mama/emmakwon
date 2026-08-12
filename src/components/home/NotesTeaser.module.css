@@ -1,0 +1,49 @@
+.section {
+  padding: clamp(72px, 10vw, 120px) 0;
+  background: var(--color-ivory);
+}
+
+.inner {
+  max-width: 620px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft-text);
+}
+
+.headline {
+  margin: 14px 0 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: clamp(24px, 3.2vw, 34px);
+  letter-spacing: -0.01em;
+  color: var(--title-primary);
+}
+
+.supporting {
+  margin: 14px 0 0;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(14px, 1.2vw, 16px);
+  color: var(--soft-text);
+}
+
+.status {
+  display: inline-block;
+  margin-top: 24px;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--soft-text);
+  padding: 6px 14px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 999px;
+}

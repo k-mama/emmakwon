@@ -1,0 +1,131 @@
+.trigger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  color: var(--soft-text);
+}
+
+@media (max-width: 640px) {
+  .trigger {
+    display: inline-flex;
+    order: -1;
+    margin-right: 12px;
+  }
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(120% 60% at 100% 0%, rgba(143, 218, 224, 0.16) 0%, rgba(143, 218, 224, 0) 60%),
+    radial-gradient(90% 50% at 0% 100%, rgba(206, 160, 216, 0.14) 0%, rgba(206, 160, 216, 0) 60%), var(--cream-white);
+  animation: navFadeIn 0.18s ease both;
+}
+
+@keyframes navFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.overlayHeader {
+  flex: 0 0 auto;
+  height: var(--header-height-mobile);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.brand {
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--title-primary);
+}
+
+.closeBtn {
+  display: inline-flex;
+  padding: 6px;
+  color: var(--soft-text);
+}
+
+.closeBtn:hover {
+  color: var(--title-primary);
+}
+
+.nav {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 24px 24px;
+}
+
+.nav > * {
+  padding: 20px 0;
+}
+
+.nav > * + * {
+  border-top: 1px solid var(--color-hairline);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.groupLabel {
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft-text);
+}
+
+.children {
+  margin: 0;
+  padding: 0 0 0 4px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.childLink {
+  display: block;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--title-primary);
+}
+
+.link {
+  display: block;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--title-primary);
+}
+
+.overlayFooter {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  padding: 20px 0 28px;
+}

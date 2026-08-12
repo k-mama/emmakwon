@@ -1,5 +1,5 @@
-import { theHouse } from "@/content/home";
-import styles from "./TheHouse.module.css";
+import { curatedWorlds } from "@/content/home";
+import styles from "./CuratedWorlds.module.css";
 
 const sizeClass: Record<string, string> = {
   xl: styles.xl,
@@ -8,17 +8,17 @@ const sizeClass: Record<string, string> = {
   s: styles.s,
 };
 
-export default function TheHouse() {
+export default function CuratedWorlds() {
   return (
-    <section id="the-house" className={styles.section} aria-labelledby="house-heading">
+    <section id="work" className={styles.section} aria-labelledby="work-heading">
       <div className="container">
-        <p className={styles.eyebrow}>{theHouse.label}</p>
-        <h2 id="house-heading" className={styles.heading}>
-          Five worlds, one studio.
+        <p className={styles.eyebrow}>{curatedWorlds.eyebrow}</p>
+        <h2 id="work-heading" className={styles.headline}>
+          {curatedWorlds.headline}
         </h2>
 
         <div className={styles.rooms}>
-          {theHouse.worlds.map((world) => (
+          {curatedWorlds.worlds.map((world) => (
             <a
               key={world.name}
               href={world.href}
