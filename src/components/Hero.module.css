@@ -9,6 +9,7 @@
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   height: 100svh;
+  min-height: 100svh;
   width: 100%;
   /* Pulled up under the sticky, transparent header (see Header.module.css)
      so the media begins at the very top of the viewport instead of below
