@@ -20,8 +20,9 @@
   --divider-line: #e8dccf;
 
   /* lighter, less-beige section base — used where --cream-white reads too
-     heavy (e.g. under the Inside the House atmospheric overlay) */
-  --chalk-ivory: #f8f5ef;
+     heavy (e.g. under the Inside the House atmospheric overlay). Kept just
+     one whisper deeper than the room cards' own tone, not a separate zone. */
+  --chalk-ivory: #f7f3ea;
 
   /* structural aliases */
   --color-ivory: var(--cream-white);
