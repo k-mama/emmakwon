@@ -1,9 +1,8 @@
-/* The global atmosphere (see src/app/globals.css .atmosphere) now provides
-   the color — this section only adds an almost-white translucent veil so
-   the room cards stay the brightest layer. */
+/* No section-level background: the single global atmosphere (see
+   src/app/globals.css .atmosphere) continues straight through — the room
+   cards below remain the brightest floating layer. */
 .section {
   padding: var(--section-space) 0;
-  background: rgba(250, 247, 241, 0.7);
 }
 
 .eyebrow {

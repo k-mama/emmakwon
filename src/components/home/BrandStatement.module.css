@@ -1,8 +1,8 @@
-/* The global atmosphere (see src/app/globals.css .atmosphere) shows softly
-   through this translucent warm veil instead of a locally-drawn gradient. */
+/* No section-level background: the single global atmosphere (see
+   src/app/globals.css .atmosphere) shows through uninterrupted — only the
+   portrait card below has its own surface. */
 .section {
   padding: var(--section-space) 0;
-  background: rgba(248, 245, 242, 0.8);
 }
 
 .grid {

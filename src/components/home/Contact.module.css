@@ -1,8 +1,8 @@
-/* The global atmosphere (see src/app/globals.css .atmosphere) shows softly
-   through this translucent veil instead of local decorative blooms. */
+/* No section-level background: the global atmosphere (see
+   src/app/globals.css .atmosphere) continues through unbroken — only the
+   cream Contact card below has its own surface. */
 .section {
   padding: clamp(72px, 10vw, 120px) 0 clamp(96px, 12vw, 160px);
-  background: rgba(248, 245, 242, 0.72);
 }
 
 .panel {

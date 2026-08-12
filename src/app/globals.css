@@ -19,10 +19,6 @@
   --muted-bronze: #7a5a35;
   --divider-line: #e8dccf;
 
-  /* lighter, less-beige section base — used where --cream-white reads too
-     heavy (e.g. under the Inside the House atmospheric overlay). Kept just
-     one whisper deeper than the room cards' own tone, not a separate zone. */
-  --chalk-ivory: #faf7f1;
 
   /* structural aliases */
   --color-ivory: var(--cream-white);
@@ -97,11 +93,13 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* One continuous Emma Kwon atmosphere behind the whole homepage — the
-   original site-wide conic-gradient, restored as a single fixed layer
-   rather than repeated per-section. Section surfaces sit as translucent
-   veils above it; --color-ivory (body's own background) is the fallback
-   underneath. */
+/* The ONE continuous Emma Kwon atmosphere behind the entire homepage — no
+   per-section backgrounds. Sections are transparent; only content surfaces
+   (room cards, the Studio panel, the Contact card, the portrait card) have
+   their own light or dark fill. Colors are softened toward white here
+   (rather than diluted per-section) so this single layer both reads as
+   "atmospheric light" and stays legible under body text everywhere —
+   --color-ivory (body's own background) is the fallback underneath. */
 .atmosphere {
   position: fixed;
   inset: 0;
@@ -109,12 +107,12 @@ body {
   pointer-events: none;
   background: conic-gradient(
     from 45deg,
-    var(--rare-orange),
-    var(--candy-pink),
-    var(--playful-violet),
-    var(--sky-aqua),
-    var(--tiger-gold),
-    var(--rare-orange)
+    color-mix(in srgb, var(--rare-orange) 55%, white),
+    color-mix(in srgb, var(--candy-pink) 55%, white),
+    color-mix(in srgb, var(--playful-violet) 55%, white),
+    color-mix(in srgb, var(--sky-aqua) 55%, white),
+    color-mix(in srgb, var(--tiger-gold) 55%, white),
+    color-mix(in srgb, var(--rare-orange) 55%, white)
   );
   animation: rareLightDrift 24s ease-in-out infinite;
 }
