@@ -1,7 +1,15 @@
+/* Grid (not flex) so the field+video row sizes itself to the video's own
+   natural content height — exactly the pre-lockdown flush proportions —
+   instead of the fields stretching to fill the taller locked stage while
+   the video stays put. align-content centers that unchanged row within
+   the extra space so the composition reads as a floating, still-modestly
+   scaled cinematic block, not an enlarged video. */
 .hero {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: 18.5vw 1fr 18.5vw;
   align-items: stretch;
+  align-content: center;
   width: 100%;
   /* Locks the Hero to the full opening viewport (header is overlaid
      transparently, not in-flow above it, so no header-height subtraction)
@@ -15,12 +23,12 @@
 
 @media (max-width: 640px) {
   .hero {
+    grid-template-columns: 1fr;
+    /* Mobile keeps the video filling the full locked stage (see .videoWrap
+       below), so here the row should stretch full-height, not center. */
+    align-content: stretch;
     margin-top: calc(-1 * var(--header-height-mobile));
   }
-}
-
-.field {
-  flex: 0 0 18.5vw;
 }
 
 .fieldLeft {
@@ -49,7 +57,6 @@
    video between the two color fields — never a colored gutter or an
    ivory panel of its own. */
 .center {
-  flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
