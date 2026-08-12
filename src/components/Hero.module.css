@@ -1,0 +1,116 @@
+.hero {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.field {
+  flex: 0 0 18.5vw;
+}
+
+.fieldLeft {
+  background: linear-gradient(
+    180deg,
+    var(--field-left-1) 0%,
+    var(--field-left-2) 52%,
+    var(--field-left-3) 100%
+  );
+}
+
+.fieldRight {
+  background: linear-gradient(
+    180deg,
+    var(--field-right-1) 0%,
+    var(--field-right-2) 52%,
+    var(--field-right-3) 100%
+  );
+}
+
+.canvas {
+  flex: 1 1 auto;
+  background: var(--color-ivory);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(40px, 6vw, 96px) clamp(20px, 4vw, 64px);
+}
+
+.videoWrap {
+  position: relative;
+  width: clamp(300px, 45vw, 620px);
+  aspect-ratio: 1080 / 1290;
+  border-radius: var(--radius-video);
+  overflow: hidden;
+  box-shadow: var(--shadow-video);
+  background: #100f0d;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 9, 8, 0.4) 0%,
+    rgba(10, 9, 8, 0.16) 32%,
+    rgba(10, 9, 8, 0) 55%
+  );
+  pointer-events: none;
+}
+
+.copy {
+  position: absolute;
+  top: clamp(20px, 6%, 44px);
+  left: clamp(18px, 7%, 40px);
+  right: 18%;
+  color: #fdfbf7;
+}
+
+.headline {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(13px, 1.35vw, 20px);
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.sub {
+  margin: 8px 0 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(12px, 1.2vw, 17px);
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 640px) {
+  .field {
+    display: none;
+  }
+
+  .canvas {
+    padding: 0;
+  }
+
+  .videoWrap {
+    width: 100%;
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .copy {
+    top: 20px;
+    left: 20px;
+    right: 24%;
+  }
+}
