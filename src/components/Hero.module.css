@@ -3,6 +3,10 @@
   display: flex;
   align-items: stretch;
   width: 100%;
+  /* Locks the Hero to the full opening viewport (header is overlaid
+     transparently, not in-flow above it, so no header-height subtraction)
+     so the next section never peeks in before the visitor scrolls. */
+  min-height: 100svh;
   /* Pulled up under the sticky, transparent header (see Header.module.css)
      so the media begins at the very top of the viewport instead of below
      a space-reserving bar. */
@@ -115,7 +119,9 @@
 
   .videoWrap {
     width: 100%;
+    height: 100%;
     max-width: none;
+    aspect-ratio: auto;
     border-radius: 0;
     box-shadow: none;
   }
