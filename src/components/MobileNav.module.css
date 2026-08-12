@@ -48,24 +48,25 @@
   width: 15px;
 }
 
-/* Translucent frosted editorial glass: the Hero video should stay softly
-   visible behind the open menu, not be replaced by a solid panel. Falls
-   back to a near-opaque warm ivory where backdrop-filter isn't supported. */
+/* Thin warm editorial veil: the Hero video should stay clearly recognizable
+   behind the open menu, not be replaced by a solid panel or a color haze.
+   Falls back to a translucent (not opaque) warm ivory where
+   backdrop-filter isn't supported. */
 .overlay {
   position: fixed;
   inset: 0;
   z-index: 100;
   display: flex;
   flex-direction: column;
-  background: rgba(248, 245, 242, 0.94);
+  background: rgba(248, 245, 242, 0.82);
   animation: navFadeIn 0.18s ease both;
 }
 
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .overlay {
-    background: rgba(248, 245, 242, 0.86);
-    -webkit-backdrop-filter: blur(18px);
-    backdrop-filter: blur(18px);
+    background: rgba(248, 245, 242, 0.64);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
   }
 }
 
