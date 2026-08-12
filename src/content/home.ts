@@ -7,61 +7,55 @@ export const brandStatement = {
   headline: "Not a portfolio. A house.",
   lede: "I got on the AI wave at 50. I'm 52 now.",
   lines: [
-    "Since then: books, music, visual worlds, and studio experiments — built at a pace that used to take a team.",
+    "Since then: books, music, children's stories, and cinematic worlds — each one AI-assisted, each one still entirely mine.",
     "Every world below lives under the same roof.",
   ],
-  image: "/archive/emma/studio-candid.jpg",
-  imageAlt: "Emma Kwon in the studio",
+  image: "/archive/emma/portrait-card.png",
+  imageAlt: "Emma Kwon portrait",
 };
 
 export type World = {
   name: string;
   descriptor: string;
   href: string;
-  size: "xl" | "l" | "m" | "s";
+  size: "large" | "medium";
   image?: string;
 };
 
 const worlds: World[] = [
   {
-    name: "EMMAESTRO",
-    descriptor: "Music, produced and performed",
-    href: "#",
-    size: "xl",
-    image: "/archive/emmaestro/aussie-album-cover.jpg",
-  },
-  {
-    name: "BORN RARE",
-    descriptor: "A book",
-    href: "#",
-    size: "l",
-    image: "/archive/born-rare/born-rare-book-cover.jpg",
-  },
-  {
     name: "SLY FAIRY",
-    descriptor: "An emerging cinematic world",
+    descriptor: "The character and cinematic world",
     href: "#",
-    size: "m",
+    size: "large",
     image: "/archive/emmaestro/sly-fairy-album-cover.jpg",
   },
   {
-    name: "K-MAMA",
-    descriptor: "Coloring books for curious kids",
+    name: "EMMAESTRO",
+    descriptor: "Music, produced and performed",
     href: "#",
-    size: "m",
+    size: "large",
+    image: "/archive/emmaestro/aussie-album-cover.jpg",
+  },
+  {
+    name: "K-MAMA",
+    descriptor: "Coloring books and kids' songs",
+    href: "#",
+    size: "medium",
     image: "/archive/k-mama/coloring-book-en.jpg",
   },
   {
-    name: "AMAZING TIGER PUBLISHING",
-    descriptor: "The imprint behind it all",
+    name: "BOOKS",
+    descriptor: "Born Rare, from Amazing Tiger Publishing",
     href: "#",
-    size: "s",
+    size: "medium",
+    image: "/archive/born-rare/born-rare-book-cover.jpg",
   },
 ];
 
 export const curatedWorlds = {
   eyebrow: "WORLDS",
-  headline: "Five worlds. One house.",
+  headline: "Four worlds. One house.",
   worlds,
 };
 

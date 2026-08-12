@@ -7,9 +7,9 @@
 
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
   gap: clamp(40px, 6vw, 96px);
-  align-items: center;
+  align-items: start;
 }
 
 .copy {
@@ -54,12 +54,22 @@
   max-width: 52ch;
 }
 
+/* The portrait sits inside a small, contained card — never a large
+   standalone image block. */
+.card {
+  width: 100%;
+  padding: 10px;
+  background: var(--cream-white);
+  border: 1px solid var(--color-hairline);
+  border-radius: 20px;
+  box-shadow: var(--panel-shadow);
+}
+
 .frame {
   position: relative;
   aspect-ratio: 4 / 5;
-  border-radius: var(--panel-radius);
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: var(--panel-shadow);
 }
 
 .image {
@@ -69,14 +79,25 @@
   object-fit: cover;
 }
 
+.caption {
+  margin: 10px 2px 4px;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--soft-text);
+}
+
 @media (max-width: 860px) {
   .grid {
     grid-template-columns: 1fr;
   }
 
-  .frame {
+  .card {
     order: -1;
-    max-width: 340px;
+    max-width: 200px;
     margin: 0 auto;
   }
 

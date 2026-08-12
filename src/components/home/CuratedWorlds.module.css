@@ -26,9 +26,8 @@
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   grid-template-areas:
-    "emmaestro emmaestro emmaestro emmaestro emmaestro emmaestro emmaestro bornrare bornrare bornrare bornrare bornrare"
-    "emmaestro emmaestro emmaestro emmaestro emmaestro emmaestro emmaestro slyfairy slyfairy slyfairy kmama kmama"
-    "atp atp atp atp atp atp atp atp atp atp atp atp";
+    "slyfairy slyfairy slyfairy slyfairy slyfairy slyfairy slyfairy emmaestro emmaestro emmaestro emmaestro emmaestro"
+    "kmama kmama kmama kmama kmama kmama books books books books books books";
   gap: clamp(16px, 1.8vw, 28px);
   margin: clamp(56px, 8vw, 104px) 0 0;
 }
@@ -41,35 +40,27 @@
 }
 
 .room:nth-of-type(1) {
-  grid-area: emmaestro;
-}
-
-.room:nth-of-type(2) {
-  grid-area: bornrare;
-}
-
-.room:nth-of-type(3) {
   grid-area: slyfairy;
 }
 
-.room:nth-of-type(4) {
+.room:nth-of-type(2) {
+  grid-area: emmaestro;
+}
+
+.room:nth-of-type(3) {
   grid-area: kmama;
 }
 
-.room:nth-of-type(5) {
-  grid-area: atp;
+.room:nth-of-type(4) {
+  grid-area: books;
 }
 
-.l {
+.large {
   min-height: clamp(300px, 28vw, 420px);
 }
 
-.m {
+.medium {
   min-height: clamp(200px, 18vw, 280px);
-}
-
-.s {
-  min-height: clamp(120px, 9vw, 156px);
 }
 
 .hasImage {
@@ -118,8 +109,8 @@
   letter-spacing: 0.01em;
 }
 
-.xl .roomName {
-  font-size: clamp(22px, 2.6vw, 34px);
+.large .roomName {
+  font-size: clamp(20px, 2.2vw, 30px);
 }
 
 .roomDescriptor {
@@ -142,23 +133,17 @@
   .rooms {
     grid-template-columns: 1fr;
     grid-template-areas:
-      "emmaestro"
-      "bornrare"
       "slyfairy"
+      "emmaestro"
       "kmama"
-      "atp";
+      "books";
   }
 
-  .l,
-  .m {
+  .large {
+    min-height: clamp(260px, 74vw, 380px);
+  }
+
+  .medium {
     min-height: clamp(220px, 60vw, 320px);
-  }
-
-  .xl {
-    min-height: clamp(280px, 84vw, 420px);
-  }
-
-  .s {
-    min-height: 120px;
   }
 }

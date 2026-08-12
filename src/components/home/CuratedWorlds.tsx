@@ -2,10 +2,8 @@ import { curatedWorlds } from "@/content/home";
 import styles from "./CuratedWorlds.module.css";
 
 const sizeClass: Record<string, string> = {
-  xl: styles.xl,
-  l: styles.l,
-  m: styles.m,
-  s: styles.s,
+  large: styles.large,
+  medium: styles.medium,
 };
 
 export default function CuratedWorlds() {

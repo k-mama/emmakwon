@@ -19,16 +19,19 @@ export default function BrandStatement() {
             ))}
           </div>
 
-          <div className={styles.frame}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={brandStatement.image}
-              alt={brandStatement.imageAlt}
-              width={1000}
-              height={1251}
-              loading="lazy"
-              className={styles.image}
-            />
+          <div className={styles.card}>
+            <div className={styles.frame}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={brandStatement.image}
+                alt={brandStatement.imageAlt}
+                width={1122}
+                height={1402}
+                loading="lazy"
+                className={styles.image}
+              />
+            </div>
+            <p className={styles.caption}>Emma Kwon</p>
           </div>
         </div>
       </div>
