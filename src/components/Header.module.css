@@ -60,6 +60,10 @@
 }
 
 .navLink:hover {
+  color: var(--tiger-gold);
+}
+
+.scrolled .navLink:hover {
   color: var(--hover-accent);
 }
 

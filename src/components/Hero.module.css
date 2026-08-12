@@ -43,7 +43,17 @@
 
 .canvas {
   flex: 1 1 auto;
-  background: var(--color-ivory);
+  /* Continues the colorful atmospheric field across the center — no ivory
+     panel behind the video. Bridges the left field's closing hue
+     (ice-cream-lavender) into the right field's opening hue (rare-orange)
+     using tokens already established by those two gradients. */
+  background: linear-gradient(
+    165deg,
+    var(--ice-cream-lavender) 0%,
+    var(--candy-pink) 40%,
+    #f0965d 72%,
+    var(--rare-orange) 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -52,7 +62,7 @@
 
 .videoWrap {
   position: relative;
-  width: clamp(300px, 45vw, 620px);
+  width: clamp(300px, 53vw, 740px);
   aspect-ratio: 1080 / 1290;
   border-radius: var(--radius-video);
   overflow: hidden;
