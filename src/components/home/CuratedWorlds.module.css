@@ -2,7 +2,7 @@
   position: relative;
   overflow: hidden;
   padding: var(--section-space) 0;
-  background: var(--color-ivory);
+  background: var(--chalk-ivory);
 }
 
 /* Original Emma Kwon atmospheric field, transplanted from the site-wide
