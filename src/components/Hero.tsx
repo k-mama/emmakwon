@@ -3,7 +3,7 @@ import HeroVideo from "./HeroVideo";
 
 export default function Hero() {
   return (
-    <section className={styles.hero} aria-label="The wave is already here. Come surf it with me.">
+    <section id="hero" className={styles.hero} aria-label="The wave is already here. Come surf it with me.">
       <div className={`${styles.field} ${styles.fieldLeft}`} aria-hidden="true" />
 
       <div className={styles.canvas}>

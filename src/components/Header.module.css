@@ -1,7 +1,16 @@
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
   width: 100%;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.scrolled {
   background: var(--color-header);
-  border-bottom: 1px solid var(--color-hairline);
+  border-bottom-color: var(--color-hairline);
 }
 
 .inner {
@@ -17,8 +26,15 @@
   font-size: 18px;
   font-weight: 500;
   letter-spacing: 0.01em;
-  color: var(--title-primary);
+  color: #fdfbf7;
+  text-shadow: 0 2px 14px rgba(8, 10, 22, 0.4), 0 1px 3px rgba(8, 10, 22, 0.45);
   white-space: nowrap;
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+
+.scrolled .brand {
+  color: var(--title-primary);
+  text-shadow: none;
 }
 
 .nav {
@@ -32,9 +48,15 @@
   font-size: 14.5px;
   font-weight: 500;
   letter-spacing: 0.02em;
-  color: var(--soft-text);
+  color: rgba(253, 251, 247, 0.9);
+  text-shadow: 0 2px 14px rgba(8, 10, 22, 0.4), 0 1px 3px rgba(8, 10, 22, 0.45);
   white-space: nowrap;
-  transition: color 0.2s ease;
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+
+.scrolled .navLink {
+  color: var(--soft-text);
+  text-shadow: none;
 }
 
 .navLink:hover {
@@ -46,11 +68,19 @@
   align-items: center;
   justify-content: center;
   padding: 6px;
+  color: rgba(253, 251, 247, 0.9);
+  transition: color 0.25s ease;
+}
+
+.scrolled .iconBtn {
   color: var(--soft-text);
-  transition: color 0.2s ease;
 }
 
 .iconBtn:hover {
+  color: #fdfbf7;
+}
+
+.scrolled .iconBtn:hover {
   color: var(--title-primary);
 }
 

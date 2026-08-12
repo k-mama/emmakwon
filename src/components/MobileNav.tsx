@@ -7,9 +7,11 @@ import styles from "./MobileNav.module.css";
 
 type MobileNavProps = {
   items: NavItem[];
+  /** True while the header sits transparently over the Hero (light trigger icon). */
+  overlay?: boolean;
 };
 
-export default function MobileNav({ items }: MobileNavProps) {
+export default function MobileNav({ items, overlay = false }: MobileNavProps) {
   const [open, setOpen] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -42,7 +44,7 @@ export default function MobileNav({ items }: MobileNavProps) {
       <button
         type="button"
         ref={triggerRef}
-        className={styles.trigger}
+        className={`${styles.trigger} ${overlay ? styles.triggerOverlay : ""}`}
         aria-label="Open menu"
         aria-expanded={open}
         onClick={() => setOpen(true)}
