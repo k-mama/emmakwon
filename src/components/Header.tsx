@@ -40,8 +40,11 @@ export default function Header() {
               {item.label}
             </a>
           ))}
-          <LanguageMenu triggerClassName={styles.iconBtn} />
         </nav>
+
+        <div className={styles.utility}>
+          <LanguageMenu triggerClassName={styles.iconBtn} />
+        </div>
       </div>
     </header>
   );

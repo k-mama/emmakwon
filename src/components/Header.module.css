@@ -13,15 +13,22 @@
   border-bottom-color: var(--color-hairline);
 }
 
+/* Three-zone geometric layout so the primary nav sits at the true visual
+   center of the header/viewport regardless of how wide the brand or
+   language slot are — not centered only in the leftover space between
+   them. Grid (not flex + margins) keeps this exact under both the
+   transparent Hero-overlay and scrolled states. */
 .inner {
   height: var(--header-height);
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto minmax(180px, 1fr);
   align-items: center;
-  justify-content: space-between;
   padding: 0 clamp(20px, 3vw, 48px);
 }
 
 .brand {
+  grid-column: 1;
+  justify-self: start;
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 18px;
   font-weight: 500;
@@ -38,9 +45,18 @@
 }
 
 .nav {
+  grid-column: 2;
+  justify-self: center;
   display: flex;
   align-items: center;
-  gap: clamp(20px, 2.2vw, 36px);
+  gap: clamp(28px, 2.4vw, 36px);
+}
+
+.utility {
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  align-items: center;
 }
 
 .navLink {
@@ -91,6 +107,7 @@
 @media (max-width: 640px) {
   .inner {
     height: var(--header-height-mobile);
+    display: flex;
     padding: 0 16px;
     justify-content: flex-start;
   }
@@ -102,6 +119,10 @@
   }
 
   .nav {
+    display: none;
+  }
+
+  .utility {
     display: none;
   }
 }
