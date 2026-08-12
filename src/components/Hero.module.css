@@ -1,20 +1,15 @@
-/* Grid (not flex) so the field+video row sizes itself to the video's own
-   natural content height — exactly the pre-lockdown flush proportions —
-   instead of the fields stretching to fill the taller locked stage while
-   the video stays put. align-content centers that unchanged row within
-   the extra space so the composition reads as a floating, still-modestly
-   scaled cinematic block, not an enlarged video. */
+/* Desktop is height-driven: the Hero stage IS exactly one viewport tall,
+   the video fills that height edge to edge (width follows from its own
+   aspect ratio via the "auto" middle track), and the two atmospheric
+   fields fill all remaining horizontal space with no gutter — so the
+   next section (in normal flow, no negative margins here) can never
+   appear until the visitor scrolls past a full screen of Hero. */
 .hero {
   position: relative;
   display: grid;
-  grid-template-columns: 18.5vw 1fr 18.5vw;
-  align-items: stretch;
-  align-content: center;
+  grid-template-columns: 1fr auto 1fr;
+  height: 100svh;
   width: 100%;
-  /* Locks the Hero to the full opening viewport (header is overlaid
-     transparently, not in-flow above it, so no header-height subtraction)
-     so the next section never peeks in before the visitor scrolls. */
-  min-height: 100svh;
   /* Pulled up under the sticky, transparent header (see Header.module.css)
      so the media begins at the very top of the viewport instead of below
      a space-reserving bar. */
@@ -23,12 +18,17 @@
 
 @media (max-width: 640px) {
   .hero {
+    /* Mobile is width-driven instead (see .videoWrap below): the stage
+       height simply follows the video's own aspect-ratio height, it is
+       not locked to the viewport. */
     grid-template-columns: 1fr;
-    /* Mobile keeps the video filling the full locked stage (see .videoWrap
-       below), so here the row should stretch full-height, not center. */
-    align-content: stretch;
+    height: auto;
     margin-top: calc(-1 * var(--header-height-mobile));
   }
+}
+
+.field {
+  height: 100%;
 }
 
 .fieldLeft {
@@ -53,18 +53,10 @@
   );
 }
 
-/* No background, no padding: the center column exists only to center the
-   video between the two color fields — never a colored gutter or an
-   ivory panel of its own. */
-.center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .videoWrap {
   position: relative;
-  width: clamp(300px, 56vw, 760px);
+  height: 100svh;
+  width: auto;
   aspect-ratio: 1080 / 1290;
   border-radius: var(--radius-video);
   overflow: hidden;
@@ -125,10 +117,10 @@
   }
 
   .videoWrap {
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: auto;
     max-width: none;
-    aspect-ratio: auto;
+    aspect-ratio: 1080 / 1290;
     border-radius: 0;
     box-shadow: none;
   }
