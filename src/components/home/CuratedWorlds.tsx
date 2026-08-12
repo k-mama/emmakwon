@@ -1,6 +1,12 @@
 import { curatedWorlds } from "@/content/home";
 import styles from "./CuratedWorlds.module.css";
 
+// Each room carries its own subtle atmospheric color character (see
+// .tone* in CuratedWorlds.module.css) while staying within the same
+// restrained cream/ivory card system — assigned by position since the
+// four rooms are fixed (Sly Fairy, Emmaestro, K-Mama, Books).
+const toneClass = ["toneSlyFairy", "toneEmmaestro", "toneKMama", "toneBooks"] as const;
+
 export default function CuratedWorlds() {
   return (
     <section id="inside-the-house" className={styles.section} aria-labelledby="house-heading">
@@ -11,11 +17,11 @@ export default function CuratedWorlds() {
         </h2>
 
         <div className={styles.rooms}>
-          {curatedWorlds.worlds.map((world) => (
+          {curatedWorlds.worlds.map((world, index) => (
             <a
               key={world.name}
               href={world.href}
-              className={styles.room}
+              className={`${styles.room} ${styles[toneClass[index % toneClass.length]]}`}
               aria-label={`${world.name} — ${world.descriptor}`}
             >
               <div className={styles.thumb}>
