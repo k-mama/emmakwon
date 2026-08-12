@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { NavItem } from "@/content/navigation";
-import VisualGlobeIcon from "./VisualGlobeIcon";
+import LanguageMenu from "./LanguageMenu";
 import styles from "./MobileNav.module.css";
 
 type MobileNavProps = {
@@ -81,7 +81,7 @@ export default function MobileNav({ items }: MobileNavProps) {
           </nav>
 
           <div className={styles.overlayFooter}>
-            <VisualGlobeIcon size={22} />
+            <LanguageMenu triggerClassName={styles.footerTrigger} openUpward align="center" />
           </div>
         </div>
       )}

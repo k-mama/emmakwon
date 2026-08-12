@@ -1,0 +1,77 @@
+.root {
+  position: relative;
+  display: inline-flex;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 200px;
+  padding: 10px;
+  background: var(--color-header);
+  border: 1px solid var(--color-hairline);
+  border-radius: 14px;
+  box-shadow: 0 24px 48px -20px rgba(24, 38, 74, 0.28);
+}
+
+.panelUp {
+  top: auto;
+  bottom: calc(100% + 14px);
+}
+
+.panelCenter {
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--title-primary);
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.option:hover {
+  background: rgba(24, 38, 74, 0.05);
+  color: var(--hover-accent);
+}
+
+.check {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--hover-accent);
+  opacity: 0;
+}
+
+.optionActive {
+  color: var(--hover-accent);
+  font-weight: 600;
+}
+
+.optionActive .check {
+  opacity: 1;
+}

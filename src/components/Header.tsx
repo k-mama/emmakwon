@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { primaryNav } from "@/content/navigation";
-import VisualGlobeIcon from "./VisualGlobeIcon";
+import LanguageMenu from "./LanguageMenu";
 import MobileNav from "./MobileNav";
 import styles from "./Header.module.css";
 
@@ -20,9 +20,7 @@ export default function Header() {
               {item.label}
             </a>
           ))}
-          <button type="button" className={styles.iconBtn} aria-label="Change language">
-            <VisualGlobeIcon />
-          </button>
+          <LanguageMenu triggerClassName={styles.iconBtn} />
         </nav>
       </div>
     </header>
