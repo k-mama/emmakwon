@@ -14,6 +14,11 @@
   --ice-cream-lavender: #cea0d8;
   --hover-accent: #c23bcb;
 
+  /* original Emma Kwon room-card tokens, transplanted from emmakwon-com */
+  --obsidian: #070707;
+  --muted-bronze: #7a5a35;
+  --divider-line: #e8dccf;
+
   /* structural aliases */
   --color-ivory: var(--cream-white);
   --color-header: var(--cream-white);

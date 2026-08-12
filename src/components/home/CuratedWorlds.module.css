@@ -1,7 +1,53 @@
 .section {
+  position: relative;
+  overflow: hidden;
   padding: var(--section-space) 0;
-  background: radial-gradient(65% 55% at 88% 0%, rgba(143, 218, 224, 0.14) 0%, rgba(143, 218, 224, 0) 60%),
-    radial-gradient(55% 55% at 6% 100%, rgba(233, 122, 10, 0.08) 0%, rgba(233, 122, 10, 0) 58%), var(--color-ivory);
+  background: var(--color-ivory);
+}
+
+/* Original Emma Kwon atmospheric field, transplanted from the site-wide
+   conic-gradient in emmakwon-com's SiteShell (rare-orange -> candy-pink ->
+   playful-violet -> sky-aqua -> tiger-gold -> rare-orange), scoped to this
+   section and blended into the ivory base rather than shown at full
+   strength — the foundation, not a rainbow. */
+.section::before {
+  content: "";
+  position: absolute;
+  inset: -15%;
+  z-index: 0;
+  pointer-events: none;
+  background: conic-gradient(
+    from 45deg at 50% 120%,
+    rgba(233, 122, 10, 0.16) 0deg,
+    rgba(243, 141, 161, 0.16) 72deg,
+    rgba(177, 95, 209, 0.16) 144deg,
+    rgba(143, 218, 224, 0.16) 216deg,
+    rgba(184, 138, 59, 0.16) 288deg,
+    rgba(233, 122, 10, 0.16) 360deg
+  );
+  animation: rareLightDrift 24s ease-in-out infinite;
+}
+
+@keyframes rareLightDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(1%, -1.5%, 0) scale(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section::before {
+    animation: none;
+  }
+}
+
+.section :global(.container) {
+  position: relative;
+  z-index: 1;
 }
 
 .eyebrow {
@@ -23,90 +69,77 @@
   color: var(--title-primary);
 }
 
+/* Room index proportions from the original HomeRoomIndex (max-w-4xl),
+   nested inside this project's wider section container. */
 .rooms {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(18px, 2vw, 28px);
-  margin: clamp(56px, 8vw, 104px) 0 0;
-}
-
-.row {
+  max-width: 896px;
+  margin: clamp(56px, 8vw, 104px) auto 0;
   display: grid;
   grid-template-columns: 1fr;
-  align-items: stretch;
-  gap: clamp(18px, 2vw, 28px);
+  gap: 24px;
 }
 
-@media (min-width: 901px) {
-  /* Refined editorial variation, not a masonry grid: each row splits
-     unevenly (~42/58 and ~54/46) instead of four uniform columns. */
-  .rowA {
-    grid-template-columns: 42fr 58fr;
-  }
-
-  .rowB {
-    grid-template-columns: 54fr 46fr;
+@media (min-width: 640px) {
+  .rooms {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* Card: bg-cream-white/90, rounded-3xl, shadow-md -> shadow-lg,
+   -translate-y-1, transition-transform duration-300. */
 .room {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  min-height: 240px;
-  padding: clamp(24px, 2.6vw, 32px);
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--panel-radius);
-  box-shadow: var(--panel-shadow);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 32px;
+  background: rgba(248, 245, 242, 0.9);
+  border-radius: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  transition: transform 300ms;
 }
 
-@media (min-width: 901px) {
+@media (min-width: 640px) {
   .room {
-    gap: 16px;
-    min-height: clamp(216px, 19vw, 264px);
+    padding: 40px;
   }
 }
 
 .room:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 36px 64px -28px rgba(24, 38, 74, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 
-/* Each room's own restrained atmosphere — a whisper of color, not a theme. */
-.toneSlyFairy {
-  background: radial-gradient(85% 85% at 12% 0%, rgba(143, 218, 224, 0.18) 0%, rgba(143, 218, 224, 0) 62%),
-    radial-gradient(75% 75% at 100% 100%, rgba(177, 95, 209, 0.13) 0%, rgba(177, 95, 209, 0) 60%), #fdfdfc;
+.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.toneEmmaestro {
-  background: radial-gradient(85% 85% at 100% 0%, rgba(160, 166, 221, 0.17) 0%, rgba(160, 166, 221, 0) 62%),
-    radial-gradient(75% 75% at 0% 100%, rgba(243, 141, 161, 0.15) 0%, rgba(243, 141, 161, 0) 60%), #fdfdfc;
-}
-
-.toneKMama {
-  background: radial-gradient(85% 85% at 10% 0%, rgba(243, 141, 161, 0.15) 0%, rgba(243, 141, 161, 0) 62%),
-    radial-gradient(75% 75% at 100% 100%, rgba(143, 218, 224, 0.16) 0%, rgba(143, 218, 224, 0) 60%), #fdfdfc;
-}
-
-.toneBooks {
-  background: radial-gradient(85% 85% at 100% 0%, rgba(184, 138, 59, 0.17) 0%, rgba(184, 138, 59, 0) 62%),
-    radial-gradient(75% 75% at 0% 100%, rgba(233, 122, 10, 0.11) 0%, rgba(233, 122, 10, 0) 60%), #fdfdfc;
+.kicker {
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--muted-bronze);
 }
 
 .thumb {
   flex: 0 0 auto;
-  width: 68px;
-  height: 68px;
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
   overflow: hidden;
+  border: 1px solid var(--divider-line);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-@media (min-width: 901px) {
+@media (min-width: 640px) {
   .thumb {
-    width: 92px;
-    height: 92px;
-    border-radius: 14px;
+    width: 56px;
+    height: 56px;
   }
 }
 
@@ -115,52 +148,46 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.room:hover .thumbImage {
-  transform: scale(1.06);
-}
-
-.body {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: auto;
-}
-
-@media (min-width: 901px) {
-  .body {
-    margin-top: 0;
-  }
 }
 
 .name {
+  margin: 0;
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-weight: 600;
-  font-size: 19px;
-  letter-spacing: 0.01em;
-  color: var(--title-primary);
+  font-weight: 500;
+  font-size: 24px;
+  color: var(--obsidian);
+}
+
+@media (min-width: 640px) {
+  .name {
+    font-size: 30px;
+  }
 }
 
 .descriptor {
+  margin: 8px 0 0;
   font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   color: var(--body-text);
 }
 
-.cta {
-  margin-top: 10px;
-  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--soft-text);
-  transition: color 0.2s ease;
+@media (min-width: 640px) {
+  .descriptor {
+    font-size: 16px;
+  }
 }
 
-.room:hover .cta {
-  color: var(--hover-accent);
+.cta {
+  display: inline-block;
+  margin-top: 16px;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--muted-bronze);
+  text-decoration: underline;
+  text-decoration-color: rgba(122, 90, 53, 0.4);
+  text-underline-offset: 4px;
 }

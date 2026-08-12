@@ -16,6 +16,7 @@ export const brandStatement = {
 
 export type World = {
   name: string;
+  category: string;
   descriptor: string;
   cta: string;
   href: string;
@@ -25,6 +26,7 @@ export type World = {
 const worlds: World[] = [
   {
     name: "SLY FAIRY",
+    category: "CHARACTER WORLD",
     descriptor: "Character and cinematic world",
     cta: "ENTER SLY FAIRY",
     href: "#",
@@ -32,6 +34,7 @@ const worlds: World[] = [
   },
   {
     name: "EMMAESTRO",
+    category: "MUSIC",
     descriptor: "Music, produced and performed",
     cta: "ENTER EMMAESTRO",
     href: "#",
@@ -39,6 +42,7 @@ const worlds: World[] = [
   },
   {
     name: "K-MAMA",
+    category: "CHILDREN'S WORLD",
     descriptor: "Children's creative world",
     cta: "MEET K-MAMA",
     href: "#",
@@ -46,6 +50,7 @@ const worlds: World[] = [
   },
   {
     name: "BOOKS",
+    category: "BOOKS & PUBLISHING",
     descriptor: "Books and publishing, led by Born Rare",
     cta: "ENTER BOOKS",
     href: "#",
