@@ -9,9 +9,9 @@
 //
 // Dedicated pages for these identities don't exist yet, so their hrefs stay
 // as placeholders until those internal routes are built. STUDIO is the
-// exception: it anchors to the matching section on this homepage, which
-// already exists. EMMA and CONTACT are intentionally not top-level nav
-// items — Emma's story and Contact live inside the homepage itself.
+// exception: it has its own dedicated route at /studio. EMMA and CONTACT
+// are intentionally not top-level nav items — Emma's story and Contact
+// live inside the homepage itself.
 //
 // Note: "Sly Fairy — Album" is a release inside EMMAESTRO's music catalog,
 // distinct from the top-level "SLY FAIRY" destination (the character/
@@ -27,5 +27,5 @@ export const primaryNav: NavItem[] = [
   { label: "EMMAESTRO", href: "#" },
   { label: "K-MAMA", href: "#" },
   { label: "BOOKS", href: "#" },
-  { label: "STUDIO", href: "#studio" },
+  { label: "STUDIO", href: "/studio/" },
 ];

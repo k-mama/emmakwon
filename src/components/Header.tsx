@@ -7,8 +7,14 @@ import LanguageMenu from "./LanguageMenu";
 import MobileNav from "./MobileNav";
 import styles from "./Header.module.css";
 
-export default function Header() {
-  const [scrolledPastHero, setScrolledPastHero] = useState(false);
+type HeaderProps = {
+  /** Pages with no video Hero (id="hero") to fade in from — render the
+      normal opaque header immediately instead of the transparent overlay. */
+  opaque?: boolean;
+};
+
+export default function Header({ opaque = false }: HeaderProps = {}) {
+  const [scrolledPastHero, setScrolledPastHero] = useState(opaque);
 
   useEffect(() => {
     const hero = document.getElementById("hero");

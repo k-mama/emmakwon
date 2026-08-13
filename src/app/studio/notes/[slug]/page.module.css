@@ -1,0 +1,90 @@
+.article {
+  padding: clamp(48px, 7vw, 96px) 0 var(--section-space);
+}
+
+.eyebrow {
+  margin: 0;
+}
+
+.backLink {
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft-text);
+  transition: color 0.2s ease;
+}
+
+.backLink:hover {
+  color: var(--hover-accent);
+}
+
+.category {
+  margin: 20px 0 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-bronze);
+}
+
+.headline {
+  margin: 12px 0 0;
+  max-width: 24ch;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: clamp(28px, 4.4vw, 46px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--title-primary);
+}
+
+.date {
+  margin: 14px 0 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  color: var(--soft-text);
+}
+
+.coverFrame {
+  margin: clamp(32px, 5vw, 48px) 0 0;
+  border-radius: var(--panel-radius);
+  overflow: hidden;
+  border: 1px solid var(--color-hairline);
+  box-shadow: var(--panel-shadow);
+}
+
+.coverImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.body {
+  margin: clamp(32px, 5vw, 48px) 0 0;
+  max-width: 66ch;
+}
+
+.body p {
+  margin: 0 0 1.4em;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(16px, 1.3vw, 18px);
+  line-height: 1.8;
+  color: var(--body-text);
+}
+
+.body p:last-child {
+  margin-bottom: 0;
+}
+
+.tags {
+  margin: clamp(32px, 5vw, 48px) 0 0;
+  padding-top: clamp(20px, 3vw, 28px);
+  border-top: 1px solid var(--color-hairline);
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--soft-text);
+}

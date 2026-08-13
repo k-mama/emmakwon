@@ -1,0 +1,44 @@
+.header {
+  padding: clamp(48px, 7vw, 96px) 0 clamp(24px, 3vw, 32px);
+}
+
+.eyebrow {
+  margin: 0;
+}
+
+.backLink {
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft-text);
+  transition: color 0.2s ease;
+}
+
+.backLink:hover {
+  color: var(--hover-accent);
+}
+
+.headline {
+  margin: 14px 0 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--title-primary);
+}
+
+.supporting {
+  margin: 16px 0 0;
+  max-width: 56ch;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(15px, 1.3vw, 18px);
+  line-height: 1.65;
+  color: var(--body-text);
+}
+
+.list {
+  padding: 0 0 var(--section-space);
+}
