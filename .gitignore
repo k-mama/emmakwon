@@ -36,6 +36,12 @@ yarn-error.log*
 # vercel
 .vercel
 
+# cloudflare / wrangler local dev state (local D1 SQLite, dev cache) —
+# never contains anything meant to be shared, never commit it
+.wrangler/
+.dev.vars
+.dev.vars.*
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

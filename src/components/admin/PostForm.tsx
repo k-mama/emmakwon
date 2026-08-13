@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import NoteArticle from "@/components/studio/NoteArticle";
-import { deleteAdminPost, upsertAdminPost } from "@/lib/adminStore";
+import { deletePost as deletePostApi, publishPost, savePost } from "@/lib/adminApiClient";
 import {
   brisbaneWallTimeToIso,
   formatBrisbaneDateTime,
@@ -15,17 +15,28 @@ import styles from "./PostForm.module.css";
 
 const CATEGORIES: StudioCategory[] = ["BUILD", "LEARN", "MAKE"];
 
-export default function PostForm({ post: initialPost, isNew }: { post: StudioPost; isNew: boolean }) {
+type SaveState = "idle" | "saving" | "error";
+type PublishState = "idle" | "publishing" | "published" | "error";
+
+export default function PostForm({ post: initialPost }: { post: StudioPost }) {
   const router = useRouter();
   const [post, setPost] = useState<StudioPost>(initialPost);
-  const [slugTouched, setSlugTouched] = useState(!isNew);
+  const [slugTouched, setSlugTouched] = useState(Boolean(initialPost.slug));
   const [bodyText, setBodyText] = useState(initialPost.body.join("\n\n"));
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [previewing, setPreviewing] = useState(false);
   const [scheduling, setScheduling] = useState(false);
   const [scheduleDate, setScheduleDate] = useState("");
   const [scheduleTime, setScheduleTime] = useState("10:00");
-  const [notice, setNotice] = useState<string | null>(null);
+
+  const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [publishState, setPublishState] = useState<PublishState>("idle");
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const busy = saveState === "saving" || publishState === "publishing" || deleting;
 
   const update = <K extends keyof StudioPost>(key: K, value: StudioPost[K]) => {
     setPost((prev) => ({ ...prev, [key]: value }));
@@ -37,46 +48,69 @@ export default function PostForm({ post: initialPost, isNew }: { post: StudioPos
       .map((paragraph) => paragraph.trim())
       .filter(Boolean);
 
-  const persist = (overrides: Partial<StudioPost>) => {
-    const next: StudioPost = { ...post, body: currentBody(), ...overrides };
-    const saved = upsertAdminPost(next);
-    setPost(saved);
-    if (isNew) {
-      router.replace(`/admin/posts/edit/?id=${saved.id}`);
+  const save = async (overrides: Partial<StudioPost>): Promise<StudioPost | null> => {
+    setSaveState("saving");
+    setSaveError(null);
+    try {
+      const saved = await savePost(post.id, { ...post, body: currentBody(), ...overrides });
+      setPost(saved);
+      setSaveState("idle");
+      return saved;
+    } catch (error) {
+      setSaveState("error");
+      setSaveError(error instanceof Error ? error.message : "Unknown error.");
+      return null;
     }
-    return saved;
   };
 
-  const handleSaveDraft = () => {
-    persist({ status: "draft", scheduledAt: undefined });
-    setNotice("Saved as draft.");
+  const handleSaveDraft = async () => {
+    setPublishState("idle");
+    await save({ status: "draft", scheduledAt: undefined });
   };
 
-  const handlePublishNow = () => {
-    const nowIso = new Date().toISOString();
-    persist({ status: "published", publishedAt: post.publishedAt ?? nowIso, scheduledAt: undefined });
-    setNotice("Marked published in this admin. See the note above to make it live on the public site.");
+  const handlePublishNow = async () => {
+    setPublishState("publishing");
+    setPublishError(null);
+
+    // Publish reads whatever is currently in D1, so the latest edits
+    // must land there first — this IS "save latest editorial state",
+    // not a separate draft save.
+    const saved = await save({});
+    if (!saved) {
+      setPublishState("error");
+      setPublishError("Could not save your latest changes, so publishing was stopped before contacting GitHub.");
+      return;
+    }
+
+    try {
+      const result = await publishPost(saved.id);
+      setPost((prev) => ({ ...prev, status: "published", publishedAt: result.publishedAt, scheduledAt: undefined }));
+      setPublishState("published");
+    } catch (error) {
+      setPublishState("error");
+      setPublishError(error instanceof Error ? error.message : "Unknown error.");
+    }
   };
 
-  const handleConfirmSchedule = () => {
+  const handleConfirmSchedule = async () => {
     if (!scheduleDate) return;
+    setPublishState("idle");
     const iso = brisbaneWallTimeToIso(scheduleDate, scheduleTime);
-    persist({ status: "scheduled", scheduledAt: iso });
-    setScheduling(false);
-    setNotice(`Scheduled for ${formatBrisbaneDateTime(iso)}. Automatic publication is not yet wired up — see the report.`);
+    const saved = await save({ status: "scheduled", scheduledAt: iso });
+    if (saved) setScheduling(false);
   };
 
-  const handleDelete = () => {
-    if (isNew) return;
+  const handleDelete = async () => {
     if (!window.confirm("Delete this post? This can't be undone.")) return;
-    deleteAdminPost(post.id);
-    router.push("/admin/posts/");
-  };
-
-  const handleCopyAsCode = async () => {
-    const codeBlock = postToSourceLiteral({ ...post, body: currentBody() });
-    await navigator.clipboard.writeText(codeBlock);
-    setNotice("Copied. Paste this object into src/content/studio.ts's studioPosts array, then commit and deploy to go live.");
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deletePostApi(post.id);
+      router.push("/admin/posts/");
+    } catch (error) {
+      setDeleting(false);
+      setDeleteError(error instanceof Error ? error.message : "Unknown error.");
+    }
   };
 
   const previewPost: StudioPost = { ...post, body: currentBody() };
@@ -86,13 +120,9 @@ export default function PostForm({ post: initialPost, isNew }: { post: StudioPos
       {post.status !== "draft" && (
         <p className={styles.statusBadge} data-status={post.status}>
           {post.status}
-        </p>
-      )}
-
-      {!isNew && (
-        <p className={styles.liveNote}>
-          Changes here are saved in your browser only. To make a post live on the public site, use “Copy as code”
-          below and add it to <code>src/content/studio.ts</code>, then deploy.
+          {post.status === "scheduled" && post.scheduledAt && (
+            <span className={styles.statusBadgeDetail}> · {formatBrisbaneDateTime(post.scheduledAt)}</span>
+          )}
         </p>
       )}
 
@@ -246,20 +276,36 @@ export default function PostForm({ post: initialPost, isNew }: { post: StudioPos
         </div>
       )}
 
-      {notice && <p className={styles.notice}>{notice}</p>}
+      {saveState === "error" && saveError && <p className={styles.errorNotice}>Could not save draft. {saveError}</p>}
+      {deleteError && <p className={styles.errorNotice}>Could not delete post. {deleteError}</p>}
+
+      {publishState === "published" && (
+        <p className={styles.successNotice}>
+          Published. Site deployment has started.{" "}
+          <a href={`/studio/notes/${post.slug}/`} className={styles.viewPublicLink}>
+            View public page →
+          </a>
+        </p>
+      )}
+      {publishState === "error" && publishError && (
+        <p className={styles.errorNotice}>
+          Could not publish to GitHub. Publication is still {post.status === "scheduled" ? "scheduled" : "a draft"} because the
+          attempt failed — nothing was lost. {publishError}
+        </p>
+      )}
 
       <div className={styles.controls}>
-        <button type="button" className={styles.secondaryButton} onClick={handleSaveDraft}>
-          Save Draft
+        <button type="button" className={styles.secondaryButton} onClick={handleSaveDraft} disabled={busy}>
+          {saveState === "saving" ? "Saving…" : "Save Draft"}
         </button>
-        <button type="button" className={styles.secondaryButton} onClick={() => setPreviewing(true)}>
+        <button type="button" className={styles.secondaryButton} onClick={() => setPreviewing(true)} disabled={busy}>
           Preview
         </button>
-        <button type="button" className={styles.secondaryButton} onClick={() => setScheduling((value) => !value)}>
+        <button type="button" className={styles.secondaryButton} onClick={() => setScheduling((value) => !value)} disabled={busy}>
           Schedule
         </button>
-        <button type="button" className={styles.primaryButton} onClick={handlePublishNow}>
-          Publish Now
+        <button type="button" className={styles.primaryButton} onClick={handlePublishNow} disabled={busy}>
+          {publishState === "publishing" ? "Publishing…" : "Publish Now"}
         </button>
       </div>
 
@@ -286,21 +332,21 @@ export default function PostForm({ post: initialPost, isNew }: { post: StudioPos
               {formatBrisbaneDateTime(brisbaneWallTimeToIso(scheduleDate, scheduleTime))}
             </p>
           )}
-          <button type="button" className={styles.primaryButton} onClick={handleConfirmSchedule} disabled={!scheduleDate}>
-            Confirm Schedule
+          <button
+            type="button"
+            className={styles.primaryButton}
+            onClick={handleConfirmSchedule}
+            disabled={!scheduleDate || busy}
+          >
+            {saveState === "saving" ? "Saving…" : "Confirm Schedule"}
           </button>
         </div>
       )}
 
       <div className={styles.footerRow}>
-        <button type="button" className={styles.linkButton} onClick={handleCopyAsCode}>
-          Copy as code (for studio.ts)
+        <button type="button" className={styles.dangerLink} onClick={handleDelete} disabled={busy}>
+          {deleting ? "Deleting…" : "Delete post"}
         </button>
-        {!isNew && (
-          <button type="button" className={styles.dangerLink} onClick={handleDelete}>
-            Delete post
-          </button>
-        )}
       </div>
 
       {previewing && (
@@ -318,8 +364,4 @@ export default function PostForm({ post: initialPost, isNew }: { post: StudioPos
       )}
     </div>
   );
-}
-
-function postToSourceLiteral(post: StudioPost): string {
-  return JSON.stringify(post, null, 2);
 }

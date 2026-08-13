@@ -1,11 +1,11 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import AdminGate from "@/components/admin/AdminGate";
 import AdminShell from "@/components/admin/AdminShell";
-import { useAdminPosts, sortByUpdatedDesc } from "@/lib/adminStore";
+import { fetchAllPosts } from "@/lib/adminApiClient";
 import type { StudioPost, StudioPostStatus } from "@/content/studio";
 import styles from "./page.module.css";
 
@@ -16,15 +16,42 @@ const FILTERS: { value: StudioPostStatus | "all"; label: string }[] = [
   { value: "published", label: "Published" },
 ];
 
+function sortByUpdatedDesc(posts: StudioPost[]): StudioPost[] {
+  return [...posts].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+}
+
 export default function AdminPostsPage() {
-  const posts = useAdminPosts();
+  const [posts, setPosts] = useState<StudioPost[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchAllPosts()
+      .then((loaded) => {
+        if (!cancelled) setPosts(loaded);
+      })
+      .catch((err: Error) => {
+        if (!cancelled) setError(err.message);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <AdminGate>
       <AdminShell>
-        <Suspense fallback={<p className={styles.empty}>Loading…</p>}>
-          <PostsList posts={posts} />
-        </Suspense>
+        {error ? (
+          <p className={styles.empty}>{error}</p>
+        ) : posts === null ? (
+          <p className={styles.empty}>Loading…</p>
+        ) : (
+          <Suspense fallback={<p className={styles.empty}>Loading…</p>}>
+            <PostsList posts={posts} />
+          </Suspense>
+        )}
       </AdminShell>
     </AdminGate>
   );

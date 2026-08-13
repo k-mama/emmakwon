@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import AdminGate from "@/components/admin/AdminGate";
 import AdminShell from "@/components/admin/AdminShell";
 import PostForm from "@/components/admin/PostForm";
-import { useAdminPosts } from "@/lib/adminStore";
+import { fetchPost } from "@/lib/adminApiClient";
+import type { StudioPost } from "@/content/studio";
 import styles from "../page.module.css";
 
 export default function EditPostPage() {
@@ -23,10 +24,31 @@ export default function EditPostPage() {
 function EditPostLoader() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  const posts = useAdminPosts();
-  const post = id ? posts.find((candidate) => candidate.id === id) : undefined;
+  const [post, setPost] = useState<StudioPost | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  if (!post) return <p className={styles.empty}>Post not found.</p>;
+  useEffect(() => {
+    if (!id) return;
 
-  return <PostForm post={post} isNew={false} key={post.id} />;
+    let cancelled = false;
+    fetchPost(id)
+      .then((loaded) => {
+        if (!cancelled) setPost(loaded);
+      })
+      .catch((err: Error) => {
+        if (!cancelled) setFetchError(err.message);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  // "no id in the URL" is derivable straight from render input — no
+  // effect needed for that branch, only for the real async fetch above.
+  if (!id) return <p className={styles.errorState}>No post id given.</p>;
+  if (fetchError) return <p className={styles.errorState}>{fetchError}</p>;
+  if (!post) return <p className={styles.empty}>Loading…</p>;
+
+  return <PostForm post={post} key={post.id} />;
 }

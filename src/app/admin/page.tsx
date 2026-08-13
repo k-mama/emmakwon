@@ -1,26 +1,60 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import AdminGate from "@/components/admin/AdminGate";
 import AdminShell from "@/components/admin/AdminShell";
-import { getNextScheduledPost, useAdminPosts, sortByUpdatedDesc } from "@/lib/adminStore";
+import { fetchAllPosts } from "@/lib/adminApiClient";
 import { formatBrisbaneDateTime, formatStudioDate, type StudioPost } from "@/content/studio";
 import styles from "./page.module.css";
 
+function getNextScheduled(posts: StudioPost[]): StudioPost | undefined {
+  return posts
+    .filter((post): post is StudioPost & { scheduledAt: string } => post.status === "scheduled" && Boolean(post.scheduledAt))
+    .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0];
+}
+
+function sortByUpdatedDesc(posts: StudioPost[]): StudioPost[] {
+  return [...posts].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+}
+
 export default function AdminHomePage() {
-  const posts = useAdminPosts();
+  const [posts, setPosts] = useState<StudioPost[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchAllPosts()
+      .then((loaded) => {
+        if (!cancelled) setPosts(loaded);
+      })
+      .catch((err: Error) => {
+        if (!cancelled) setError(err.message);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <AdminGate>
       <AdminShell>
-        <Dashboard posts={posts} />
+        {error ? (
+          <p className={styles.errorState}>{error}</p>
+        ) : posts === null ? (
+          <p className={styles.empty}>Loading…</p>
+        ) : (
+          <Dashboard posts={posts} />
+        )}
       </AdminShell>
     </AdminGate>
   );
 }
 
 function Dashboard({ posts }: { posts: StudioPost[] }) {
-  const nextScheduled = getNextScheduledPost(posts);
+  const nextScheduled = getNextScheduled(posts);
   const drafts = sortByUpdatedDesc(posts.filter((post) => post.status === "draft")).slice(0, 5);
   const published = sortByUpdatedDesc(posts.filter((post) => post.status === "published")).slice(0, 5);
 
@@ -35,10 +69,10 @@ function Dashboard({ posts }: { posts: StudioPost[] }) {
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Next to publish</h2>
-        {nextScheduled && nextScheduled.scheduledAt ? (
+        {nextScheduled ? (
           <Link href={`/admin/posts/edit/?id=${nextScheduled.id}`} className={styles.scheduledCard}>
             <span className={styles.scheduledTitle}>{nextScheduled.title || "Untitled"}</span>
-            <span className={styles.scheduledWhen}>{formatBrisbaneDateTime(nextScheduled.scheduledAt)}</span>
+            <span className={styles.scheduledWhen}>{formatBrisbaneDateTime(nextScheduled.scheduledAt!)}</span>
           </Link>
         ) : (
           <p className={styles.empty}>Nothing scheduled.</p>

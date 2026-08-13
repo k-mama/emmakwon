@@ -1,18 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import AdminGate from "@/components/admin/AdminGate";
 import AdminShell from "@/components/admin/AdminShell";
-import PostForm from "@/components/admin/PostForm";
-import { createDraftPost } from "@/lib/adminStore";
+import { createDraft } from "@/lib/adminApiClient";
+import styles from "../page.module.css";
 
 export default function NewPostPage() {
-  const [draft] = useState(() => createDraftPost());
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    createDraft()
+      .then((post) => {
+        if (!cancelled) router.replace(`/admin/posts/edit/?id=${post.id}`);
+      })
+      .catch((err: Error) => {
+        if (!cancelled) setError(err.message);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   return (
     <AdminGate>
       <AdminShell>
-        <PostForm post={draft} isNew />
+        <p className={error ? styles.errorState : styles.empty}>{error ?? "Creating draft…"}</p>
       </AdminShell>
     </AdminGate>
   );

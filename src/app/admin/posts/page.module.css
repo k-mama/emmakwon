@@ -64,6 +64,16 @@
   color: var(--soft-text);
 }
 
+.errorState {
+  margin: 0;
+  padding: 12px 14px;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: #8a3b32;
+  background: #fbeeec;
+  border-radius: 6px;
+}
+
 .list {
   margin: 0;
   padding: 0;

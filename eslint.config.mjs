@@ -12,6 +12,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // wrangler's local dev/build cache — not source, and functions/
+    // and workers/ are type-checked separately (see their own
+    // tsconfig.json), not by this Next.js lint config.
+    ".wrangler/**",
+    "functions/**",
+    "workers/**",
   ]),
 ]);
 
