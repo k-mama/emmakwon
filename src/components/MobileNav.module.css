@@ -6,13 +6,15 @@
   height: 44px;
   padding: 0;
   margin: 0 -8px 0 -12px;
-  color: var(--soft-text);
+  color: var(--nav-navy);
   transition: color 0.25s ease;
 }
 
 .triggerOverlay {
-  color: rgba(253, 251, 247, 0.9);
-  filter: drop-shadow(0 1px 3px rgba(8, 10, 22, 0.4));
+  color: var(--nav-navy);
+  /* Subtle light halo (not a dark shadow) keeps the navy icon readable
+     over the video without dimming its color. */
+  filter: drop-shadow(0 1px 8px rgba(255, 253, 247, 0.55));
 }
 
 @media (max-width: 640px) {
@@ -98,7 +100,7 @@
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--title-primary);
+  color: var(--nav-navy);
 }
 
 .closeBtn {
@@ -189,7 +191,7 @@
   font-size: 22px;
   font-weight: 500;
   letter-spacing: 0.01em;
-  color: var(--title-primary);
+  color: var(--nav-navy);
 }
 
 .overlayFooter {
@@ -202,5 +204,5 @@
 .footerTrigger {
   display: inline-flex;
   padding: 6px;
-  color: var(--soft-text);
+  color: var(--nav-navy);
 }

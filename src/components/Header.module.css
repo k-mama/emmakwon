@@ -1,4 +1,9 @@
 .header {
+  /* Editorial navy used consistently for the brand, primary nav, and
+     language globe — inherited by MobileNav/LanguageMenu too, since both
+     render as DOM descendants of this element. */
+  --nav-navy: #1e2d5b;
+  --nav-navy-hover: color-mix(in srgb, #1e2d5b 78%, black);
   position: sticky;
   top: 0;
   z-index: 40;
@@ -33,14 +38,16 @@
   font-size: 18px;
   font-weight: 500;
   letter-spacing: 0.01em;
-  color: #fdfbf7;
-  text-shadow: 0 1px 6px rgba(8, 10, 22, 0.32);
+  color: var(--nav-navy);
+  /* Subtle light halo (not a dark shadow) keeps the now-dark navy readable
+     over the video without dimming the text color itself. */
+  text-shadow: 0 1px 8px rgba(255, 253, 247, 0.55);
   white-space: nowrap;
   transition: color 0.25s ease, text-shadow 0.25s ease;
 }
 
 .scrolled .brand {
-  color: var(--title-primary);
+  color: var(--nav-navy);
   text-shadow: none;
 }
 
@@ -64,23 +71,23 @@
   font-size: 14.5px;
   font-weight: 500;
   letter-spacing: 0.02em;
-  color: rgba(253, 251, 247, 0.9);
-  text-shadow: 0 1px 6px rgba(8, 10, 22, 0.32);
+  color: var(--nav-navy);
+  text-shadow: 0 1px 8px rgba(255, 253, 247, 0.55);
   white-space: nowrap;
   transition: color 0.25s ease, text-shadow 0.25s ease;
 }
 
 .scrolled .navLink {
-  color: var(--soft-text);
+  color: var(--nav-navy);
   text-shadow: none;
 }
 
 .navLink:hover {
-  color: var(--tiger-gold);
+  color: var(--nav-navy-hover);
 }
 
 .scrolled .navLink:hover {
-  color: var(--hover-accent);
+  color: var(--nav-navy-hover);
 }
 
 .iconBtn {
@@ -88,20 +95,22 @@
   align-items: center;
   justify-content: center;
   padding: 6px;
-  color: rgba(253, 251, 247, 0.9);
-  transition: color 0.25s ease;
+  color: var(--nav-navy);
+  filter: drop-shadow(0 1px 8px rgba(255, 253, 247, 0.55));
+  transition: color 0.25s ease, filter 0.25s ease;
 }
 
 .scrolled .iconBtn {
-  color: var(--soft-text);
+  color: var(--nav-navy);
+  filter: none;
 }
 
 .iconBtn:hover {
-  color: #fdfbf7;
+  color: var(--nav-navy-hover);
 }
 
 .scrolled .iconBtn:hover {
-  color: var(--title-primary);
+  color: var(--nav-navy-hover);
 }
 
 @media (max-width: 640px) {
