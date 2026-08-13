@@ -56,12 +56,12 @@
 
 .fieldRight {
   background: linear-gradient(
-    165deg,
-    var(--field-right-1) 0%,
-    var(--field-right-2) 26%,
-    var(--field-right-3) 55%,
-    var(--field-right-4) 80%,
-    var(--field-right-5) 100%
+    180deg,
+    #e8d7ca 0%,
+    #e5c9ce 30%,
+    #ddb9cf 60%,
+    #c8a7d2 82%,
+    #b39bd0 100%
   );
 }
 
