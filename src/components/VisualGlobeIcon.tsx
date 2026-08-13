@@ -5,7 +5,7 @@ type VisualGlobeIconProps = {
   className?: string;
 };
 
-export default function VisualGlobeIcon({ size = 33, className }: VisualGlobeIconProps) {
+export default function VisualGlobeIcon({ size = 27, className }: VisualGlobeIconProps) {
   const gradientId = useId();
 
   return (

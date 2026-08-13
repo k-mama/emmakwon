@@ -4,6 +4,10 @@
      render as DOM descendants of this element. */
   --nav-navy: #1e2d5b;
   --nav-navy-hover: color-mix(in srgb, #1e2d5b 78%, black);
+  /* Luminous pink-magenta hover, sampled in spirit from the neon hair
+     accent in the reference — vivid and a little electric, but leaning
+     pink rather than purple, and saturated rather than pastel/candy. */
+  --nav-hover-pink: #ff2d8f;
   position: sticky;
   top: 0;
   z-index: 40;
@@ -83,11 +87,11 @@
 }
 
 .navLink:hover {
-  color: var(--tiger-gold);
+  color: var(--nav-hover-pink);
 }
 
 .scrolled .navLink:hover {
-  color: var(--tiger-gold);
+  color: var(--nav-hover-pink);
 }
 
 /* Globe icon renders its own gradient stroke (see VisualGlobeIcon), so

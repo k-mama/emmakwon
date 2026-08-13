@@ -196,7 +196,7 @@
 }
 
 .link:hover {
-  color: var(--tiger-gold);
+  color: var(--nav-hover-pink);
 }
 
 .overlayFooter {
