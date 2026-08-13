@@ -4,10 +4,15 @@
 # (run from the repo root, so it resolves the shared src/lib modules and
 # node_modules correctly).
 #
-# database_id below is a PLACEHOLDER — must match the real D1 database
-# bound in the root wrangler.toml (same database, same binding name,
-# both the Pages project and this Worker read/write the one
-# studio_posts table). See CLOUDFLARE_SETUP.md.
+# database_id below is a PLACEHOLDER. Unlike the Pages project (whose D1
+# binding lives in the Cloudflare dashboard, not a wrangler.toml — see
+# CLOUDFLARE_SETUP.md), this standalone Worker has no dashboard-driven
+# alternative: wrangler.toml IS its real deployment config. That's fine
+# — deploying it is a separate, explicit `wrangler deploy` step the user
+# runs manually (see CLOUDFLARE_SETUP.md step F), never triggered by a
+# git push, so a placeholder sitting here carries no risk of going live
+# with a fake id. Fill in the real database_id (same database as the
+# Pages project's STUDIO_DB binding) immediately before that deploy step.
 name = "emmakwon-studio-scheduler"
 main = "src/index.ts"
 compatibility_date = "2026-08-01"

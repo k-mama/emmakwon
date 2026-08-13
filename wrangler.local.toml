@@ -1,0 +1,39 @@
+# LOCAL DEVELOPMENT ONLY — never used by production Cloudflare Pages.
+#
+# This file deliberately has NO `pages_build_output_dir`. That field is
+# what Wrangler/Cloudflare Pages treats as "this file is the Pages
+# project's own configuration" once a build reads it — so a file with
+# that field sitting at the repo root, containing a fake database_id,
+# would risk becoming (or being mistaken for) real production config the
+# moment Cloudflare Pages' build picks it up. Leaving it out here makes
+# this file structurally incapable of being read that way, no matter
+# what it's named or where it sits.
+#
+# Production's D1 binding and GitHub secrets are configured directly in
+# the Cloudflare Pages dashboard (Settings → Functions) — see
+# CLOUDFLARE_SETUP.md. That dashboard configuration, not any wrangler.toml,
+# is the source of truth for the Pages project today.
+#
+# database_id below is a placeholder — local `--local` D1 commands never
+# contact Cloudflare's API, so this never needs to be a real ID for local
+# development to work.
+#
+# Usage:
+#
+#   Migrations / D1 queries (this command DOES support --config):
+#     npx wrangler d1 execute STUDIO_DB --local --config wrangler.local.toml --file=migrations/0001_create_studio_posts.sql
+#
+#   Local Pages + Functions dev server — note `wrangler pages dev` refuses
+#   --config entirely ("Pages does not support custom paths for the
+#   Wrangler configuration file"), so bindings are passed as CLI flags
+#   instead. Use the SAME placeholder id as database_id below so both
+#   commands share one local SQLite file:
+#     npx wrangler pages dev out --port 8788 --d1 STUDIO_DB=REPLACE_WITH_REAL_D1_DATABASE_ID \
+#       -b GITHUB_TOKEN=... -b GITHUB_OWNER=... -b GITHUB_REPO=... -b GITHUB_BRANCH=... -b GITHUB_CONTENT_PATH=...
+name = "emmakwon2-local"
+compatibility_date = "2026-08-01"
+
+[[d1_databases]]
+binding = "STUDIO_DB"
+database_name = "emmakwon-studio"
+database_id = "REPLACE_WITH_REAL_D1_DATABASE_ID"
