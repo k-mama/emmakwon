@@ -1,0 +1,98 @@
+/* Deliberately plain — no atmosphere, no gradients, no public-site design
+   language. This is a tool, not a brand surface. */
+.screen {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #fafaf8;
+}
+
+.panel {
+  width: 100%;
+  max-width: 360px;
+  padding: 32px;
+  background: #ffffff;
+  border: 1px solid var(--color-hairline);
+  border-radius: 10px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--soft-text);
+}
+
+.headline {
+  margin: 8px 0 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  color: var(--title-primary);
+}
+
+.body {
+  margin: 12px 0 0;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--body-text);
+}
+
+.body code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12.5px;
+  background: #f1f0ec;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px 12px;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  color: var(--title-primary);
+  background: #ffffff;
+  border: 1px solid var(--color-hairline);
+  border-radius: 6px;
+}
+
+.input:focus {
+  outline: 2px solid var(--title-primary);
+  outline-offset: 1px;
+}
+
+.error {
+  margin: 10px 0 0;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  color: #b8433c;
+}
+
+.submit {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 10px 12px;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  background: var(--title-primary);
+  border: none;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.submit:hover {
+  background: var(--nav-navy-hover, #16224a);
+}

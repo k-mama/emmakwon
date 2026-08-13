@@ -6,22 +6,38 @@
 
 export type StudioCategory = "LEARN" | "BUILD" | "MAKE";
 
-export type StudioPostStatus = "draft" | "published";
+export type StudioPostStatus = "draft" | "scheduled" | "published";
+
+/** A future-facing pointer to external media (YouTube, etc.) — Phase 2
+    prepares the field; no API integration happens yet. */
+export type StudioMediaRef = {
+  label: string;
+  url: string;
+};
 
 export type StudioPost = {
+  id: string;
   title: string;
   slug: string;
   excerpt: string;
   coverImage?: string;
-  /** Plain paragraphs for Phase 1 — no rich text/markdown yet. */
+  /** Plain paragraphs for Phase 1/2 — no rich text/markdown yet. */
   body: string[];
   category: StudioCategory;
   tags: string[];
-  /** ISO date string. */
-  publishedAt: string;
   status: StudioPostStatus;
+  /** ISO date. Set once status becomes "published". */
+  publishedAt?: string;
+  /** ISO datetime (includes time). Set while status is "scheduled". Always
+      interpreted and displayed in Australia/Brisbane in the admin UI. */
+  scheduledAt?: string;
+  /** ISO datetime. */
+  createdAt: string;
+  /** ISO datetime. */
+  updatedAt: string;
   seoTitle?: string;
   seoDescription?: string;
+  externalMedia?: StudioMediaRef[];
 };
 
 export const studioHero = {
@@ -66,6 +82,7 @@ export const studioPillars: Record<"learn" | "build" | "make", StudioPillar> = {
 // publishedAt — but kept roughly chronological for readability.
 export const studioPosts: StudioPost[] = [
   {
+    id: "post-1",
     title: "Rebuilding EmmaKwon.com with AI",
     slug: "rebuilding-emmakwon-with-ai",
     excerpt:
@@ -77,12 +94,15 @@ export const studioPosts: StudioPost[] = [
     ],
     category: "BUILD",
     tags: ["ai workflow", "web design", "claude code"],
-    publishedAt: "2026-08-10",
     status: "published",
+    publishedAt: "2026-08-10T09:00:00+10:00",
+    createdAt: "2026-08-07T18:20:00+10:00",
+    updatedAt: "2026-08-10T09:00:00+10:00",
     seoTitle: "Rebuilding EmmaKwon.com with AI",
     seoDescription: "A behind-the-scenes look at rebuilding this site in small, precise corrections with an AI coding assistant.",
   },
   {
+    id: "post-2",
     title: "Making (and Remaking) the Favicon",
     slug: "making-the-favicon",
     excerpt:
@@ -94,12 +114,15 @@ export const studioPosts: StudioPost[] = [
     ],
     category: "BUILD",
     tags: ["branding", "iteration", "favicon"],
-    publishedAt: "2026-08-03",
     status: "published",
+    publishedAt: "2026-08-03T09:00:00+10:00",
+    createdAt: "2026-08-01T14:10:00+10:00",
+    updatedAt: "2026-08-03T09:00:00+10:00",
     seoTitle: "Making (and Remaking) the Favicon",
     seoDescription: "Five rounds of iteration on a 32-pixel favicon, and what it taught me about restraint.",
   },
   {
+    id: "post-3",
     title: "Using NotebookLM After English Class",
     slug: "notebooklm-after-english-class",
     excerpt:
@@ -111,12 +134,15 @@ export const studioPosts: StudioPost[] = [
     ],
     category: "BUILD",
     tags: ["notebooklm", "workflow", "english learning"],
-    publishedAt: "2026-07-27",
     status: "published",
+    publishedAt: "2026-07-27T09:00:00+10:00",
+    createdAt: "2026-07-25T20:05:00+10:00",
+    updatedAt: "2026-07-27T09:00:00+10:00",
     seoTitle: "Using NotebookLM After English Class",
     seoDescription: "How I turn messy language-school notes into study material with NotebookLM.",
   },
   {
+    id: "post-4",
     title: "English I'm Learning in Brisbane",
     slug: "english-im-learning-in-brisbane",
     excerpt:
@@ -128,12 +154,16 @@ export const studioPosts: StudioPost[] = [
     ],
     category: "LEARN",
     tags: ["english learning", "brisbane", "language school"],
-    publishedAt: "2026-07-20",
     status: "published",
+    publishedAt: "2026-07-20T09:00:00+10:00",
+    createdAt: "2026-07-18T19:30:00+10:00",
+    updatedAt: "2026-07-20T09:00:00+10:00",
     seoTitle: "English I'm Learning in Brisbane",
     seoDescription: "Notes from language school in Brisbane, written down as I learn, not as a teacher.",
+    externalMedia: [{ label: "Watch on YouTube", url: "#" }],
   },
   {
+    id: "post-5",
     title: "What's Next for Sly Fairy",
     slug: "whats-next-for-sly-fairy",
     excerpt:
@@ -145,15 +175,19 @@ export const studioPosts: StudioPost[] = [
     ],
     category: "MAKE",
     tags: ["sly fairy", "current work", "visual experiments"],
-    publishedAt: "2026-07-13",
     status: "published",
+    publishedAt: "2026-07-13T09:00:00+10:00",
+    createdAt: "2026-07-10T11:45:00+10:00",
+    updatedAt: "2026-07-13T09:00:00+10:00",
     seoTitle: "What's Next for Sly Fairy",
     seoDescription: "Current visual experiments and what's next for the Sly Fairy character world.",
   },
 ];
 
 function byPublishedAtDesc(a: StudioPost, b: StudioPost): number {
-  return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+  const aTime = new Date(a.publishedAt ?? a.createdAt).getTime();
+  const bTime = new Date(b.publishedAt ?? b.createdAt).getTime();
+  return bTime - aTime;
 }
 
 export function getPublishedPosts(): StudioPost[] {
@@ -173,10 +207,50 @@ export function getPostBySlug(slug: string): StudioPost | undefined {
   return studioPosts.find((post) => post.slug === slug && post.status === "published");
 }
 
-export function formatStudioDate(publishedAt: string): string {
-  return new Date(publishedAt).toLocaleDateString("en-AU", {
+export function formatStudioDate(dateInput: string): string {
+  return new Date(dateInput).toLocaleDateString("en-AU", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
+}
+
+export const SCHEDULING_TIMEZONE = "Australia/Brisbane";
+
+/** Formats a datetime explicitly in Australia/Brisbane, with the zone name
+    always visible, so the admin can never mistake it for UTC or local time. */
+export function formatBrisbaneDateTime(dateInput: string): string {
+  const date = new Date(dateInput);
+  const datePart = date.toLocaleDateString("en-AU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: SCHEDULING_TIMEZONE,
+  });
+  const timePart = date.toLocaleTimeString("en-AU", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: SCHEDULING_TIMEZONE,
+  });
+  return `${datePart}, ${timePart} ${SCHEDULING_TIMEZONE}`;
+}
+
+/** Combines a YYYY-MM-DD date and HH:mm time, both entered as
+    Australia/Brisbane wall-clock values, into an ISO datetime. Brisbane
+    (Queensland) does not observe daylight saving, so its UTC offset is
+    always a fixed +10:00 — no timezone library needed for this. */
+export function brisbaneWallTimeToIso(date: string, time: string): string {
+  return `${date}T${time}:00+10:00`;
+}
+
+const COMBINING_MARKS = new RegExp("[̀-ͯ]", "g");
+
+export function slugify(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(COMBINING_MARKS, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }

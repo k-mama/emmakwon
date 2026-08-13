@@ -11,7 +11,7 @@ export default function NoteList({ posts }: { posts: StudioPost[] }) {
             <span className={styles.category}>{post.category}</span>
             <span className={styles.title}>{post.title}</span>
             <span className={styles.excerpt}>{post.excerpt}</span>
-            <span className={styles.date}>{formatStudioDate(post.publishedAt)}</span>
+            <span className={styles.date}>{formatStudioDate(post.publishedAt ?? post.createdAt)}</span>
           </Link>
         </li>
       ))}

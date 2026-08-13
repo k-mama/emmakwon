@@ -1,0 +1,139 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.headline {
+  margin: 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: 26px;
+  color: var(--title-primary);
+}
+
+.newPost {
+  padding: 9px 16px;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--title-primary);
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.newPost:hover {
+  background: var(--nav-navy-hover, #16224a);
+}
+
+.section {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid var(--color-hairline);
+}
+
+.section:first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sectionTitle {
+  margin: 0 0 16px;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--soft-text);
+}
+
+.viewAll {
+  margin-bottom: 16px;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  color: var(--soft-text);
+  transition: color 0.15s ease;
+}
+
+.viewAll:hover {
+  color: var(--title-primary);
+}
+
+.empty {
+  margin: 0;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: var(--soft-text);
+}
+
+.scheduledCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 16px 18px;
+  background: #ffffff;
+  border: 1px solid var(--color-hairline);
+  border-radius: 8px;
+  transition: border-color 0.15s ease;
+}
+
+.scheduledCard:hover {
+  border-color: var(--title-primary);
+}
+
+.scheduledTitle {
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  color: var(--title-primary);
+}
+
+.scheduledWhen {
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  color: var(--soft-text);
+  white-space: nowrap;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list li + li {
+  border-top: 1px solid var(--color-hairline);
+}
+
+.listLink {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 2px;
+}
+
+.listTitle {
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14.5px;
+  color: var(--title-primary);
+}
+
+.listMeta {
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12.5px;
+  color: var(--soft-text);
+  white-space: nowrap;
+}
