@@ -192,6 +192,11 @@
   font-weight: 500;
   letter-spacing: 0.01em;
   color: var(--nav-navy);
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: var(--tiger-gold);
 }
 
 .overlayFooter {
@@ -204,5 +209,5 @@
 .footerTrigger {
   display: inline-flex;
   padding: 6px;
-  color: var(--nav-navy);
+  color: var(--soft-text);
 }
