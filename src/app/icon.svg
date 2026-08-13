@@ -1,33 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Emma Kwon favicon">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Emma Kwon Aurora E favicon">
   <defs>
-    <radialGradient id="pearl" cx="34%" cy="28%" r="82%">
-      <stop offset="0%" stop-color="#fffdfb"/>
-      <stop offset="30%" stop-color="#f9e8f5"/>
-      <stop offset="58%" stop-color="#d9e7ff"/>
-      <stop offset="80%" stop-color="#d8c6f0"/>
-      <stop offset="100%" stop-color="#b9dded"/>
+    <radialGradient id="pearl" cx="70%" cy="24%" r="92%">
+      <stop offset="0%" stop-color="#fffdfd"/>
+      <stop offset="24%" stop-color="#ffe8f4"/>
+      <stop offset="48%" stop-color="#e7d6ff"/>
+      <stop offset="72%" stop-color="#9fb6ff"/>
+      <stop offset="88%" stop-color="#78d5f0"/>
+      <stop offset="100%" stop-color="#b78de8"/>
     </radialGradient>
-    <linearGradient id="rim" x1="70" y1="50" x2="445" y2="462" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#eefcff"/>
-      <stop offset="28%" stop-color="#97dcec"/>
-      <stop offset="55%" stop-color="#dca3e4"/>
-      <stop offset="76%" stop-color="#ffb6d4"/>
-      <stop offset="100%" stop-color="#8ea8e5"/>
+    <radialGradient id="warmGlow" cx="72%" cy="34%" r="52%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.86"/>
+      <stop offset="52%" stop-color="#ffd6eb" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="#ffd6eb" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="72" y1="48" x2="446" y2="464" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f9efff"/>
+      <stop offset="26%" stop-color="#d9a5ff"/>
+      <stop offset="55%" stop-color="#78d7f0"/>
+      <stop offset="78%" stop-color="#a5b8ff"/>
+      <stop offset="100%" stop-color="#f7b6dd"/>
     </linearGradient>
-    <linearGradient id="shine" x1="128" y1="88" x2="366" y2="410" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.72"/>
-      <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
-    </linearGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
   </defs>
 
-  <circle cx="256" cy="256" r="232" fill="url(#pearl)" stroke="url(#rim)" stroke-width="12"/>
-  <ellipse cx="206" cy="175" rx="126" ry="96" fill="url(#shine)"/>
+  <circle cx="256" cy="256" r="246" fill="url(#pearl)" stroke="url(#rim)" stroke-width="8"/>
+  <circle cx="320" cy="190" r="152" fill="url(#warmGlow)"/>
+  <circle cx="256" cy="256" r="238" fill="none" stroke="#ffffff" stroke-opacity="0.48" stroke-width="3"/>
 
-  <!-- Refined E monogram, simplified for favicon legibility -->
-  <path fill="#1e2d5b" d="M144 131h168v31H185v79h105v30H185v80h137v31H144v-18h17V149h-17z"/>
-  <path fill="#1e2d5b" d="M139 124h57v12h-57zm0 252h61v12h-61z"/>
+  <text x="116" y="378"
+        fill="#15265b"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="330"
+        font-weight="700"
+        letter-spacing="-18">E</text>
 
-  <!-- Four-point signature star -->
-  <path fill="#1e2d5b" d="M353 199c5 31 12 38 43 43-31 5-38 12-43 43-5-31-12-38-43-43 31-5 38-12 43-43z"/>
-  <circle cx="353" cy="242" r="5" fill="#fffdfb"/>
+  <path d="M383 180 C389 211 397 219 429 225 C397 231 389 239 383 271 C377 239 369 231 337 225 C369 219 377 211 383 180Z"
+        fill="#15265b"/>
+
+  <path d="M383 193 C387 214 393 220 414 225 C393 229 387 235 383 256 C379 235 373 229 352 225 C373 220 379 214 383 193Z"
+        fill="#ffb3e4" opacity="0.38" filter="url(#softGlow)"/>
 </svg>
