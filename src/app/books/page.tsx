@@ -128,7 +128,7 @@ export default function BooksPage() {
           <div className="container">
             <h2 className={styles.endingHeadline}>{booksEnding.headline}</h2>
             <Link href={booksEnding.cta.href} className={styles.endingLink}>
-              <span aria-hidden="true">←</span> {booksEnding.cta.label}
+              {booksEnding.cta.label} <span aria-hidden="true">→</span>
             </Link>
           </div>
         </section>
