@@ -1,0 +1,191 @@
+.stage {
+  margin: clamp(64px, 8vw, 112px) 0 0;
+}
+
+.viewport {
+  position: relative;
+  overflow: hidden;
+  min-height: 420px;
+  aspect-ratio: 16 / 9;
+  border-radius: 28px;
+  box-shadow: 0 30px 90px rgba(30, 45, 91, 0.15);
+  isolation: isolate;
+}
+
+.asset,
+.atmosphere,
+.scrim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.asset {
+  object-fit: cover;
+}
+
+.atmosphere {
+  overflow: hidden;
+}
+
+.water .atmosphere {
+  background:
+    radial-gradient(70% 80% at 82% 14%, rgba(143, 231, 237, 0.78) 0%, rgba(143, 231, 237, 0) 68%),
+    radial-gradient(64% 74% at 14% 88%, rgba(205, 164, 222, 0.58) 0%, rgba(205, 164, 222, 0) 72%),
+    linear-gradient(145deg, #18325b 0%, #376e92 34%, #74cad2 68%, #afa0d2 100%);
+}
+
+.earth .atmosphere {
+  background:
+    radial-gradient(72% 78% at 86% 12%, rgba(236, 214, 167, 0.86) 0%, rgba(236, 214, 167, 0) 66%),
+    radial-gradient(64% 70% at 14% 92%, rgba(120, 207, 210, 0.48) 0%, rgba(120, 207, 210, 0) 72%),
+    linear-gradient(145deg, #765f69 0%, #b58d83 36%, #d8b78d 66%, #72b3b9 100%);
+}
+
+.atmosphere::before {
+  content: "";
+  position: absolute;
+  width: 66%;
+  aspect-ratio: 1;
+  top: -28%;
+  right: -8%;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  box-shadow:
+    0 0 0 54px rgba(255, 255, 255, 0.055),
+    0 0 0 142px rgba(255, 255, 255, 0.032);
+}
+
+.atmosphere::after {
+  content: "";
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  bottom: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.54), transparent);
+  box-shadow:
+    0 42px 0 rgba(255, 255, 255, 0.11),
+    0 84px 0 rgba(255, 255, 255, 0.07);
+  transform: rotate(-4deg);
+}
+
+.scrim {
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    rgba(15, 28, 52, 0.68) 0%,
+    rgba(15, 28, 52, 0.22) 42%,
+    rgba(15, 28, 52, 0.02) 72%
+  );
+  pointer-events: none;
+}
+
+.copy {
+  position: absolute;
+  z-index: 2;
+  left: clamp(26px, 5vw, 68px);
+  right: clamp(26px, 5vw, 68px);
+  bottom: clamp(28px, 5vw, 64px);
+  max-width: 760px;
+  color: #fffdf8;
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 253, 248, 0.72);
+}
+
+.title {
+  margin: 14px 0 0;
+  max-width: 17ch;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(34px, 5vw, 72px);
+  font-weight: 500;
+  line-height: 1.03;
+  letter-spacing: -0.038em;
+  color: #fffdf8;
+  text-wrap: balance;
+}
+
+.caption {
+  margin: 18px 0 0;
+  max-width: 46ch;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(14px, 1.4vw, 18px);
+  line-height: 1.62;
+  color: rgba(255, 253, 248, 0.8);
+}
+
+@media (max-width: 720px) {
+  .stage {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    margin-top: clamp(54px, 14vw, 78px);
+  }
+
+  .viewport {
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .atmosphere::before {
+    width: 102vw;
+    top: -22%;
+    right: -46%;
+  }
+
+  .copy {
+    left: 20px;
+    right: 20px;
+    bottom: 28px;
+  }
+
+  .title {
+    max-width: 12ch;
+    font-size: clamp(38px, 12vw, 58px);
+  }
+
+  .caption {
+    max-width: 32ch;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .water .atmosphere {
+    animation: waterDrift 24s ease-in-out infinite alternate;
+  }
+
+  .earth .atmosphere {
+    animation: earthDrift 28s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes waterDrift {
+  from {
+    transform: scale(1.01) translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: scale(1.045) translate3d(-0.8%, 0.7%, 0);
+  }
+}
+
+@keyframes earthDrift {
+  from {
+    transform: scale(1.01) translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: scale(1.04) translate3d(0.7%, -0.5%, 0);
+  }
+}
