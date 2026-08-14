@@ -23,6 +23,7 @@
 
 .asset {
   object-fit: cover;
+  object-position: center;
 }
 
 .atmosphere {
@@ -75,8 +76,8 @@
   z-index: 1;
   background: linear-gradient(
     to top,
-    rgba(15, 28, 52, 0.68) 0%,
-    rgba(15, 28, 52, 0.22) 42%,
+    rgba(15, 28, 52, 0.7) 0%,
+    rgba(15, 28, 52, 0.24) 40%,
     rgba(15, 28, 52, 0.02) 72%
   );
   pointer-events: none;
@@ -136,6 +137,10 @@
     aspect-ratio: 4 / 5;
     border-radius: 0;
     box-shadow: none;
+  }
+
+  .asset {
+    object-position: 56% center;
   }
 
   .atmosphere::before {
