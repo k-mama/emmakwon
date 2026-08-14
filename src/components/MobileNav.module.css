@@ -178,16 +178,26 @@
   padding: 8px 24px 24px;
 }
 
-.nav > * {
-  padding: 20px 0;
+.navGroup {
+  padding: 0;
 }
 
-.nav > * + * {
+.navGroup + .navGroup {
   border-top: 1px solid rgba(24, 38, 74, 0.065);
 }
 
+.primaryRow {
+  min-height: 67px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: center;
+  column-gap: 8px;
+}
+
 .link {
-  display: block;
+  display: flex;
+  align-items: center;
+  min-height: 67px;
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 22px;
   font-weight: 500;
@@ -196,8 +206,95 @@
   transition: color 0.2s ease-out;
 }
 
-.link:hover {
+.link:hover,
+.link:focus-visible {
   color: var(--nav-hover-wave);
+}
+
+.expandBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  color: rgba(30, 45, 91, 0.72);
+  transition: color 0.18s ease-out;
+}
+
+.expandBtn:hover,
+.expandBtn:focus-visible,
+.expandBtnOpen {
+  color: var(--nav-hover-wave);
+}
+
+.expandMark {
+  position: relative;
+  width: 14px;
+  height: 14px;
+}
+
+.expandMark::before,
+.expandMark::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 1.25px;
+  background: currentColor;
+  border-radius: 1px;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.16s ease-out, transform 0.16s ease-out;
+}
+
+.expandMark::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.expandBtnOpen .expandMark::after {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(90deg) scaleX(0.4);
+}
+
+.submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 0 18px 0;
+  animation: submenuIn 150ms ease-out both;
+}
+
+.submenuLink {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  padding-right: 48px;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.055em;
+  color: rgba(30, 45, 91, 0.72);
+  transition: color 0.18s ease-out, transform 0.18s ease-out;
+}
+
+.submenuLink:hover,
+.submenuLink:focus-visible {
+  color: var(--nav-hover-wave);
+  transform: translateX(3px);
+}
+
+@keyframes submenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .overlayFooter {
