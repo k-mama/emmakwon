@@ -9,9 +9,8 @@
 //
 // Submenus are intentionally shallow. They define the finished information
 // architecture now without forcing us to build a large number of empty
-// routes. Where a brand-world page is not built yet, its links remain safe
-// placeholders until that world is implemented. Existing worlds use real
-// page anchors so submenu clicks already land somewhere meaningful.
+// routes. Existing worlds use real page anchors so submenu clicks already
+// land somewhere meaningful.
 
 export type NavSubItem = {
   label: string;
@@ -37,12 +36,12 @@ export const primaryNav: NavItem[] = [
   },
   {
     label: "EMMAESTRO",
-    href: "#",
+    href: "/emmaestro/",
     children: [
-      { label: "RELEASES", href: "#" },
-      { label: "MUSIC VIDEOS", href: "#" },
-      { label: "CLASSICAL", href: "#" },
-      { label: "BORN RARE OST", href: "#" },
+      { label: "RELEASES", href: "/emmaestro/#releases" },
+      { label: "MUSIC VIDEOS", href: "/emmaestro/#music-videos" },
+      { label: "CLASSICAL", href: "/emmaestro/#classical" },
+      { label: "BORN RARE OST", href: "/emmaestro/#born-rare-ost" },
     ],
   },
   {
