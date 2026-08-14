@@ -93,6 +93,13 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Submenu links jump to section IDs while the header remains sticky.
+   Keep the section heading visibly below the header instead of hidden
+   underneath it after an in-page navigation jump. */
+section[id] {
+  scroll-margin-top: calc(var(--header-height) + 18px);
+}
+
 /* The ONE continuous Emma Kwon atmosphere behind the entire homepage — no
    per-section backgrounds. Sections are transparent; only content surfaces
    (room cards, the Studio panel, the Contact card, the portrait card) have
@@ -147,6 +154,12 @@ button {
 :focus-visible {
   outline: 2px solid var(--color-ink);
   outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  section[id] {
+    scroll-margin-top: calc(var(--header-height-mobile) + 14px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
