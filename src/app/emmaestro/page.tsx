@@ -22,7 +22,7 @@ export default function EmmaestroPage() {
     <>
       <Header />
       <main>
-        <section className={styles.hero} aria-labelledby="emmaestro-heading">
+        <section id="hero" className={styles.hero} aria-labelledby="emmaestro-heading">
           <div className={styles.heroStage}>
             <p className={styles.eyebrow}>{emmaestroHero.eyebrow}</p>
             <h1 id="emmaestro-heading" className={styles.heroTitle}>
