@@ -15,6 +15,7 @@ import {
 } from "@/content/sly-fairy";
 import CinematicStage from "./CinematicStage";
 import styles from "./page.module.css";
+import questionStyles from "./question.module.css";
 
 export const metadata = {
   title: "Sly Fairy — Emma Kwon",
@@ -127,13 +128,13 @@ export default function SlyFairyPage() {
           </div>
         </section>
 
-        <section className={styles.question} aria-labelledby="question-heading">
-          <div className="container">
-            <p className={styles.questionEyebrow}>{centralQuestion.eyebrow}</p>
-            <h2 id="question-heading" className={styles.questionHeadline}>
+        <section className={questionStyles.question} aria-labelledby="question-heading">
+          <div className={`container ${questionStyles.inner}`}>
+            <p className={questionStyles.eyebrow}>{centralQuestion.eyebrow}</p>
+            <h2 id="question-heading" className={questionStyles.headline}>
               {centralQuestion.headline}
             </h2>
-            <p className={styles.questionBody}>{centralQuestion.body}</p>
+            <p className={questionStyles.body}>{centralQuestion.body}</p>
           </div>
         </section>
 
