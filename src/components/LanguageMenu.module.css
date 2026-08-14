@@ -58,6 +58,16 @@
   color: var(--hover-accent);
 }
 
+.option:disabled {
+  cursor: default;
+  color: rgba(24, 38, 74, 0.42);
+}
+
+.option:disabled:hover {
+  background: transparent;
+  color: rgba(24, 38, 74, 0.42);
+}
+
 .check {
   flex: 0 0 auto;
   width: 6px;
@@ -74,4 +84,12 @@
 
 .optionActive .check {
   opacity: 1;
+}
+
+.optionStatus {
+  flex: 0 0 auto;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: rgba(24, 38, 74, 0.34);
 }
