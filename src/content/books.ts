@@ -48,5 +48,5 @@ export const rightsPress = {
 
 export const booksEnding = {
   headline: "THE BOOK IS ONLY ONE ROOM.",
-  cta: { label: "Back to the house", href: "/" },
+  cta: { label: "Continue to STUDIO", href: "/studio/" },
 };
