@@ -42,7 +42,7 @@ export default function Header({ opaque = false }: HeaderProps = {}) {
       onMouseLeave={closeMenu}
     >
       <div className={styles.inner}>
-        <Link href="/" className={styles.brand} onFocus={closeMenu}>
+        <Link href="/" className={styles.brand} onFocus={closeMenu} onClick={closeMenu}>
           Emma Kwon
         </Link>
 
@@ -61,6 +61,7 @@ export default function Header({ opaque = false }: HeaderProps = {}) {
                 className={`${styles.navLink} ${activeMenu === item.label ? styles.navLinkActive : ""}`}
                 aria-haspopup={item.children?.length ? "true" : undefined}
                 aria-expanded={item.children?.length ? activeMenu === item.label : undefined}
+                onClick={closeMenu}
               >
                 {item.label}
               </Link>
@@ -77,7 +78,12 @@ export default function Header({ opaque = false }: HeaderProps = {}) {
         <div className={styles.subnav} onMouseEnter={() => setActiveMenu(activeItem.label)}>
           <nav className={styles.subnavInner} aria-label={`${activeItem.label} submenu`}>
             {activeItem.children.map((child) => (
-              <Link key={`${activeItem.label}-${child.label}`} href={child.href} className={styles.subnavLink}>
+              <Link
+                key={`${activeItem.label}-${child.label}`}
+                href={child.href}
+                className={styles.subnavLink}
+                onClick={closeMenu}
+              >
                 {child.label}
               </Link>
             ))}
