@@ -132,21 +132,11 @@
     width: 100vw;
     height: auto;
     max-width: none;
-    /* Slightly shorter than the source's native 1080/1290 — the top of
-       the frame is mostly open sky/atmosphere, so this crops that away
-       (never the subject, who sits well below it) instead of the header
-       floating over an almost-empty band before the recognizable
-       surf/wave content begins. */
-    aspect-ratio: 1080 / 1161;
+    /* Match the source video exactly on mobile so the complete original
+       composition is shown without intentional top/bottom cropping. */
+    aspect-ratio: 1080 / 1290;
     border-radius: 0;
     box-shadow: none;
-  }
-
-  .video {
-    /* With the box shorter than the source's native ratio, object-fit:
-       cover crops vertically — anchoring to the bottom means all of
-       that crop comes off the top, none off the bottom. */
-    object-position: center bottom;
   }
 
   .copy {
