@@ -58,5 +58,5 @@ export const kMamaPrinciples = [
 
 export const kMamaEnding = {
   headline: "KEEP WONDERING.",
-  cta: { label: "Back to the house", href: "/" },
+  cta: { label: "Continue to BOOKS", href: "/books/" },
 };
