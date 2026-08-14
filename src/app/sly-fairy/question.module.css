@@ -1,0 +1,83 @@
+.question {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(92px, 13vw, 176px) 0;
+  background:
+    radial-gradient(72% 105% at 100% 0%, rgba(111, 222, 233, 0.34), transparent 68%),
+    radial-gradient(60% 92% at 0% 100%, rgba(205, 170, 226, 0.32), transparent 72%),
+    linear-gradient(135deg, rgba(235, 246, 243, 0.94), rgba(230, 236, 247, 0.92));
+  border-top: 1px solid rgba(30, 45, 91, 0.06);
+  border-bottom: 1px solid rgba(30, 45, 91, 0.06);
+}
+
+.question::before {
+  content: "";
+  position: absolute;
+  width: min(56vw, 760px);
+  aspect-ratio: 1;
+  top: -42%;
+  right: -12%;
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 52px rgba(255, 255, 255, 0.09),
+    0 0 0 128px rgba(255, 255, 255, 0.045);
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.145em;
+  text-transform: uppercase;
+  color: rgba(30, 45, 91, 0.62);
+}
+
+.headline {
+  margin: 18px 0 0;
+  max-width: 15ch;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(42px, 7.2vw, 96px);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.044em;
+  color: #1e2d5b;
+  text-wrap: balance;
+}
+
+.body {
+  margin: clamp(26px, 4vw, 42px) 0 0;
+  max-width: 48ch;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(16px, 1.55vw, 20px);
+  line-height: 1.72;
+  color: rgba(30, 45, 91, 0.74);
+}
+
+@media (max-width: 640px) {
+  .question {
+    padding: 82px 0 92px;
+  }
+
+  .question::before {
+    width: 110vw;
+    top: -26%;
+    right: -56%;
+  }
+
+  .headline {
+    max-width: 12ch;
+    font-size: clamp(42px, 13vw, 62px);
+  }
+
+  .body {
+    max-width: 34ch;
+  }
+}
