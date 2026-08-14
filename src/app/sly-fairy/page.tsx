@@ -72,6 +72,12 @@ export default function SlyFairyPage() {
           </div>
         </section>
 
+        <section id="earth" aria-label="Sly Fairy on Earth">
+          <div className="container">
+            <CinematicStage media={cinematicMedia.earth} />
+          </div>
+        </section>
+
         <section id="music" className={styles.music} aria-labelledby="music-heading">
           <div className="container">
             <div className={styles.musicGrid}>
@@ -100,12 +106,6 @@ export default function SlyFairyPage() {
                 <p className={styles.musicBody}>{musicConnection.body}</p>
               </div>
             </div>
-          </div>
-        </section>
-
-        <section aria-label="Sly Fairy on Earth">
-          <div className="container">
-            <CinematicStage media={cinematicMedia.earth} />
           </div>
         </section>
 
