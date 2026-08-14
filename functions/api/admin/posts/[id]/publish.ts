@@ -8,10 +8,20 @@ function paramId(params: Record<string, string | string[]>): string {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function publicExternalMedia(post: Awaited<ReturnType<typeof getPost>>) {
+  if (!post?.externalMedia) return undefined;
+
+  const valid = post.externalMedia
+    .map((media) => ({ label: media.label.trim(), url: media.url.trim() }))
+    .filter((media) => media.label && media.url && media.url !== "#");
+
+  return valid.length ? valid : undefined;
+}
+
 /**
- * The one real "Publish Now" / scheduled-publish path: validate → commit
- * to GitHub → only on success, flip D1 status to published. On failure
- * the D1 row is left exactly as it was (still draft/scheduled), with
+ * The one real "Publish Now" path: validate → sanitize public-only link
+ * fields → commit to GitHub → only on success, flip D1 status to published.
+ * On failure the D1 row keeps its existing editorial state, with
  * last_publish_error recorded so the admin can show a clear reason.
  */
 export const onRequestPost: PagesFunction<Env, "id"> = async (context) => {
@@ -38,7 +48,12 @@ export const onRequestPost: PagesFunction<Env, "id"> = async (context) => {
   };
 
   const publishedAt = post.publishedAt ?? new Date().toISOString();
-  const result = await publishPostToGithub(config, { ...post, status: "published", publishedAt });
+  const result = await publishPostToGithub(config, {
+    ...post,
+    status: "published",
+    publishedAt,
+    externalMedia: publicExternalMedia(post),
+  });
 
   if (!result.ok) {
     await recordPublishError(env.STUDIO_DB, post.id, result.error);
