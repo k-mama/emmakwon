@@ -52,7 +52,22 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
     setSaveState("saving");
     setSaveError(null);
     try {
-      const saved = await savePost(post.id, { ...post, body: currentBody(), ...overrides });
+      const patch: Partial<StudioPost> = {
+        ...post,
+        body: currentBody(),
+        ...overrides,
+        // The PATCH endpoint always rejects status:"published" — only
+        // POST .../publish may make that transition. When republishing
+        // an already-published post (Publish Now saving latest edits
+        // before it re-publishes), post.status is already "published",
+        // so echoing it back here would trip that guard for no reason.
+        // Omit it from the outgoing JSON (JSON.stringify drops
+        // undefined) so the server's existing-row merge just preserves
+        // "published" as-is. Explicit overrides (draft/scheduled) are
+        // never affected by this.
+        status: overrides.status ?? (post.status === "published" ? undefined : post.status),
+      };
+      const saved = await savePost(post.id, patch);
       setPost(saved);
       setSaveState("idle");
       return saved;
@@ -289,8 +304,13 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
       )}
       {publishState === "error" && publishError && (
         <p className={styles.errorNotice}>
-          Could not publish to GitHub. Publication is still {post.status === "scheduled" ? "scheduled" : "a draft"} because the
-          attempt failed — nothing was lost. {publishError}
+          Could not publish to GitHub.{" "}
+          {post.status === "published"
+            ? "The previously published version is still live"
+            : post.status === "scheduled"
+              ? "Publication is still scheduled"
+              : "Publication is still a draft"}{" "}
+          because the attempt failed — nothing was lost. {publishError}
         </p>
       )}
 
