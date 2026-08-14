@@ -97,7 +97,7 @@ export default function SlyFairyPage() {
           </div>
         </section>
 
-        <section className={styles.earthInterlude} aria-label="Sly Fairy on Earth">
+        <section aria-label="Sly Fairy on Earth">
           <div className="container">
             <CinematicStage media={cinematicMedia.earth} />
           </div>
