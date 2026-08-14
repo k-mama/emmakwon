@@ -33,7 +33,16 @@ export default function CinematicStage({ media }: { media: CinematicMedia }) {
           />
         ) : null}
 
-        {!hasAsset ? <div className={styles.atmosphere} aria-hidden="true" /> : null}
+        {!hasAsset ? (
+          <div className={styles.atmosphere} aria-hidden="true">
+            <span className={`${styles.channel} ${styles.channelOne}`} />
+            <span className={`${styles.channel} ${styles.channelTwo}`} />
+            <span className={`${styles.channel} ${styles.channelThree}`} />
+            <span className={`${styles.flow} ${styles.flowOne}`} />
+            <span className={`${styles.flow} ${styles.flowTwo}`} />
+            <span className={styles.residueMotes} />
+          </div>
+        ) : null}
         <div className={styles.scrim} aria-hidden="true" />
 
         <figcaption className={styles.copy}>
