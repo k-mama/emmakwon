@@ -175,6 +175,28 @@
   line-height: 1.62;
 }
 
+.releaseLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 20px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(30, 45, 91, 0.3);
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.085em;
+  text-transform: uppercase;
+  color: var(--title-primary);
+  transition: color 0.18s ease-out, border-color 0.18s ease-out;
+}
+
+.releaseLink:hover,
+.releaseLink:focus-visible {
+  color: var(--nav-hover-wave, #6edfeb);
+  border-color: currentColor;
+}
+
 .editorialBand {
   padding: clamp(86px, 11vw, 142px) 0;
   background:
