@@ -22,7 +22,7 @@ export default function BooksPage() {
     <>
       <Header />
       <main>
-        <section className={styles.hero} aria-labelledby="books-heading">
+        <section id="hero" className={styles.hero} aria-labelledby="books-heading">
           <div className={styles.heroStage}>
             <div className={styles.heroCopy}>
               <p className={styles.eyebrow}>{booksHero.eyebrow}</p>
