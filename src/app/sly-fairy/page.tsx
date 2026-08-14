@@ -2,6 +2,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import {
+  cinematicMedia,
   endingCta,
   musicConnection,
   premise,
@@ -11,6 +12,7 @@ import {
   visualWorld,
   worldGrowing,
 } from "@/content/sly-fairy";
+import CinematicStage from "./CinematicStage";
 import styles from "./page.module.css";
 
 export const metadata = {
@@ -54,6 +56,8 @@ export default function SlyFairyPage() {
               </div>
             </div>
 
+            <CinematicStage media={cinematicMedia.waterworks} />
+
             <div className={styles.storyBeats} aria-label="Sly Fairy story movement">
               {storyBeats.map((beat) => (
                 <div key={beat.number} className={styles.storyBeat}>
@@ -90,6 +94,12 @@ export default function SlyFairyPage() {
                 <p className={styles.musicBody}>{musicConnection.body}</p>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className={styles.earthInterlude} aria-label="Sly Fairy on Earth">
+          <div className="container">
+            <CinematicStage media={cinematicMedia.earth} />
           </div>
         </section>
 
