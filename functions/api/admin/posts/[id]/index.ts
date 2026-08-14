@@ -45,9 +45,9 @@ export const onRequestPatch: PagesFunction<Env, "id"> = async (context) => {
     updatedAt: new Date().toISOString(),
   };
 
-  // A legacy scheduled_at value may still exist on an old D1 row. The only
-  // supported write now is to clear it while returning that row to draft.
-  if ("scheduledAt" in patch && !patch.scheduledAt) {
+  // A legacy scheduled_at value may still exist on an old D1 row. Any
+  // explicit return to draft clears it so the retired state cannot linger.
+  if (patch.status === "draft" || ("scheduledAt" in patch && !patch.scheduledAt)) {
     next.scheduledAt = undefined;
   }
 
