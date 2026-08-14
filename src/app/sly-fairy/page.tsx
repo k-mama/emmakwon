@@ -83,7 +83,11 @@ export default function SlyFairyPage() {
                     loading="lazy"
                   />
                 </div>
-                <p className={styles.musicCaption}>{musicConnection.cta.label}</p>
+                <p className={styles.musicCaption}>
+                  <Link href={musicConnection.cta.href}>
+                    {musicConnection.cta.label} <span aria-hidden="true">→</span>
+                  </Link>
+                </p>
               </div>
 
               <div className={styles.musicCopy}>
