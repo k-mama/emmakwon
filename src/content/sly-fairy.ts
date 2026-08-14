@@ -96,5 +96,5 @@ export const worldGrowing = {
 
 export const endingCta = {
   headline: "THE STORY IS JUST BEGINNING.",
-  cta: { label: "Back to the house", href: "/" },
+  cta: { label: "Continue to EMMAESTRO", href: "/emmaestro/" },
 };
