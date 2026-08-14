@@ -3,7 +3,7 @@ export const emmaestroHero = {
   title: "EMMAESTRO",
   tagline: "Music first. Everything else can arrive later.",
   supporting:
-    "Songs, scores, and musical worlds that move between pop, cinematic storytelling, and the quieter edges of composition.",
+    "Pop, scores, classical writing, and songs that sometimes refuse to stay only songs.",
 };
 
 export const releases = [
@@ -12,40 +12,40 @@ export const releases = [
     kind: "ALBUM",
     image: "/archive/emmaestro/sly-fairy-album-cover.jpg",
     imageAlt: "Sly Fairy album cover by EMMAESTRO",
-    note: "The record that opened the door to the Sly Fairy story world.",
+    note: "The record that kept growing until it had a character, a story, and a world of its own.",
   },
   {
     title: "No Deadline To Be OK",
     kind: "ALBUM / BORN RARE OST",
     image: "/archive/emmaestro/no-deadline-album-cover.jpg",
     imageAlt: "No Deadline To Be OK album cover by EMMAESTRO",
-    note: "Music connected to the emotional world of BORN RARE.",
+    note: "Music for the part of BORN RARE that did not become tidy just because the page ended.",
   },
   {
     title: "Aussie Morning",
     kind: "ALBUM",
     image: "/archive/emmaestro/aussie-album-cover.jpg",
     imageAlt: "Aussie Morning album cover by EMMAESTRO",
-    note: "A bright Australian chapter in the EMMAESTRO catalogue.",
+    note: "A brighter room: movement, morning light, and the pleasure of beginning somewhere new.",
   },
 ];
 
 export const movingImage = {
   eyebrow: "MUSIC VIDEOS",
-  headline: "Music becomes a place you can enter.",
-  body: "Moving image is treated as an extension of the music rather than decoration around it — a room, a character, a fragment of story, a change in light.",
+  headline: "Give the song a room of its own.",
+  body: "A music video does not have to explain the track. It can give it a face, a street, a character, a change in weather — somewhere for the music to keep moving after the sound begins.",
 };
 
 export const classical = {
   eyebrow: "CLASSICAL",
-  headline: "Small forms. Long afterlives.",
-  body: "The classical side of EMMAESTRO stays deliberately intimate: short pieces, clear motifs, and enough space for a listener to bring their own life into the music.",
+  headline: "A small piece can carry a long day.",
+  body: "The classical room begins with short forms and clear motifs. No need to make them grander than they are. A few minutes can be enough if something stays with you afterward.",
 };
 
 export const bornRareOst = {
   eyebrow: "BORN RARE OST",
-  headline: "A book can keep sounding after the page ends.",
-  body: "BORN RARE and EMMAESTRO meet through music written from the same emotional territory: survival, movement, difference, and the freedom to continue without pretending everything is resolved.",
+  headline: "Some chapters wanted a second language.",
+  body: "The OST does not summarize the book. It takes feelings that were still moving after the writing stopped and lets them continue as music.",
 };
 
 export const emmaestroEnding = {
