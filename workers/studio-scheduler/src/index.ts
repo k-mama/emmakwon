@@ -4,7 +4,7 @@
 // the admin's "Publish Now" button (src/lib/studioPublisher.ts /
 // studioRepository.ts) — there is only one publication implementation.
 import { getDuePosts, markPublished, recordPublishError } from "../../../src/lib/studioRepository";
-import { publishPostToGithub, type GithubConfig } from "../../../src/lib/studioPublisher";
+import { publishPostToGithub, validatePost, type GithubConfig } from "../../../src/lib/studioPublisher";
 
 export interface Env {
   STUDIO_DB: D1Database;
@@ -34,6 +34,16 @@ export async function processDuePosts(env: Env): Promise<void> {
   // Serial on purpose: never send concurrent writes to the same public
   // content file — each publish reads-merges-writes the whole file.
   for (const post of duePosts) {
+    // Same guard the manual Publish Now endpoint applies — a post can
+    // become invalid after being scheduled (e.g. title cleared), and the
+    // scheduler must never hand something invalid to GitHub just because
+    // its time came up.
+    const validation = validatePost(post);
+    if (!validation.valid) {
+      await recordPublishError(env.STUDIO_DB, post.id, `Cannot publish: ${validation.errors.join(" ")}`);
+      continue;
+    }
+
     const publishedAt = new Date().toISOString();
     const result = await publishPostToGithub(config, { ...post, status: "published", publishedAt });
 

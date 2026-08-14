@@ -12,7 +12,8 @@
 # runs manually (see CLOUDFLARE_SETUP.md step F), never triggered by a
 # git push, so a placeholder sitting here carries no risk of going live
 # with a fake id. Fill in the real database_id (same database as the
-# Pages project's STUDIO_DB binding) immediately before that deploy step.
+# Pages project's STUDIO_DB binding) immediately before that deploy step
+# — locally only, never commit the real value here (see CLOUDFLARE_SETUP.md).
 name = "emmakwon-studio-scheduler"
 main = "src/index.ts"
 compatibility_date = "2026-08-01"
@@ -21,6 +22,16 @@ compatibility_date = "2026-08-01"
 binding = "STUDIO_DB"
 database_name = "emmakwon-studio"
 database_id = "REPLACE_WITH_REAL_D1_DATABASE_ID"
+
+# Non-secret GitHub config — safe to commit. GITHUB_TOKEN is deliberately
+# NOT here: it must only ever exist as a Cloudflare Worker Secret (set
+# via the dashboard or `wrangler secret put GITHUB_TOKEN --config
+# workers/studio-scheduler/wrangler.toml`), never in this file.
+[vars]
+GITHUB_OWNER = "k-mama"
+GITHUB_REPO = "emmakwon"
+GITHUB_BRANCH = "main"
+GITHUB_CONTENT_PATH = "src/content/studio-posts.json"
 
 # This site publishes roughly weekly — five minutes is more than
 # frequent enough and comfortably inside Cloudflare's free-tier cron
