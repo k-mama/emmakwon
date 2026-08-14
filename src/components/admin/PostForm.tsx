@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import NoteArticle from "@/components/studio/NoteArticle";
 import { deletePost as deletePostApi, publishPost, savePost } from "@/lib/adminApiClient";
-import { formatBrisbaneDateTime, slugify, type StudioCategory, type StudioPost } from "@/content/studio";
+import { slugify, type StudioCategory, type StudioPost } from "@/content/studio";
 import styles from "./PostForm.module.css";
 
 const CATEGORIES: StudioCategory[] = ["BUILD", "LEARN", "MAKE"];
@@ -47,15 +47,10 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
         ...post,
         body: currentBody(),
         ...overrides,
-        // The PATCH endpoint always rejects status:"published" — only
-        // POST .../publish may make that transition. When republishing
-        // an already-published post (Publish Now saving latest edits
-        // before it re-publishes), post.status is already "published",
-        // so echoing it back here would trip that guard for no reason.
-        // Omit it from the outgoing JSON (JSON.stringify drops
-        // undefined) so the server's existing-row merge just preserves
-        // "published" as-is. Explicit overrides (draft/scheduled) are
-        // never affected by this.
+        // PATCH is an editorial save, never the operation that creates a
+        // public "published" transition. For an already-published post,
+        // omit status so D1 keeps tracking that a public copy exists while
+        // the latest edits are saved privately until Publish Now updates it.
         status: overrides.status ?? (post.status === "published" ? undefined : post.status),
       };
       const saved = await savePost(post.id, patch);
@@ -71,6 +66,17 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
 
   const handleSaveDraft = async () => {
     setPublishState("idle");
+
+    // Once a post is public, an editorial save must not demote the D1 row
+    // to draft while the old GitHub copy is still live. That mismatch could
+    // otherwise leave an orphaned public article if the row were deleted.
+    // Save the edits privately but preserve "published" until Publish Now
+    // replaces the public copy (or Delete removes it from GitHub first).
+    if (post.status === "published") {
+      await save({ scheduledAt: undefined });
+      return;
+    }
+
     await save({ status: "draft", scheduledAt: undefined });
   };
 
@@ -119,12 +125,9 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
 
   return (
     <div className={styles.wrap}>
-      {post.status !== "draft" && (
+      {post.status === "published" && (
         <p className={styles.statusBadge} data-status={post.status}>
           {post.status}
-          {post.status === "scheduled" && post.scheduledAt && (
-            <span className={styles.statusBadgeDetail}> · {formatBrisbaneDateTime(post.scheduledAt)}</span>
-          )}
         </p>
       )}
 
@@ -286,7 +289,12 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
         </div>
       )}
 
-      {saveState === "error" && saveError && <p className={styles.errorNotice}>Could not save draft. {saveError}</p>}
+      {saveState === "error" && saveError && (
+        <p className={styles.errorNotice}>
+          {post.status === "published" ? "Could not save changes. " : "Could not save draft. "}
+          {saveError}
+        </p>
+      )}
       {deleteError && <p className={styles.errorNotice}>Could not delete this post. {deleteError}</p>}
 
       {publishState === "published" && (
@@ -300,18 +308,14 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
       {publishState === "error" && publishError && (
         <p className={styles.errorNotice}>
           Could not publish to GitHub.{" "}
-          {post.status === "published"
-            ? "The previously published version is still live"
-            : post.status === "scheduled"
-              ? "Publication is still scheduled"
-              : "Publication is still a draft"}{" "}
+          {post.status === "published" ? "The previously published version is still live" : "Publication is still a draft"}{" "}
           because the attempt failed — nothing was lost. {publishError}
         </p>
       )}
 
       <div className={styles.controls}>
         <button type="button" className={styles.secondaryButton} onClick={handleSaveDraft} disabled={busy}>
-          {saveState === "saving" ? "Saving…" : "Save Draft"}
+          {saveState === "saving" ? "Saving…" : post.status === "published" ? "Save Changes" : "Save Draft"}
         </button>
         <button type="button" className={styles.secondaryButton} onClick={() => setPreviewing(true)} disabled={busy}>
           Preview
