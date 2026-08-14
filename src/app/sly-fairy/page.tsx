@@ -125,6 +125,8 @@ export default function SlyFairyPage() {
                 <figcaption className={styles.quoteContext}>{signatureQuote.context}</figcaption>
               </figure>
             </div>
+
+            <CinematicStage media={cinematicMedia.residue} />
           </div>
         </section>
 
