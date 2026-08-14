@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { primaryNav } from "@/content/navigation";
+import { primaryNav, type NavItem } from "@/content/navigation";
 import LanguageMenu from "./LanguageMenu";
 import MobileNav from "./MobileNav";
 import styles from "./Header.module.css";
@@ -15,6 +15,7 @@ type HeaderProps = {
 
 export default function Header({ opaque = false }: HeaderProps = {}) {
   const [scrolledPastHero, setScrolledPastHero] = useState(opaque);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
   useEffect(() => {
     const hero = document.getElementById("hero");
@@ -31,10 +32,17 @@ export default function Header({ opaque = false }: HeaderProps = {}) {
     return () => observer.disconnect();
   }, []);
 
+  const closeMenu = () => setActiveMenu(null);
+  const openMenu = (item: NavItem) => setActiveMenu(item.children?.length ? item.label : null);
+  const activeItem = primaryNav.find((item) => item.label === activeMenu);
+
   return (
-    <header className={`${styles.header} ${scrolledPastHero ? styles.scrolled : ""}`}>
+    <header
+      className={`${styles.header} ${scrolledPastHero ? styles.scrolled : ""}`}
+      onMouseLeave={closeMenu}
+    >
       <div className={styles.inner}>
-        <Link href="/" className={styles.brand}>
+        <Link href="/" className={styles.brand} onFocus={closeMenu}>
           Emma Kwon
         </Link>
 
@@ -42,16 +50,40 @@ export default function Header({ opaque = false }: HeaderProps = {}) {
 
         <nav className={styles.nav} aria-label="Primary">
           {primaryNav.map((item) => (
-            <a key={item.label} href={item.href} className={styles.navLink}>
-              {item.label}
-            </a>
+            <div
+              key={item.label}
+              className={styles.navItem}
+              onMouseEnter={() => openMenu(item)}
+              onFocus={() => openMenu(item)}
+            >
+              <Link
+                href={item.href}
+                className={`${styles.navLink} ${activeMenu === item.label ? styles.navLinkActive : ""}`}
+                aria-haspopup={item.children?.length ? "true" : undefined}
+                aria-expanded={item.children?.length ? activeMenu === item.label : undefined}
+              >
+                {item.label}
+              </Link>
+            </div>
           ))}
         </nav>
 
-        <div className={styles.utility}>
+        <div className={styles.utility} onMouseEnter={closeMenu}>
           <LanguageMenu triggerClassName={styles.iconBtn} />
         </div>
       </div>
+
+      {activeItem?.children?.length ? (
+        <div className={styles.subnav} onMouseEnter={() => setActiveMenu(activeItem.label)}>
+          <nav className={styles.subnavInner} aria-label={`${activeItem.label} submenu`}>
+            {activeItem.children.map((child) => (
+              <Link key={`${activeItem.label}-${child.label}`} href={child.href} className={styles.subnavLink}>
+                {child.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      ) : null}
     </header>
   );
 }
