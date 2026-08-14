@@ -17,6 +17,7 @@ export default function MobileNav({ items, overlay = false }: MobileNavProps) {
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -25,9 +26,41 @@ export default function MobileNav({ items, overlay = false }: MobileNavProps) {
     document.body.style.overflow = "hidden";
     closeRef.current?.focus();
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+    const restoreTrigger = () => {
+      setOpen(false);
+      setExpandedItem(null);
+      requestAnimationFrame(() => triggerRef.current?.focus());
     };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        restoreTrigger();
+        return;
+      }
+
+      if (event.key !== "Tab" || !overlayRef.current) return;
+
+      const focusable = Array.from(
+        overlayRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => !element.hasAttribute("disabled"));
+
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
@@ -39,7 +72,7 @@ export default function MobileNav({ items, overlay = false }: MobileNavProps) {
   const handleClose = () => {
     setOpen(false);
     setExpandedItem(null);
-    triggerRef.current?.focus();
+    requestAnimationFrame(() => triggerRef.current?.focus());
   };
 
   const toggleItem = (label: string) => {
@@ -63,7 +96,13 @@ export default function MobileNav({ items, overlay = false }: MobileNavProps) {
       </button>
 
       {open && (
-        <div className={styles.overlay} role="dialog" aria-modal="true" aria-label="Site navigation">
+        <div
+          ref={overlayRef}
+          className={styles.overlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Site navigation"
+        >
           <div className={styles.overlayHeader}>
             <span className={styles.brand}>Emma Kwon</span>
             <button
