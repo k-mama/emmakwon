@@ -60,7 +60,7 @@ export const studioPillars: Record<"learn" | "build" | "make", StudioPillar> = {
     label: "LEARN",
     headline: "What I'm learning.",
     descriptor: "English I'm learning in Brisbane.",
-    cta: { label: "WATCH ON YOUTUBE", href: "#" },
+    cta: { label: "VIEW STUDIO NOTES", href: "/studio/notes/" },
   },
   build: {
     number: "02",
@@ -74,7 +74,7 @@ export const studioPillars: Record<"learn" | "build" | "make", StudioPillar> = {
     label: "MAKE",
     headline: "What I'm making now.",
     descriptor: "Music, characters, books, and whatever I'm making next.",
-    cta: { label: "SEE WHAT I'M MAKING", href: "#" },
+    cta: { label: "VIEW STUDIO NOTES", href: "/studio/notes/" },
   },
 };
 
