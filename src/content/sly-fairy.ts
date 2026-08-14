@@ -43,7 +43,8 @@ export const storyBeats = [
 ];
 
 // Deliberate media slots. Waterworks stays atmospheric until a canon-accurate
-// archive/hydraulic image exists; the approved Earth still is already public.
+// archive/hydraulic image exists; approved concept stills are used only where
+// they do not imply surveillance or contradict the current world rules.
 export const cinematicMedia = {
   waterworks: {
     kind: "atmosphere" as const,
@@ -64,6 +65,16 @@ export const cinematicMedia = {
     eyebrow: "EARTH",
     title: "A borrowed body. A song of her own.",
     caption: "Work leaves her tired. Music gives her something she cannot solve by being useful.",
+  },
+  residue: {
+    kind: "image" as const,
+    src: "/media/sly-fairy/water-residue.webp",
+    poster: null as string | null,
+    alt: "Sly Fairy reaching toward a luminous stream of water in a twilight room",
+    tone: "water" as const,
+    eyebrow: "WHAT REMAINED",
+    title: "A fragment is not a whole life.",
+    caption: "Water can carry a trace. It cannot tell Sly what the person meant.",
   },
 };
 
