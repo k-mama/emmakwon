@@ -33,7 +33,16 @@ function EditPostLoader() {
     let cancelled = false;
     fetchPost(id)
       .then((loaded) => {
-        if (!cancelled) setPost(loaded);
+        if (cancelled) return;
+
+        // Scheduled publishing is retired. If an old D1 row still carries
+        // that legacy status, reopen it as a draft so the next explicit
+        // Save Draft / Publish Now action moves it onto the supported path.
+        setPost(
+          loaded.status === "scheduled"
+            ? { ...loaded, status: "draft", scheduledAt: undefined }
+            : loaded,
+        );
       })
       .catch((err: Error) => {
         if (!cancelled) setFetchError(err.message);
