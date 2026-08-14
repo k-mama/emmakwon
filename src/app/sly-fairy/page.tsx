@@ -2,6 +2,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import {
+  centralQuestion,
   cinematicMedia,
   endingCta,
   musicConnection,
@@ -123,6 +124,16 @@ export default function SlyFairyPage() {
                 <figcaption className={styles.quoteContext}>{signatureQuote.context}</figcaption>
               </figure>
             </div>
+          </div>
+        </section>
+
+        <section className={styles.question} aria-labelledby="question-heading">
+          <div className="container">
+            <p className={styles.questionEyebrow}>{centralQuestion.eyebrow}</p>
+            <h2 id="question-heading" className={styles.questionHeadline}>
+              {centralQuestion.headline}
+            </h2>
+            <p className={styles.questionBody}>{centralQuestion.body}</p>
           </div>
         </section>
 
