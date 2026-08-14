@@ -42,9 +42,8 @@ export const storyBeats = [
   },
 ];
 
-// These are deliberate media slots, not fake character art. Until final Sly
-// Fairy film/stills are added, they render as cinematic title-card atmospheres.
-// Later, set kind + src (and poster for video) without rebuilding the page.
+// Deliberate media slots. Waterworks stays atmospheric until a canon-accurate
+// archive/hydraulic image exists; the approved Earth still is already public.
 export const cinematicMedia = {
   waterworks: {
     kind: "atmosphere" as const,
@@ -57,14 +56,14 @@ export const cinematicMedia = {
     caption: "Fragments travel through Water. Context does not.",
   },
   earth: {
-    kind: "atmosphere" as const,
-    src: null as string | null,
+    kind: "image" as const,
+    src: "/media/sly-fairy/home-composing.webp",
     poster: null as string | null,
-    alt: "",
+    alt: "Sly Fairy composing music beside a collaborator at sunset",
     tone: "earth" as const,
     eyebrow: "EARTH",
-    title: "Close enough to be wrong.",
-    caption: "A borrowed body. A first job. Music. Other people's choices.",
+    title: "A borrowed body. A song of her own.",
+    caption: "Work leaves her tired. Music gives her something she cannot solve by being useful.",
   },
 };
 
