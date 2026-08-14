@@ -46,12 +46,12 @@ export const primaryNav: NavItem[] = [
   },
   {
     label: "K-MAMA",
-    href: "#",
+    href: "/k-mama/",
     children: [
-      { label: "THE WORLD", href: "#" },
-      { label: "MUSIC", href: "#" },
-      { label: "STORIES", href: "#" },
-      { label: "CHARACTERS", href: "#" },
+      { label: "THE WORLD", href: "/k-mama/#world" },
+      { label: "MUSIC", href: "/k-mama/#music" },
+      { label: "STORIES", href: "/k-mama/#stories" },
+      { label: "CHARACTERS", href: "/k-mama/#characters" },
     ],
   },
   {
