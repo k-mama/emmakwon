@@ -14,10 +14,9 @@ export const onRequestGet: PagesFunction<Env, "id"> = async (context) => {
   return json({ post });
 };
 
-/** Edits editorial content (title, body, category, etc.) and lets the
-    admin explicitly move a post to "draft" or "scheduled" — publishing
-    TO "published" only ever happens via POST .../publish, which is the
-    only route allowed to write to GitHub. */
+/** Edits editorial content (title, body, category, etc.). The admin may
+    save a post as a draft here; publishing to "published" only ever
+    happens via POST .../publish. Scheduled publishing has been retired. */
 export const onRequestPatch: PagesFunction<Env, "id"> = async (context) => {
   const id = paramId(context.params);
   const existing = await getPost(context.env.STUDIO_DB, id);
@@ -34,6 +33,10 @@ export const onRequestPatch: PagesFunction<Env, "id"> = async (context) => {
     return errorJson("Use POST /api/admin/posts/:id/publish to publish — this route cannot set status directly.", 400);
   }
 
+  if (patch.status === "scheduled" || patch.scheduledAt) {
+    return errorJson("Scheduled publishing is retired. Save as draft or use Publish Now.", 400);
+  }
+
   const next: StudioPost = {
     ...existing,
     ...patch,
@@ -42,14 +45,10 @@ export const onRequestPatch: PagesFunction<Env, "id"> = async (context) => {
     updatedAt: new Date().toISOString(),
   };
 
-  // Normalize to a canonical UTC "Z" timestamp regardless of what offset
-  // the client sent (the admin UI sends Brisbane's fixed +10:00) — keeps
-  // any stored scheduled_at values consistently comparable, whether or
-  // not anything currently reads them. Only touch it when the client
-  // actually sent the key: a PATCH that omits scheduledAt entirely (e.g.
-  // a plain title edit) must not wipe an existing scheduled time.
-  if ("scheduledAt" in patch) {
-    next.scheduledAt = patch.scheduledAt ? new Date(patch.scheduledAt).toISOString() : undefined;
+  // A legacy scheduled_at value may still exist on an old D1 row. The only
+  // supported write now is to clear it while returning that row to draft.
+  if ("scheduledAt" in patch && !patch.scheduledAt) {
+    next.scheduledAt = undefined;
   }
 
   try {
