@@ -14,9 +14,10 @@ export const onRequestGet: PagesFunction<Env, "id"> = async (context) => {
   return json({ post });
 };
 
-/** Edits editorial content (title, body, category, etc.). The admin may
-    save a post as a draft here; publishing to "published" only ever
-    happens via POST .../publish. Scheduled publishing has been retired. */
+/** Edits editorial content (title, body, category, etc.). Drafts may stay
+    drafts here, while an already-published post must keep its published
+    state until Publish Now updates the public GitHub copy or Delete removes
+    that copy first. Scheduled publishing has been retired. */
 export const onRequestPatch: PagesFunction<Env, "id"> = async (context) => {
   const id = paramId(context.params);
   const existing = await getPost(context.env.STUDIO_DB, id);
@@ -35,6 +36,15 @@ export const onRequestPatch: PagesFunction<Env, "id"> = async (context) => {
 
   if (patch.status === "scheduled" || patch.scheduledAt) {
     return errorJson("Scheduled publishing is retired. Save as draft or use Publish Now.", 400);
+  }
+
+  // A public GitHub copy still exists while an already-published post is
+  // being edited. Demoting only the D1 row to draft would make Admin lose
+  // track of that public copy and could leave an orphaned article behind on
+  // a later delete. Published rows therefore stay published until the
+  // explicit Publish Now or Delete operation synchronizes GitHub as well.
+  if (existing.status === "published" && patch.status === "draft") {
+    return errorJson("This post is already published. Save edits without changing its status, then use Publish Now to update the public copy.", 409);
   }
 
   const next: StudioPost = {
