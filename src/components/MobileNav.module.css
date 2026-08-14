@@ -50,25 +50,24 @@
   top: 7.5px;
 }
 
-/* Thin warm editorial veil: the Hero video should stay clearly recognizable
-   behind the open menu, not be replaced by a solid panel or a color haze.
-   Falls back to a translucent (not opaque) warm ivory where
-   backdrop-filter isn't supported. */
+/* Thin warm editorial veil: keep the Hero video clearly present behind the
+   menu. The tint separates the interface from the moving image while the
+   deliberately light blur preserves the video's shape and color. */
 .overlay {
   position: fixed;
   inset: 0;
   z-index: 100;
   display: flex;
   flex-direction: column;
-  background: rgba(248, 245, 242, 0.72);
+  background: rgba(248, 245, 242, 0.62);
   animation: navFadeIn 0.18s ease both;
 }
 
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .overlay {
-    background: rgba(248, 245, 242, 0.52);
-    -webkit-backdrop-filter: blur(5px);
-    backdrop-filter: blur(5px);
+    background: rgba(248, 245, 242, 0.4);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
   }
 }
 
@@ -91,7 +90,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  border-bottom: 1px solid var(--color-hairline);
+  border-bottom: 1px solid rgba(24, 38, 74, 0.065);
 }
 
 .brand {
@@ -111,12 +110,14 @@
   height: 44px;
   padding: 0;
   margin-right: -12px;
-  color: var(--title-primary);
-  transition: color 0.2s ease;
+  color: var(--nav-navy);
+  transition: color 0.2s ease-out, text-shadow 0.2s ease-out;
 }
 
-.closeBtn:hover {
-  color: var(--hover-accent);
+.closeBtn:hover,
+.closeBtn:focus-visible {
+  color: var(--nav-hover-wave);
+  text-shadow: 0 0 8px rgba(110, 223, 235, 0.28);
 }
 
 /* The two lines rotate in to form a minimal X — quiet, no bounce. */
@@ -182,7 +183,7 @@
 }
 
 .nav > * + * {
-  border-top: 1px solid var(--color-hairline);
+  border-top: 1px solid rgba(24, 38, 74, 0.065);
 }
 
 .link {
