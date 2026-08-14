@@ -12,7 +12,6 @@ import styles from "./page.module.css";
 const FILTERS: { value: StudioPostStatus | "all"; label: string }[] = [
   { value: "all", label: "All" },
   { value: "draft", label: "Drafts" },
-  { value: "scheduled", label: "Scheduled" },
   { value: "published", label: "Published" },
 ];
 
