@@ -126,7 +126,7 @@ export default function KMamaPage() {
           <div className="container">
             <h2 className={styles.endingHeadline}>{kMamaEnding.headline}</h2>
             <Link href={kMamaEnding.cta.href} className={styles.endingLink}>
-              <span aria-hidden="true">←</span> {kMamaEnding.cta.label}
+              {kMamaEnding.cta.label} <span aria-hidden="true">→</span>
             </Link>
           </div>
         </section>
