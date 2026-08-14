@@ -19,15 +19,15 @@ export default function VisualGlobeIcon({ size = 22, className }: VisualGlobeIco
     >
       <defs>
         <linearGradient id={gradientId} x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#f0a1c0" />
-          <stop offset="35%" stopColor="#b15fd1" />
-          <stop offset="68%" stopColor="#8fdae0" />
-          <stop offset="100%" stopColor="#f0b960" />
+          <stop offset="0%" stopColor="#2FB9CD" />
+          <stop offset="36%" stopColor="#527DE8" />
+          <stop offset="70%" stopColor="#8659E6" />
+          <stop offset="100%" stopColor="#A44FD2" />
         </linearGradient>
       </defs>
       <g
         stroke={`url(#${gradientId})`}
-        strokeWidth="1.3"
+        strokeWidth="1.35"
         strokeLinecap="round"
         strokeLinejoin="round"
       >
