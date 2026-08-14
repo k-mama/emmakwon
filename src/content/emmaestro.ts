@@ -52,5 +52,5 @@ export const bornRareOst = {
 
 export const emmaestroEnding = {
   headline: "KEEP LISTENING.",
-  cta: { label: "Back to the house", href: "/" },
+  cta: { label: "Continue to K-MAMA", href: "/k-mama/" },
 };
