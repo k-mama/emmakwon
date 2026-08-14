@@ -23,7 +23,7 @@ export default function KMamaPage() {
     <>
       <Header />
       <main>
-        <section className={styles.hero} aria-labelledby="k-mama-heading">
+        <section id="hero" className={styles.hero} aria-labelledby="k-mama-heading">
           <div className={styles.heroStage}>
             <p className={styles.eyebrow}>{kMamaHero.eyebrow}</p>
             <h1 id="k-mama-heading" className={styles.heroTitle}>
