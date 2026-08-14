@@ -3,7 +3,7 @@ export const booksHero = {
   title: "BOOKS",
   tagline: "A life does not have to become neat to become a book.",
   supporting:
-    "The publishing room of Emma Kwon begins with BORN RARE — memoir, music, and the stories that remain after the page is closed.",
+    "The publishing room begins with BORN RARE — a memoir made from a life that kept changing before anyone could turn it into a clean lesson.",
   image: "/archive/born-rare/born-rare-book-cover.jpg",
   imageAlt: "BORN RARE book cover by Emma Kwon",
 };
@@ -12,7 +12,7 @@ export const bornRare = {
   eyebrow: "BORN RARE",
   title: "Difference without apology.",
   body:
-    "BORN RARE is a memoir about difference, survival, reinvention, and continuing without pretending everything has been resolved. It is the first book at the center of this publishing room.",
+    "BORN RARE began as a life, not a message. It moves through family, rupture, survival, work, reinvention, and the stubborn fact that a person can keep becoming without wrapping the past in a bow.",
   image: "/archive/born-rare/born-rare-book-cover.jpg",
   imageAlt: "BORN RARE book cover",
 };
@@ -21,14 +21,14 @@ export const bookStory = {
   eyebrow: "THE STORY BEHIND THE BOOK",
   title: "The life came first.",
   body:
-    "The book was built from lived fragments rather than a clean inspirational arc. The publishing work is about deciding what to keep, what to leave rough, and how to tell the truth without turning a complicated life into a slogan.",
+    "The work was not to manufacture a perfect arc. It was to decide which fragments belonged beside one another, which rough edges needed to stay rough, and where explanation would make the truth smaller instead of clearer.",
 };
 
 export const bookMusic = {
   eyebrow: "MUSIC & OST",
   title: "Some pages kept sounding.",
   body:
-    "BORN RARE and EMMAESTRO share the same emotional territory. The music extends the book without explaining it, giving certain feelings another form after language has finished.",
+    "The music does not explain BORN RARE or turn it into a soundtrack for inspiration. It gives certain feelings another form when prose has already said as much as it can.",
   image: "/archive/emmaestro/no-deadline-album-cover.jpg",
   imageAlt: "No Deadline To Be OK album cover by EMMAESTRO",
   cta: { label: "Explore the BORN RARE OST", href: "/emmaestro/#born-rare-ost" },
@@ -36,9 +36,9 @@ export const bookMusic = {
 
 export const rightsPress = {
   eyebrow: "RIGHTS & PRESS",
-  title: "The publishing desk.",
+  title: "The quiet business behind the book.",
   body:
-    "Rights, press, editions, and future publishing information belong here, separate from the reader-facing story so the work itself can remain the focus.",
+    "Rights, press, editions, and future publishing information live here so the reader-facing pages do not have to carry the administrative weight.",
   items: [
     { label: "RIGHTS", text: "Publishing, translation, and adaptation enquiries." },
     { label: "PRESS", text: "Official book information and media materials." },
