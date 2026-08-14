@@ -66,6 +66,16 @@ export const cinematicMedia = {
     title: "A borrowed body. A song of her own.",
     caption: "Work leaves her tired. Music gives her something she cannot solve by being useful.",
   },
+  music: {
+    kind: "image" as const,
+    src: "/media/sly-fairy/music-piano.webp",
+    poster: null as string | null,
+    alt: "Sly Fairy playing piano while a collaborator listens in an intimate music room",
+    tone: "earth" as const,
+    eyebrow: "MUSIC IN THE WORLD",
+    title: "The song leaves the room.",
+    caption: "Sly can make it. She cannot decide what it will mean to everyone who hears it.",
+  },
   residue: {
     kind: "image" as const,
     src: "/media/sly-fairy/water-residue.webp",
