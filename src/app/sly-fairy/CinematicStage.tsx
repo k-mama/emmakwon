@@ -1,3 +1,4 @@
+import CinematicVideo from "./CinematicVideo";
 import styles from "./CinematicStage.module.css";
 
 type CinematicMedia = {
@@ -18,18 +19,8 @@ export default function CinematicStage({ media }: { media: CinematicMedia }) {
   return (
     <figure className={`${styles.stage} ${toneClass}`}>
       <div className={styles.viewport}>
-        {hasAsset && media.kind === "video" ? (
-          <video
-            className={styles.asset}
-            src={media.src ?? undefined}
-            poster={media.poster ?? undefined}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            aria-label={media.alt || undefined}
-          />
+        {hasAsset && media.kind === "video" && media.src ? (
+          <CinematicVideo src={media.src} poster={media.poster ?? undefined} alt={media.alt} />
         ) : null}
 
         {hasAsset && media.kind === "image" ? (
