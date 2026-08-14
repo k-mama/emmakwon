@@ -106,6 +106,8 @@ export default function SlyFairyPage() {
                 <p className={styles.musicBody}>{musicConnection.body}</p>
               </div>
             </div>
+
+            <CinematicStage media={cinematicMedia.music} />
           </div>
         </section>
 
