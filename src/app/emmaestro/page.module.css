@@ -342,7 +342,7 @@
   }
 
   .heroTitle {
-    font-size: clamp(52px, 16.5vw, 84px);
+    font-size: clamp(52px, 16vw, 84px);
   }
 
   .classicalStage {
