@@ -52,11 +52,19 @@ export function fetchPost(id: string): Promise<StudioPost> {
   return request<{ post: StudioPost }>(`/api/admin/posts/${id}`).then((data) => data.post);
 }
 
-export function createDraft(): Promise<StudioPost> {
-  return request<{ post: StudioPost }>("/api/admin/posts", { method: "POST", body: "{}" }).then((data) => data.post);
+export function createDraft(initial: Partial<StudioPost> = {}): Promise<StudioPost> {
+  return request<{ post: StudioPost }>("/api/admin/posts", {
+    method: "POST",
+    body: JSON.stringify(initial),
+  }).then((data) => data.post);
 }
 
 export function savePost(id: string, patch: Partial<StudioPost>): Promise<StudioPost> {
+  // A brand-new PostForm intentionally has no persisted id. Its first
+  // explicit Save Draft / Publish Now creates the D1 row; merely opening
+  // /admin/posts/new must never create a phantom draft.
+  if (!id) return createDraft(patch);
+
   return request<{ post: StudioPost }>(`/api/admin/posts/${id}`, {
     method: "PATCH",
     body: JSON.stringify(patch),
@@ -64,6 +72,9 @@ export function savePost(id: string, patch: Partial<StudioPost>): Promise<Studio
 }
 
 export function deletePost(id: string): Promise<void> {
+  // Deleting an unsaved New Post is already complete: there is no D1 row.
+  if (!id) return Promise.resolve();
+
   return request(`/api/admin/posts/${id}`, { method: "DELETE" }).then(() => undefined);
 }
 
