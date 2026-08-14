@@ -32,9 +32,9 @@
 
 .water .atmosphere {
   background:
-    radial-gradient(70% 80% at 82% 14%, rgba(143, 231, 237, 0.78) 0%, rgba(143, 231, 237, 0) 68%),
-    radial-gradient(64% 74% at 14% 88%, rgba(205, 164, 222, 0.58) 0%, rgba(205, 164, 222, 0) 72%),
-    linear-gradient(145deg, #18325b 0%, #376e92 34%, #74cad2 68%, #afa0d2 100%);
+    radial-gradient(72% 88% at 86% 8%, rgba(152, 234, 239, 0.68) 0%, rgba(152, 234, 239, 0) 64%),
+    radial-gradient(58% 72% at 13% 91%, rgba(202, 164, 225, 0.5) 0%, rgba(202, 164, 225, 0) 72%),
+    linear-gradient(145deg, #132b52 0%, #285b7f 31%, #4d9daf 58%, #8bcbd0 76%, #a89bca 100%);
 }
 
 .earth .atmosphere {
@@ -70,6 +70,82 @@
     0 42px 0 rgba(255, 255, 255, 0.11),
     0 84px 0 rgba(255, 255, 255, 0.07);
   transform: rotate(-4deg);
+}
+
+.channel,
+.flow,
+.residueMotes {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.channel {
+  top: -14%;
+  bottom: -18%;
+  width: clamp(34px, 5vw, 78px);
+  border: 1px solid rgba(222, 250, 252, 0.42);
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(215, 248, 250, 0.34) 48%, rgba(255, 255, 255, 0.05)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(73, 182, 199, 0.28));
+  box-shadow:
+    inset 0 0 22px rgba(217, 250, 252, 0.18),
+    0 0 36px rgba(111, 223, 235, 0.14);
+  opacity: 0.82;
+}
+
+.channelOne {
+  left: 15%;
+  transform: rotate(7deg);
+}
+
+.channelTwo {
+  left: 48%;
+  width: clamp(46px, 6.4vw, 96px);
+  transform: rotate(-3deg);
+  opacity: 0.68;
+}
+
+.channelThree {
+  right: 10%;
+  transform: rotate(10deg);
+  opacity: 0.56;
+}
+
+.flow {
+  left: -12%;
+  width: 124%;
+  height: 24%;
+  border: 2px solid transparent;
+  border-top-color: rgba(224, 251, 252, 0.58);
+  border-radius: 50%;
+  filter: drop-shadow(0 0 12px rgba(111, 223, 235, 0.23));
+  opacity: 0.78;
+}
+
+.flowOne {
+  top: 23%;
+  transform: rotate(-8deg) scaleY(0.64);
+}
+
+.flowTwo {
+  top: 48%;
+  transform: rotate(5deg) scaleY(0.78);
+  opacity: 0.48;
+}
+
+.residueMotes {
+  inset: 7% 5% 18%;
+  background:
+    radial-gradient(circle at 12% 24%, rgba(255, 255, 255, 0.78) 0 1px, transparent 2px),
+    radial-gradient(circle at 29% 61%, rgba(221, 248, 251, 0.72) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 45% 32%, rgba(255, 255, 255, 0.58) 0 1px, transparent 2px),
+    radial-gradient(circle at 63% 72%, rgba(222, 200, 238, 0.62) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 78% 24%, rgba(255, 255, 255, 0.68) 0 1px, transparent 2px),
+    radial-gradient(circle at 89% 53%, rgba(208, 245, 248, 0.7) 0 1.5px, transparent 2.5px);
+  filter: drop-shadow(0 0 8px rgba(214, 248, 250, 0.45));
+  opacity: 0.9;
 }
 
 .scrim {
@@ -149,6 +225,26 @@
     right: -46%;
   }
 
+  .channelOne {
+    left: 9%;
+  }
+
+  .channelTwo {
+    left: 51%;
+  }
+
+  .channelThree {
+    right: 4%;
+  }
+
+  .flowOne {
+    top: 28%;
+  }
+
+  .flowTwo {
+    top: 53%;
+  }
+
   .copy {
     left: 20px;
     right: 20px;
@@ -170,6 +266,18 @@
     animation: waterDrift 24s ease-in-out infinite alternate;
   }
 
+  .water .channelOne {
+    animation: channelDriftOne 18s ease-in-out infinite alternate;
+  }
+
+  .water .channelTwo {
+    animation: channelDriftTwo 22s ease-in-out infinite alternate;
+  }
+
+  .water .flowOne {
+    animation: flowDrift 16s ease-in-out infinite alternate;
+  }
+
   .earth .atmosphere {
     animation: earthDrift 28s ease-in-out infinite alternate;
   }
@@ -181,7 +289,37 @@
   }
 
   to {
-    transform: scale(1.045) translate3d(-0.8%, 0.7%, 0);
+    transform: scale(1.035) translate3d(-0.4%, 0.4%, 0);
+  }
+}
+
+@keyframes channelDriftOne {
+  from {
+    transform: rotate(7deg) translateY(-0.5%);
+  }
+
+  to {
+    transform: rotate(7deg) translateY(1.2%);
+  }
+}
+
+@keyframes channelDriftTwo {
+  from {
+    transform: rotate(-3deg) translateY(0.8%);
+  }
+
+  to {
+    transform: rotate(-3deg) translateY(-1%);
+  }
+}
+
+@keyframes flowDrift {
+  from {
+    transform: rotate(-8deg) scaleY(0.64) translateX(-0.4%);
+  }
+
+  to {
+    transform: rotate(-8deg) scaleY(0.64) translateX(0.7%);
   }
 }
 
