@@ -56,12 +56,12 @@ export const primaryNav: NavItem[] = [
   },
   {
     label: "BOOKS",
-    href: "#",
+    href: "/books/",
     children: [
-      { label: "BORN RARE", href: "#" },
-      { label: "THE STORY BEHIND THE BOOK", href: "#" },
-      { label: "MUSIC & OST", href: "#" },
-      { label: "RIGHTS & PRESS", href: "#" },
+      { label: "BORN RARE", href: "/books/#born-rare" },
+      { label: "THE STORY BEHIND THE BOOK", href: "/books/#story" },
+      { label: "MUSIC & OST", href: "/books/#music-ost" },
+      { label: "RIGHTS & PRESS", href: "/books/#rights-press" },
     ],
   },
   {
