@@ -1,7 +1,6 @@
 // Typed content for the HOME page.
-// Keep copy and media choices separate from presentation components so the
-// approved Sly Fairy cinematic still can replace the current release artifact
-// without rebuilding the homepage layout.
+// Keep copy and media choices separate from presentation components so
+// homepage media can evolve without rebuilding the page structure.
 
 export const brandStatement = {
   eyebrow: "ONE-PERSON CREATIVE HOUSE",
@@ -31,7 +30,7 @@ const worlds: World[] = [
     descriptor: "A celestial fixer gets close enough to human life to be wrong.",
     cta: "ENTER SLY FAIRY",
     href: "/sly-fairy/",
-    image: "/archive/emmaestro/sly-fairy-album-cover.jpg",
+    image: "/media/sly-fairy/home-composing.webp",
   },
   {
     name: "EMMAESTRO",
@@ -78,11 +77,8 @@ export const houseIndex = {
       "An original story world about usefulness, choice, music, and the difference between helping someone and deciding for them.",
     href: "/sly-fairy/",
     cta: "ENTER THE WORLD",
-    // Safe public fallback. Replace only this path when the approved homepage
-    // cinematic still is committed under /public/media/sly-fairy/.
-    image: "/archive/emmaestro/sly-fairy-album-cover.jpg",
-    imageAlt: "Sly Fairy album cover from the EMMAESTRO catalog",
-    artifactLabel: "AN EMMAESTRO RELEASE",
+    image: "/media/sly-fairy/home-composing.webp",
+    imageAlt: "Sly Fairy composing music beside a companion at sunset.",
   },
   rooms: [
     { category: "MUSIC", name: "EMMAESTRO", href: "/emmaestro/" },
