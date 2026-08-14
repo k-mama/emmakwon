@@ -18,7 +18,8 @@ const manrope = Manrope({
 
 export const metadata: Metadata = {
   title: "Emma Kwon",
-  description: "Emma Kwon — a quiet, cinematic creative studio.",
+  description:
+    "Emma Kwon — books, music, character worlds, children's creative work, and the Studio behind them.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
