@@ -88,6 +88,12 @@ export const signatureQuote = {
   context: "THE JOB THAT ENDED",
 };
 
+export const centralQuestion = {
+  eyebrow: "THE QUESTION",
+  headline: "Can you touch a life without taking it over?",
+  body: "Sly notices what is needed before anyone asks. On Earth, that gift becomes harder to use: a good result does not automatically make the choice hers.",
+};
+
 export const worldGrowing = {
   eyebrow: "HUMAN LIFE",
   headline: "A life she cannot solve like a problem.",
