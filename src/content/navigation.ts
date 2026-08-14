@@ -7,10 +7,11 @@
 // the most distinctive character IP first, then music, children's work,
 // books, and finally STUDIO last (what she makes, then how she makes it).
 //
-// Submenus are intentionally shallow. They provide a finished information
+// Submenus are intentionally shallow. They define the finished information
 // architecture now without forcing us to build a large number of empty
-// routes. Brand-world submenu items may point to anchors within the parent
-// page until a section becomes substantial enough to deserve its own route.
+// routes. Where a brand-world page is not built yet, its links remain safe
+// placeholders until that world is implemented. Existing worlds use real
+// page anchors so submenu clicks already land somewhere meaningful.
 
 export type NavSubItem = {
   label: string;
@@ -36,32 +37,32 @@ export const primaryNav: NavItem[] = [
   },
   {
     label: "EMMAESTRO",
-    href: "/emmaestro/",
+    href: "#",
     children: [
-      { label: "RELEASES", href: "/emmaestro/#releases" },
-      { label: "MUSIC VIDEOS", href: "/emmaestro/#music-videos" },
-      { label: "CLASSICAL", href: "/emmaestro/#classical" },
-      { label: "BORN RARE OST", href: "/emmaestro/#born-rare-ost" },
+      { label: "RELEASES", href: "#" },
+      { label: "MUSIC VIDEOS", href: "#" },
+      { label: "CLASSICAL", href: "#" },
+      { label: "BORN RARE OST", href: "#" },
     ],
   },
   {
     label: "K-MAMA",
-    href: "/k-mama/",
+    href: "#",
     children: [
-      { label: "THE WORLD", href: "/k-mama/" },
-      { label: "MUSIC", href: "/k-mama/#music" },
-      { label: "STORIES", href: "/k-mama/#stories" },
-      { label: "CHARACTERS", href: "/k-mama/#characters" },
+      { label: "THE WORLD", href: "#" },
+      { label: "MUSIC", href: "#" },
+      { label: "STORIES", href: "#" },
+      { label: "CHARACTERS", href: "#" },
     ],
   },
   {
     label: "BOOKS",
-    href: "/books/",
+    href: "#",
     children: [
-      { label: "BORN RARE", href: "/books/#born-rare" },
-      { label: "THE STORY BEHIND THE BOOK", href: "/books/#story-behind-the-book" },
-      { label: "MUSIC & OST", href: "/books/#music-ost" },
-      { label: "RIGHTS & PRESS", href: "/books/#rights-press" },
+      { label: "BORN RARE", href: "#" },
+      { label: "THE STORY BEHIND THE BOOK", href: "#" },
+      { label: "MUSIC & OST", href: "#" },
+      { label: "RIGHTS & PRESS", href: "#" },
     ],
   },
   {
@@ -69,9 +70,9 @@ export const primaryNav: NavItem[] = [
     href: "/studio/",
     children: [
       { label: "NOTES", href: "/studio/notes/" },
-      { label: "LEARN", href: "/studio/notes/?category=LEARN" },
-      { label: "BUILD", href: "/studio/notes/?category=BUILD" },
-      { label: "MAKE", href: "/studio/notes/?category=MAKE" },
+      { label: "LEARN", href: "/studio/#learn" },
+      { label: "BUILD", href: "/studio/#build" },
+      { label: "MAKE", href: "/studio/#make" },
     ],
   },
 ];
