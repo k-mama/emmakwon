@@ -15,18 +15,15 @@ export default function HomeHouse() {
         </header>
 
         <Link className={styles.feature} href={houseIndex.feature.href}>
-          <div className={styles.featureMedia} aria-hidden="true">
-            <div className={styles.mediaGlow} />
-            <figure className={styles.artifact}>
-              <img
-                src={houseIndex.feature.image}
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
-              <figcaption>{houseIndex.feature.artifactLabel}</figcaption>
-            </figure>
-          </div>
+          <figure className={styles.featureMedia}>
+            <img
+              src={houseIndex.feature.image}
+              alt={houseIndex.feature.imageAlt}
+              loading="lazy"
+              decoding="async"
+            />
+            <div className={styles.mediaScrim} aria-hidden="true" />
+          </figure>
 
           <div className={styles.featureCopy}>
             <p className={styles.featureEyebrow}>{houseIndex.feature.eyebrow}</p>
