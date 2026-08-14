@@ -57,6 +57,11 @@ export default function EmmaestroPage() {
                   <p className={styles.releaseKind}>{release.kind}</p>
                   <h3 className={styles.releaseTitle}>{release.title}</h3>
                   <p className={styles.releaseNote}>{release.note}</p>
+                  {release.cta ? (
+                    <Link href={release.cta.href} className={styles.releaseLink}>
+                      {release.cta.label} <span aria-hidden="true">→</span>
+                    </Link>
+                  ) : null}
                 </article>
               ))}
             </div>
