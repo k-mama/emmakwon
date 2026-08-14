@@ -363,3 +363,17 @@
     grid-column: 2;
   }
 }
+
+/* On short mobile viewports (older iPhones, compact Android windows), the
+   decorative cover can otherwise drift behind the bottom-anchored title
+   block. Keep the same composition, but shrink and lift only the background
+   artifact so the editorial copy always owns its own readable area. */
+@media (max-width: 760px) and (max-height: 720px) {
+  .heroBook {
+    width: 36vw;
+    max-width: 160px;
+    right: 8vw;
+    top: 15%;
+    opacity: 0.76;
+  }
+}
