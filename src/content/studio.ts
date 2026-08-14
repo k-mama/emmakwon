@@ -79,11 +79,11 @@ export const studioPillars: Record<"learn" | "build" | "make", StudioPillar> = {
 };
 
 // The public, machine-writable content source. This file contains ONLY
-// published posts — the Phase 3 publishing pipeline (Pages Function / the
-// scheduler Worker) reads and writes this exact file via the GitHub
-// Contents API, then commits it, which is what triggers the existing
-// Cloudflare Pages Git deployment. Drafts and scheduled posts live only
-// in D1 (see migrations/) and must never be written here early.
+// published posts — the "Publish Now" Pages Function reads and writes
+// this exact file via the GitHub Contents API, then commits it, which is
+// what triggers the existing Cloudflare Pages Git deployment. Publishing
+// is manual only; drafts and any scheduled posts live only in D1 (see
+// migrations/) and must never be written here early.
 import studioPostsData from "./studio-posts.json";
 
 export const studioPosts: StudioPost[] = studioPostsData as StudioPost[];

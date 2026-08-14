@@ -1,6 +1,7 @@
-// D1 access for studio_posts — shared by the admin Pages Functions
-// (functions/api/admin/**) and the scheduler Worker
-// (workers/studio-scheduler), so the SQL lives in exactly one place.
+// D1 access for studio_posts, used by the admin Pages Functions
+// (functions/api/admin/**) — the site's only D1 consumer. Publishing to
+// the public site is manual (Publish Now) — there is no scheduler or
+// standalone Worker; see CLOUDFLARE_SETUP.md for the final architecture.
 // Uses the Cloudflare Workers D1Database type; this file is excluded
 // from the Next.js build's type-check (see tsconfig.json) since it's
 // only ever bundled by wrangler, not by Next.
@@ -111,7 +112,7 @@ export async function deletePost(db: D1Database, id: string): Promise<void> {
 }
 
 /** After a successful GitHub commit, records the outcome and clears any
-    prior error — used by both Publish Now and the scheduler. */
+    prior error. */
 export async function markPublished(db: D1Database, id: string, publishedAt: string, commitSha: string): Promise<void> {
   await db
     .prepare(
@@ -130,15 +131,4 @@ export async function recordPublishError(db: D1Database, id: string, error: stri
     .prepare("UPDATE studio_posts SET last_publish_error = ?, updated_at = ? WHERE id = ?")
     .bind(error, new Date().toISOString(), id)
     .run();
-}
-
-/** Posts due for the scheduler: status = scheduled AND scheduled_at has
-    passed, in UTC — no Brisbane wall-clock math here, scheduled_at is
-    already stored as an unambiguous UTC ISO timestamp. */
-export async function getDuePosts(db: D1Database, nowIso: string): Promise<StudioPost[]> {
-  const { results } = await db
-    .prepare("SELECT * FROM studio_posts WHERE status = 'scheduled' AND scheduled_at <= ? ORDER BY scheduled_at ASC")
-    .bind(nowIso)
-    .all<StudioPostRow>();
-  return results.map(rowToPost);
 }

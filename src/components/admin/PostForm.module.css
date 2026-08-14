@@ -186,51 +186,6 @@
   border-color: var(--title-primary);
 }
 
-.scheduleBox {
-  margin-top: 16px;
-  padding: 18px;
-  background: #f5f4f0;
-  border-radius: 8px;
-}
-
-.scheduleLabel {
-  margin: 0 0 10px;
-  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--soft-text);
-}
-
-.scheduleRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-}
-
-.scheduleRow .input {
-  width: auto;
-  flex: 0 0 auto;
-}
-
-.timezoneTag {
-  padding: 4px 10px;
-  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--soft-text);
-  background: #ffffff;
-  border: 1px solid var(--color-hairline);
-  border-radius: 5px;
-}
-
-.schedulePreview {
-  margin: 12px 0 0;
-  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 14px;
-  color: var(--title-primary);
-}
-
 .footerRow {
   display: flex;
   align-items: center;

@@ -1,17 +1,18 @@
-// Shared Studio publishing core — used by BOTH the "Publish Now" Pages
-// Function (functions/api/admin/posts/[id]/publish/index.ts) and the
-// scheduler Worker (workers/studio-scheduler). Kept as one plain module
-// with no framework imports so it can be bundled by either: Pages
-// Functions and standalone Workers both run on the Workers runtime, so
-// the same fetch/D1/Web-API surface is available in both places.
+// Shared Studio publishing core — used by the "Publish Now" Pages
+// Function (functions/api/admin/posts/[id]/publish.ts), the site's only
+// publishing path. Publishing is manual only: there is no scheduler or
+// standalone Worker in this project's architecture (see
+// CLOUDFLARE_SETUP.md). Kept as one plain module with no framework
+// imports so it's easy to bundle and reason about in isolation — Pages
+// Functions run on the Workers runtime, so the fetch/Web-API surface
+// used here is native, not a polyfill.
 //
 // Deliberately framework-free: no Next.js imports here (this file is
 // consumed outside the Next build, by wrangler's own bundler).
 
 // These types intentionally mirror src/content/studio.ts's StudioPost
 // rather than importing it: this module's dependency surface is kept
-// deliberately minimal (it handles the GitHub token and is bundled
-// separately into the standalone scheduler Worker), and the two only
+// deliberately minimal (it handles the GitHub token), and the two only
 // need to agree on the wire shape, not share code.
 export type StudioCategory = "LEARN" | "BUILD" | "MAKE";
 export type StudioPostStatus = "draft" | "scheduled" | "published";

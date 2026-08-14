@@ -43,13 +43,11 @@ export const onRequestPatch: PagesFunction<Env, "id"> = async (context) => {
   };
 
   // Normalize to a canonical UTC "Z" timestamp regardless of what offset
-  // the client sent (the admin UI sends Brisbane's fixed +10:00). The
-  // scheduler Worker compares scheduled_at with plain SQL "<=", which
-  // only orders correctly if every stored value uses the same UTC
-  // representation — never trust the client's string format here. Only
-  // touch it when the client actually sent the key: a PATCH that omits
-  // scheduledAt entirely (e.g. a plain title edit) must not wipe an
-  // existing scheduled time.
+  // the client sent (the admin UI sends Brisbane's fixed +10:00) — keeps
+  // any stored scheduled_at values consistently comparable, whether or
+  // not anything currently reads them. Only touch it when the client
+  // actually sent the key: a PATCH that omits scheduledAt entirely (e.g.
+  // a plain title edit) must not wipe an existing scheduled time.
   if ("scheduledAt" in patch) {
     next.scheduledAt = patch.scheduledAt ? new Date(patch.scheduledAt).toISOString() : undefined;
   }

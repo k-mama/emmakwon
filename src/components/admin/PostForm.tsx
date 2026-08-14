@@ -4,13 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import NoteArticle from "@/components/studio/NoteArticle";
 import { deletePost as deletePostApi, publishPost, savePost } from "@/lib/adminApiClient";
-import {
-  brisbaneWallTimeToIso,
-  formatBrisbaneDateTime,
-  slugify,
-  type StudioCategory,
-  type StudioPost,
-} from "@/content/studio";
+import { formatBrisbaneDateTime, slugify, type StudioCategory, type StudioPost } from "@/content/studio";
 import styles from "./PostForm.module.css";
 
 const CATEGORIES: StudioCategory[] = ["BUILD", "LEARN", "MAKE"];
@@ -25,9 +19,6 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
   const [bodyText, setBodyText] = useState(initialPost.body.join("\n\n"));
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [previewing, setPreviewing] = useState(false);
-  const [scheduling, setScheduling] = useState(false);
-  const [scheduleDate, setScheduleDate] = useState("");
-  const [scheduleTime, setScheduleTime] = useState("10:00");
 
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -105,14 +96,6 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
       setPublishState("error");
       setPublishError(error instanceof Error ? error.message : "Unknown error.");
     }
-  };
-
-  const handleConfirmSchedule = async () => {
-    if (!scheduleDate) return;
-    setPublishState("idle");
-    const iso = brisbaneWallTimeToIso(scheduleDate, scheduleTime);
-    const saved = await save({ status: "scheduled", scheduledAt: iso });
-    if (saved) setScheduling(false);
   };
 
   const handleDelete = async () => {
@@ -321,47 +304,10 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
         <button type="button" className={styles.secondaryButton} onClick={() => setPreviewing(true)} disabled={busy}>
           Preview
         </button>
-        <button type="button" className={styles.secondaryButton} onClick={() => setScheduling((value) => !value)} disabled={busy}>
-          Schedule
-        </button>
         <button type="button" className={styles.primaryButton} onClick={handlePublishNow} disabled={busy}>
           {publishState === "publishing" ? "Publishing…" : "Publish Now"}
         </button>
       </div>
-
-      {scheduling && (
-        <div className={styles.scheduleBox}>
-          <p className={styles.scheduleLabel}>Publish at (Australia/Brisbane):</p>
-          <div className={styles.scheduleRow}>
-            <input
-              type="date"
-              className={styles.input}
-              value={scheduleDate}
-              onChange={(event) => setScheduleDate(event.target.value)}
-            />
-            <input
-              type="time"
-              className={styles.input}
-              value={scheduleTime}
-              onChange={(event) => setScheduleTime(event.target.value)}
-            />
-            <span className={styles.timezoneTag}>Australia/Brisbane</span>
-          </div>
-          {scheduleDate && (
-            <p className={styles.schedulePreview}>
-              {formatBrisbaneDateTime(brisbaneWallTimeToIso(scheduleDate, scheduleTime))}
-            </p>
-          )}
-          <button
-            type="button"
-            className={styles.primaryButton}
-            onClick={handleConfirmSchedule}
-            disabled={!scheduleDate || busy}
-          >
-            {saveState === "saving" ? "Saving…" : "Confirm Schedule"}
-          </button>
-        </div>
-      )}
 
       <div className={styles.footerRow}>
         <button type="button" className={styles.dangerLink} onClick={handleDelete} disabled={busy}>
