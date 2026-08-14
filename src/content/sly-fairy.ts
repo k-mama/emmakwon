@@ -74,7 +74,7 @@ export const musicConnection = {
   body: "Sly Fairy first entered Emma Kwon's creative house through an EMMAESTRO release. The story now grows beyond the record — into rooms, work, mistakes, desire, and the strange freedom of making something you cannot fully control.",
   image: "/archive/emmaestro/sly-fairy-album-cover.jpg",
   imageAlt: "Sly Fairy album cover from the EMMAESTRO catalog",
-  cta: { label: "AN EMMAESTRO RELEASE", href: "#" },
+  cta: { label: "AN EMMAESTRO RELEASE", href: "/emmaestro/#releases" },
 };
 
 export const visualWorld = {
@@ -89,9 +89,9 @@ export const signatureQuote = {
 };
 
 export const worldGrowing = {
-  eyebrow: "THE WORLD IS GROWING",
+  eyebrow: "HUMAN LIFE",
   headline: "A life she cannot solve like a problem.",
-  body: "Lowwater. A borrowed body. Work that leaves her tired. Music that refuses to become perfect. People who can be angry and kind in the same hour. Sly Fairy is being developed as a serialized cinematic story about usefulness, consent, ambition, love, and what remains when nobody needs you to save the room.",
+  body: "Lowwater. A borrowed body. Work that leaves her tired. Music that refuses to become perfect. People who can be angry and kind in the same hour. The closer Sly gets, the less human life behaves like a problem with one correct answer.",
 };
 
 export const endingCta = {
