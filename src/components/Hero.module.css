@@ -22,9 +22,12 @@
 @media (max-width: 640px) {
   .hero {
     /* Mobile is width-driven instead (see .videoWrap below): the stage
-       height simply follows the video's own aspect-ratio height, it is
-       not locked to the viewport. */
+       follows the source video's own 1080:1290 aspect ratio. Explicitly
+       cancel the desktop min-height so no atmospheric spacer is created
+       above or below the video. The negative margin then places the
+       transparent mobile header directly over the first 56px of media. */
     height: auto;
+    min-height: 0;
     margin-top: calc(-1 * var(--header-height-mobile));
   }
 }
