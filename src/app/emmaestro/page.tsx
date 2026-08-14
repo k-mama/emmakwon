@@ -121,7 +121,7 @@ export default function EmmaestroPage() {
           <div className="container">
             <h2 className={styles.endingHeadline}>{emmaestroEnding.headline}</h2>
             <Link href={emmaestroEnding.cta.href} className={styles.endingLink}>
-              <span aria-hidden="true">←</span> {emmaestroEnding.cta.label}
+              {emmaestroEnding.cta.label} <span aria-hidden="true">→</span>
             </Link>
           </div>
         </section>
