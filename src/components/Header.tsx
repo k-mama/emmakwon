@@ -13,6 +13,8 @@ type HeaderProps = {
   opaque?: boolean;
 };
 
+const submenuIdFor = (label: string) => `desktop-submenu-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+
 export default function Header({ opaque = false }: HeaderProps = {}) {
   const [scrolledPastHero, setScrolledPastHero] = useState(opaque);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
@@ -40,6 +42,9 @@ export default function Header({ opaque = false }: HeaderProps = {}) {
     <header
       className={`${styles.header} ${scrolledPastHero ? styles.scrolled : ""}`}
       onMouseLeave={closeMenu}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) closeMenu();
+      }}
     >
       <div className={styles.inner}>
         <Link href="/" className={styles.brand} onFocus={closeMenu} onClick={closeMenu}>
@@ -49,33 +54,54 @@ export default function Header({ opaque = false }: HeaderProps = {}) {
         <MobileNav items={primaryNav} overlay={!scrolledPastHero} />
 
         <nav className={styles.nav} aria-label="Primary">
-          {primaryNav.map((item) => (
-            <div
-              key={item.label}
-              className={styles.navItem}
-              onMouseEnter={() => openMenu(item)}
-              onFocus={() => openMenu(item)}
-            >
-              <Link
-                href={item.href}
-                className={`${styles.navLink} ${activeMenu === item.label ? styles.navLinkActive : ""}`}
-                aria-haspopup={item.children?.length ? "true" : undefined}
-                aria-expanded={item.children?.length ? activeMenu === item.label : undefined}
-                onClick={closeMenu}
+          {primaryNav.map((item) => {
+            const hasChildren = Boolean(item.children?.length);
+            const submenuId = submenuIdFor(item.label);
+
+            return (
+              <div
+                key={item.label}
+                className={styles.navItem}
+                onMouseEnter={() => openMenu(item)}
+                onFocus={() => openMenu(item)}
               >
-                {item.label}
-              </Link>
-            </div>
-          ))}
+                <Link
+                  href={item.href}
+                  className={`${styles.navLink} ${activeMenu === item.label ? styles.navLinkActive : ""}`}
+                  aria-haspopup={hasChildren ? "true" : undefined}
+                  aria-expanded={hasChildren ? activeMenu === item.label : undefined}
+                  aria-controls={hasChildren ? submenuId : undefined}
+                  onClick={closeMenu}
+                  onKeyDown={(event) => {
+                    if (event.key === "ArrowDown" && hasChildren) {
+                      event.preventDefault();
+                      setActiveMenu(item.label);
+                      requestAnimationFrame(() => {
+                        document.querySelector<HTMLAnchorElement>(`#${submenuId} a`)?.focus();
+                      });
+                    }
+                    if (event.key === "Escape") closeMenu();
+                  }}
+                >
+                  {item.label}
+                </Link>
+              </div>
+            );
+          })}
         </nav>
 
-        <div className={styles.utility} onMouseEnter={closeMenu}>
+        <div className={styles.utility} onMouseEnter={closeMenu} onFocus={closeMenu}>
           <LanguageMenu triggerClassName={styles.iconBtn} />
         </div>
       </div>
 
       {activeItem?.children?.length ? (
-        <div className={styles.subnav} onMouseEnter={() => setActiveMenu(activeItem.label)}>
+        <div
+          id={submenuIdFor(activeItem.label)}
+          className={styles.subnav}
+          onMouseEnter={() => setActiveMenu(activeItem.label)}
+          onFocus={() => setActiveMenu(activeItem.label)}
+        >
           <nav className={styles.subnavInner} aria-label={`${activeItem.label} submenu`}>
             {activeItem.children.map((child) => (
               <Link
