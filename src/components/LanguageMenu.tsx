@@ -18,18 +18,32 @@ type LanguageMenuProps = {
 export default function LanguageMenu({ triggerClassName, openUpward, align = "right" }: LanguageMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const activeOptionRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
+
+  const closeMenu = (restoreFocus = false) => {
+    setOpen(false);
+    if (restoreFocus) {
+      requestAnimationFrame(() => triggerRef.current?.focus());
+    }
+  };
 
   useEffect(() => {
     if (!open) return;
 
+    requestAnimationFrame(() => activeOptionRef.current?.focus());
+
     const handlePointerDown = (event: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
-        setOpen(false);
+        closeMenu();
       }
     };
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeMenu(true);
+      }
     };
 
     document.addEventListener("mousedown", handlePointerDown);
@@ -41,9 +55,16 @@ export default function LanguageMenu({ triggerClassName, openUpward, align = "ri
   }, [open]);
 
   return (
-    <div className={styles.root} ref={rootRef}>
+    <div
+      className={styles.root}
+      ref={rootRef}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) closeMenu();
+      }}
+    >
       <button
         type="button"
+        ref={triggerRef}
         className={[triggerClassName, styles.trigger].filter(Boolean).join(" ")}
         aria-haspopup="true"
         aria-expanded={open}
@@ -71,12 +92,13 @@ export default function LanguageMenu({ triggerClassName, openUpward, align = "ri
               <button
                 key={language.code}
                 type="button"
+                ref={isActive ? activeOptionRef : undefined}
                 role="menuitemradio"
                 aria-checked={isActive}
                 aria-disabled={!isAvailable}
                 disabled={!isAvailable}
                 className={`${styles.option} ${isActive ? styles.optionActive : ""}`}
-                onClick={() => setOpen(false)}
+                onClick={() => closeMenu(true)}
               >
                 <span>{language.label}</span>
                 {isAvailable ? (
