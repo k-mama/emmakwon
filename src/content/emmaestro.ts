@@ -13,6 +13,7 @@ export const releases = [
     image: "/archive/emmaestro/sly-fairy-album-cover.jpg",
     imageAlt: "Sly Fairy album cover by EMMAESTRO",
     note: "The record that kept growing until it had a character, a story, and a world of its own.",
+    cta: { label: "Enter the story world", href: "/sly-fairy/" },
   },
   {
     title: "No Deadline To Be OK",
@@ -20,6 +21,7 @@ export const releases = [
     image: "/archive/emmaestro/no-deadline-album-cover.jpg",
     imageAlt: "No Deadline To Be OK album cover by EMMAESTRO",
     note: "Music for the part of BORN RARE that did not become tidy just because the page ended.",
+    cta: { label: "Open the book room", href: "/books/#born-rare" },
   },
   {
     title: "Aussie Morning",
