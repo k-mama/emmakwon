@@ -3,25 +3,25 @@ export const kMamaHero = {
   title: "K-MAMA",
   tagline: "Made for children. Never talked down to.",
   supporting:
-    "Music, stories, characters, and playful creative work made with warmth, intelligence, and room for a child's own imagination.",
+    "Songs to move to. Stories to repeat. Characters to meet again. Bright work with enough room left for a child's own imagination.",
 };
 
 export const kMamaWorld = {
   eyebrow: "THE WORLD",
-  headline: "Small people deserve big imagination.",
-  body: "K-MAMA is built around a simple idea: children's work can be bright, funny, musical, and playful without becoming noisy or disposable. The goal is not to fill every second. It is to make a world children want to return to.",
+  headline: "Bright is not the same as loud.",
+  body: "K-MAMA makes room for color, jokes, rhythm, repetition, and the serious business of pretending. Children do not need every second filled. They need something worth coming back to.",
 };
 
 export const kMamaMusic = {
   eyebrow: "MUSIC",
-  headline: "Songs are places children can enter.",
-  body: "K-MAMA music is designed to work as more than background sound — a rhythm to move with, a phrase to remember, a tiny story to carry into the rest of the day.",
+  headline: "A good children's song survives the car ride home.",
+  body: "The best ones escape the speaker. A child keeps the rhythm, changes a word, sings the wrong bit, asks for it again, and makes the song partly their own.",
 };
 
 export const kMamaStories = {
   eyebrow: "STORIES",
-  headline: "Play is already a form of storytelling.",
-  body: "A drawing, a repeated joke, a made-up rule, a character with a strange little problem — K-MAMA treats those things as beginnings rather than distractions.",
+  headline: "A joke can become a world.",
+  body: "A strange rule, a drawing, a question at bedtime, a character who keeps doing the same ridiculous thing — K-MAMA treats those little beginnings seriously enough to follow them somewhere.",
   image: "/archive/k-mama/coloring-book-en.jpg",
   imageAlt: "English K-MAMA coloring book cover",
   artifactLabel: "K-MAMA ARCHIVE / COLORING BOOK",
@@ -29,30 +29,30 @@ export const kMamaStories = {
 
 export const kMamaCharacters = {
   eyebrow: "CHARACTERS",
-  headline: "Characters with room to grow.",
-  body: "The K-MAMA character world is being built for repeat encounters across songs, short stories, visual play, and future moving-image work. Each character should feel recognizable enough to love and open enough for a child to imagine beyond the page.",
+  headline: "Make someone worth meeting twice.",
+  body: "A K-MAMA character should be easy to recognize without being finished. Songs, stories, drawing, play, and future moving image can reveal different sides without explaining every last thing about them.",
 };
 
 export const kMamaPrinciples = [
   {
     number: "01",
     label: "BRIGHT",
-    body: "Color and energy without visual noise.",
+    body: "Color that wakes the room up without shouting over it.",
   },
   {
     number: "02",
     label: "WARM",
-    body: "Humor and comfort without talking down to children.",
+    body: "Funny, kind, and never baby talk.",
   },
   {
     number: "03",
     label: "CURIOUS",
-    body: "Questions, discovery, and room for a child's own answer.",
+    body: "A question is allowed to stay open.",
   },
   {
     number: "04",
     label: "REPEATABLE",
-    body: "Songs and stories worth returning to, not just consuming once.",
+    body: "If a child asks for it again, that matters.",
   },
 ];
 
