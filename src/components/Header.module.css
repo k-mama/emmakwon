@@ -141,7 +141,12 @@
     display: none;
   }
 
+  /* Was display:none — that hid the globe entirely on mobile, leaving
+     it reachable only inside the opened hamburger overlay. Keep it in
+     the persistent mobile header bar instead, pinned to the far right
+     of the (otherwise left-grouped: hamburger, then brand) row. */
   .utility {
-    display: none;
+    display: flex;
+    margin-left: auto;
   }
 }
