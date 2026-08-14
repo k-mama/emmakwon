@@ -38,7 +38,7 @@ export default function StudioPage() {
           </div>
         </section>
 
-        <section className={styles.pillar} aria-labelledby="learn-heading">
+        <section id="learn" className={styles.pillar} aria-labelledby="learn-heading">
           <div className="container">
             <div className={styles.pillarGrid}>
               <div className={styles.pillarMeta}>
@@ -64,7 +64,7 @@ export default function StudioPage() {
           </div>
         </section>
 
-        <section className={styles.pillar} aria-labelledby="build-heading">
+        <section id="build" className={styles.pillar} aria-labelledby="build-heading">
           <div className="container">
             <div className={styles.pillarGrid}>
               <div className={styles.pillarMeta}>
@@ -101,7 +101,7 @@ export default function StudioPage() {
           </div>
         </section>
 
-        <section className={styles.pillar} aria-labelledby="make-heading">
+        <section id="make" className={styles.pillar} aria-labelledby="make-heading">
           <div className="container">
             <div className={styles.pillarGrid}>
               <div className={styles.pillarMeta}>
