@@ -12,6 +12,11 @@ type NoteArticleProps = {
 // /studio/notes/[slug] page and by the admin preview, so preview always
 // shows exactly what will go live, not a separate approximation.
 export default function NoteArticle({ post, back }: NoteArticleProps) {
+  const externalMedia =
+    post.externalMedia
+      ?.map((media) => ({ label: media.label.trim(), url: media.url.trim() }))
+      .filter((media) => media.label && media.url && media.url !== "#") ?? [];
+
   return (
     <article className={styles.article}>
       <div className="container">
@@ -39,12 +44,12 @@ export default function NoteArticle({ post, back }: NoteArticleProps) {
           ))}
         </div>
 
-        {post.externalMedia && post.externalMedia.length > 0 && (
+        {externalMedia.length > 0 && (
           <p className={styles.media}>
-            {post.externalMedia.map((media, index) => (
-              <span key={media.url}>
+            {externalMedia.map((media, index) => (
+              <span key={`${media.url}-${index}`}>
                 <a href={media.url}>{media.label}</a>
-                {index < post.externalMedia!.length - 1 ? <span aria-hidden="true"> · </span> : null}
+                {index < externalMedia.length - 1 ? <span aria-hidden="true"> · </span> : null}
               </span>
             ))}
           </p>
