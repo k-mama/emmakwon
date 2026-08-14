@@ -29,7 +29,7 @@ export default function SlyFairyPage() {
           </div>
         </section>
 
-        <section className={styles.premise} aria-labelledby="premise-heading">
+        <section id="story" className={styles.premise} aria-labelledby="premise-heading">
           <div className="container">
             <p id="premise-heading" className={styles.eyebrow}>
               {premise.eyebrow}
@@ -42,7 +42,7 @@ export default function SlyFairyPage() {
           </div>
         </section>
 
-        <section className={styles.music} aria-labelledby="music-heading">
+        <section id="music" className={styles.music} aria-labelledby="music-heading">
           <div className="container">
             <div className={styles.musicGrid}>
               <div className={styles.musicCard}>
@@ -71,7 +71,7 @@ export default function SlyFairyPage() {
           </div>
         </section>
 
-        <section className={styles.growing} aria-labelledby="growing-heading">
+        <section id="visual-world" className={styles.growing} aria-labelledby="growing-heading">
           <div className="container">
             <p className={styles.eyebrow}>{worldGrowing.eyebrow}</p>
             <h2 id="growing-heading" className={styles.growingHeadline}>
