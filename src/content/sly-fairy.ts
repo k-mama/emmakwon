@@ -42,6 +42,32 @@ export const storyBeats = [
   },
 ];
 
+// These are deliberate media slots, not fake character art. Until final Sly
+// Fairy film/stills are added, they render as cinematic title-card atmospheres.
+// Later, set kind + src (and poster for video) without rebuilding the page.
+export const cinematicMedia = {
+  waterworks: {
+    kind: "atmosphere" as const,
+    src: null as string | null,
+    poster: null as string | null,
+    alt: "",
+    tone: "water" as const,
+    eyebrow: "THE WATERWORKS",
+    title: "What remained was never the whole story.",
+    caption: "Fragments travel through Water. Context does not.",
+  },
+  earth: {
+    kind: "atmosphere" as const,
+    src: null as string | null,
+    poster: null as string | null,
+    alt: "",
+    tone: "earth" as const,
+    eyebrow: "EARTH",
+    title: "Close enough to be wrong.",
+    caption: "A borrowed body. A first job. Music. Other people's choices.",
+  },
+};
+
 export const musicConnection = {
   eyebrow: "MUSIC",
   title: "The music came first.",
