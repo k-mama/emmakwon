@@ -56,9 +56,9 @@ export default function StudioPage() {
                     <span className={styles.featuredExcerpt}>{learnPost.excerpt}</span>
                   </Link>
                 )}
-                <a className={styles.pillarCta} href={studioPillars.learn.cta.href}>
+                <Link className={styles.pillarCta} href={studioPillars.learn.cta.href}>
                   {studioPillars.learn.cta.label} <span aria-hidden="true">→</span>
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -93,9 +93,9 @@ export default function StudioPage() {
                     ))}
                   </ul>
                 )}
-                <a className={styles.pillarCta} href={studioPillars.build.cta.href}>
+                <Link className={styles.pillarCta} href={studioPillars.build.cta.href}>
                   {studioPillars.build.cta.label} <span aria-hidden="true">→</span>
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -119,9 +119,9 @@ export default function StudioPage() {
                     <span className={styles.featuredExcerpt}>{makePost.excerpt}</span>
                   </Link>
                 )}
-                <a className={styles.pillarCta} href={studioPillars.make.cta.href}>
+                <Link className={styles.pillarCta} href={studioPillars.make.cta.href}>
                   {studioPillars.make.cta.label} <span aria-hidden="true">→</span>
-                </a>
+                </Link>
               </div>
             </div>
           </div>
