@@ -1,0 +1,263 @@
+/* SLY FAIRY — first brand-world page. Color is used as atmosphere only
+   (aqua / sky blue / blue-violet, with pink kept to small luminous
+   touches) — no character art exists yet, so the Hero is a deliberately
+   atmospheric "stage" rather than fake artwork. */
+
+.hero {
+  padding: clamp(24px, 4vw, 48px) 0 0;
+}
+
+.heroStage {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  min-height: clamp(440px, 78vh, 820px);
+  padding: clamp(28px, 5vw, 64px);
+  border-radius: var(--radius-video);
+  background: radial-gradient(85% 70% at 12% 8%, rgba(110, 223, 235, 0.65) 0%, transparent 60%),
+    radial-gradient(90% 75% at 90% 10%, rgba(160, 166, 221, 0.55) 0%, transparent 62%),
+    radial-gradient(100% 90% at 70% 100%, rgba(177, 95, 209, 0.5) 0%, transparent 65%),
+    radial-gradient(55% 45% at 8% 92%, rgba(243, 141, 161, 0.22) 0%, transparent 70%),
+    linear-gradient(165deg, #dff5f7 0%, #cfe0f7 40%, #b9a7e8 74%, #8f6fd6 100%);
+  box-shadow: var(--shadow-video);
+  animation: slyFairyDrift 26s ease-in-out infinite;
+}
+
+@keyframes slyFairyDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-1%, 1%, 0) scale(1.03);
+  }
+}
+
+.heroEyebrow {
+  margin: 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(253, 251, 247, 0.85);
+  text-shadow: 0 1px 8px rgba(24, 38, 74, 0.25);
+}
+
+.heroTitle {
+  margin: 12px 0 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: clamp(48px, 9vw, 128px);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  color: #fdfbf7;
+  text-shadow: 0 4px 30px rgba(24, 38, 74, 0.3);
+}
+
+.heroTagline {
+  margin: clamp(16px, 2.4vw, 24px) 0 0;
+  max-width: 26ch;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: clamp(17px, 2vw, 22px);
+  line-height: 1.4;
+  color: rgba(253, 251, 247, 0.92);
+  text-shadow: 0 2px 14px rgba(24, 38, 74, 0.25);
+}
+
+@media (max-width: 640px) {
+  .heroStage {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    border-radius: 0;
+    min-height: 82vh;
+    padding: 24px;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft-text);
+}
+
+/* B. THE PREMISE — a title-card moment, not a paragraph block. */
+.premise {
+  padding: var(--section-space) 0;
+}
+
+.premiseLine {
+  margin: 16px 0 0;
+  max-width: 34ch;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: clamp(22px, 3.2vw, 34px);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--title-primary);
+}
+
+.premiseLine:first-of-type {
+  margin-top: 16px;
+}
+
+/* C. THE MUSIC CONNECTION — the album cover appears here only, framed
+   as a secondary artifact, never as the character-world identity. */
+.music {
+  padding: 0 0 var(--section-space);
+}
+
+.musicGrid {
+  display: grid;
+  grid-template-columns: minmax(200px, 280px) 1fr;
+  align-items: center;
+  gap: clamp(32px, 5vw, 64px);
+}
+
+.musicCard {
+  width: 100%;
+}
+
+.musicFrame {
+  padding: 10px;
+  background: var(--cream-white);
+  border: 1px solid var(--color-hairline);
+  border-radius: 20px;
+  box-shadow: var(--panel-shadow);
+}
+
+.musicImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+}
+
+.musicCaption {
+  margin: 12px 2px 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--soft-text);
+}
+
+.musicTitle {
+  margin: 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: -0.01em;
+  color: var(--title-primary);
+}
+
+.musicBody {
+  margin: 16px 0 0;
+  max-width: 52ch;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(15px, 1.3vw, 17px);
+  line-height: 1.65;
+  color: var(--body-text);
+}
+
+.musicCtaLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding-bottom: 4px;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--title-primary);
+  border-bottom: 1px solid var(--title-primary);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.musicCtaLink:hover {
+  color: var(--hover-accent);
+  border-color: var(--hover-accent);
+}
+
+@media (max-width: 720px) {
+  .musicGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .musicCard {
+    max-width: 220px;
+    margin: 0 auto;
+  }
+}
+
+/* D. THE WORLD IS GROWING — editorial prose, deliberately not cards. */
+.growing {
+  padding: 0 0 var(--section-space);
+}
+
+.growingHeadline {
+  margin: 14px 0 0;
+  max-width: 20ch;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: clamp(26px, 3.6vw, 40px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--title-primary);
+}
+
+.growingBody {
+  margin: clamp(20px, 3vw, 28px) 0 0;
+  max-width: 58ch;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(15px, 1.3vw, 18px);
+  line-height: 1.7;
+  color: var(--body-text);
+}
+
+/* E. ENDING — a quiet handoff back to the house, not a nav grid. */
+.ending {
+  padding: clamp(40px, 6vw, 72px) 0 var(--section-space);
+  border-top: 1px solid var(--color-hairline);
+}
+
+.endingHeadline {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: clamp(24px, 3.4vw, 36px);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--title-primary);
+}
+
+.endingLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: clamp(20px, 3vw, 28px);
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--soft-text);
+  transition: color 0.2s ease;
+}
+
+.endingLink:hover {
+  color: var(--hover-accent);
+}

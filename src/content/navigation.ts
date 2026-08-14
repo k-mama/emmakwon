@@ -8,10 +8,10 @@
 // books, and finally STUDIO last (what she makes, then how she makes it).
 //
 // Dedicated pages for these identities don't exist yet, so their hrefs stay
-// as placeholders until those internal routes are built. STUDIO is the
-// exception: it has its own dedicated route at /studio. EMMA and CONTACT
-// are intentionally not top-level nav items — Emma's story and Contact
-// live inside the homepage itself.
+// as placeholders until those internal routes are built. SLY FAIRY and
+// STUDIO are built: /sly-fairy and /studio. EMMA and CONTACT are
+// intentionally not top-level nav items — Emma's story and Contact live
+// inside the homepage itself.
 //
 // Note: "Sly Fairy — Album" is a release inside EMMAESTRO's music catalog,
 // distinct from the top-level "SLY FAIRY" destination (the character/
@@ -23,7 +23,7 @@ export type NavItem = {
 };
 
 export const primaryNav: NavItem[] = [
-  { label: "SLY FAIRY", href: "#" },
+  { label: "SLY FAIRY", href: "/sly-fairy/" },
   { label: "EMMAESTRO", href: "#" },
   { label: "K-MAMA", href: "#" },
   { label: "BOOKS", href: "#" },
