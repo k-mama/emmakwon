@@ -332,6 +332,7 @@
 }
 
 .quoteBlock {
+  margin: 0;
   padding: clamp(34px, 5vw, 64px) 0 8px;
   border-top: 1px solid rgba(30, 45, 91, 0.16);
 }
