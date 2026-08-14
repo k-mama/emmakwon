@@ -140,7 +140,7 @@ export default function SlyFairyPage() {
           <div className="container">
             <h2 className={styles.endingHeadline}>{endingCta.headline}</h2>
             <Link href={endingCta.cta.href} className={styles.endingLink}>
-              <span aria-hidden="true">←</span> {endingCta.cta.label}
+              {endingCta.cta.label} <span aria-hidden="true">→</span>
             </Link>
           </div>
         </section>
