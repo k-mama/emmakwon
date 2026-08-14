@@ -13,11 +13,10 @@ type LanguageMenuProps = {
   align?: "right" | "center";
 };
 
-// UI-only for now: selecting a language updates the visual state but does
-// not translate the page yet — see src/content/languages.ts.
+// English is the only live locale today. Keep the future locale list visible
+// without pretending that selecting an unreleased language translates the page.
 export default function LanguageMenu({ triggerClassName, openUpward, align = "right" }: LanguageMenuProps) {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState(defaultLanguageCode);
   const rootRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
 
@@ -65,21 +64,28 @@ export default function LanguageMenu({ triggerClassName, openUpward, align = "ri
           aria-label="Select a language"
         >
           {languages.map((language) => {
-            const isActive = language.code === selected;
+            const isActive = language.code === defaultLanguageCode;
+            const isAvailable = language.code === defaultLanguageCode;
+
             return (
               <button
                 key={language.code}
                 type="button"
                 role="menuitemradio"
                 aria-checked={isActive}
+                aria-disabled={!isAvailable}
+                disabled={!isAvailable}
                 className={`${styles.option} ${isActive ? styles.optionActive : ""}`}
-                onClick={() => {
-                  setSelected(language.code);
-                  setOpen(false);
-                }}
+                onClick={() => setOpen(false)}
               >
-                {language.label}
-                <span className={styles.check} aria-hidden="true" />
+                <span>{language.label}</span>
+                {isAvailable ? (
+                  <span className={styles.check} aria-hidden="true" />
+                ) : (
+                  <span className={styles.optionStatus} aria-hidden="true">
+                    SOON
+                  </span>
+                )}
               </button>
             );
           })}
