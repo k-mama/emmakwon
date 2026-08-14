@@ -4,9 +4,10 @@
      render as DOM descendants of this element. */
   --nav-navy: #1e2d5b;
   --nav-navy-hover: color-mix(in srgb, #1e2d5b 78%, black);
-  /* Cool fluorescent hover pink, matched to the heroine's hair strands —
-     airy and refined rather than hot/saturated. */
-  --nav-hover-pink: #ff66c7;
+  /* Luminous AI-wave sky blue/aqua — connects the nav hover to the
+     Hero's blue/aqua atmosphere. Represents the whole Emma Kwon house,
+     not one world, so it stays cool and airy rather than playful. */
+  --nav-hover-wave: #6edfeb;
   position: sticky;
   top: 0;
   z-index: 40;
@@ -86,11 +87,16 @@
 }
 
 .navLink:hover {
-  color: var(--nav-hover-pink);
+  color: var(--nav-hover-wave);
+  text-shadow: 0 0 8px rgba(110, 223, 235, 0.28);
 }
 
 .scrolled .navLink:hover {
-  color: var(--nav-hover-pink);
+  color: var(--nav-hover-wave);
+  /* Same hover color, but the halo reads as a blur artifact rather than
+     luminous against the light scrolled header — keep the color, drop
+     the glow. */
+  text-shadow: none;
 }
 
 /* Globe icon renders its own gradient stroke (see VisualGlobeIcon), so

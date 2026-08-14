@@ -196,7 +196,7 @@
 }
 
 .link:hover {
-  color: var(--nav-hover-pink);
+  color: var(--nav-hover-wave);
 }
 
 .overlayFooter {
