@@ -268,3 +268,45 @@ export async function publishPostToGithub(
     return { ok: false, error: error instanceof Error ? error.message : "Unknown publish error." };
   }
 }
+
+/**
+ * Removes one post (by id) from the public content file on GitHub, with
+ * the same single refresh-and-retry-on-409 behavior as
+ * publishPostToGithub. Used by Delete when the post being deleted is
+ * currently published, so it can't be left silently live on the public
+ * site after Admin reports it deleted. If the post is already absent
+ * from the file (e.g. a retry after a prior partial failure), this is a
+ * no-op success rather than an error.
+ */
+export async function removePostFromGithub(
+  config: GithubConfig,
+  postId: string,
+  postTitle: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<PublishResult> {
+  const commitMessage = `Remove Studio note: ${postTitle}`;
+  const remove = (posts: StudioPost[]) => posts.filter((existing) => existing.id !== postId);
+
+  try {
+    let { posts, sha } = await fetchContentFile(config, fetchImpl);
+    let remaining = remove(posts);
+    if (remaining.length === posts.length) return { ok: true, commitSha: sha };
+
+    let result = await commitContentFile(config, remaining, sha, commitMessage, fetchImpl);
+
+    if (!result.ok && result.status === 409) {
+      ({ posts, sha } = await fetchContentFile(config, fetchImpl));
+      remaining = remove(posts);
+      if (remaining.length === posts.length) return { ok: true, commitSha: sha };
+      result = await commitContentFile(config, remaining, sha, commitMessage, fetchImpl);
+    }
+
+    if (!result.ok) {
+      return { ok: false, error: `GitHub removal failed (${result.status}): ${result.error}` };
+    }
+
+    return { ok: true, commitSha: result.commitSha };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Unknown removal error." };
+  }
+}

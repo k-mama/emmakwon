@@ -117,3 +117,11 @@
   color: var(--soft-text);
   white-space: nowrap;
 }
+
+@media (max-width: 560px) {
+  .listLink {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

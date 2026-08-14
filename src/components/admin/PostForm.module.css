@@ -68,6 +68,57 @@
   outline-offset: 1px;
 }
 
+.coverImageRow {
+  display: flex;
+  gap: 8px;
+}
+
+.coverImageRow .input {
+  flex: 1 1 auto;
+}
+
+.clearButton {
+  flex: 0 0 auto;
+  padding: 0 14px;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--soft-text);
+  background: #ffffff;
+  border: 1px solid var(--color-hairline);
+  border-radius: 6px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.clearButton:hover {
+  color: var(--title-primary);
+  border-color: var(--title-primary);
+}
+
+.coverPreview {
+  margin-top: 10px;
+}
+
+.coverPreviewImage {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  max-height: 180px;
+  object-fit: cover;
+  border: 1px solid var(--color-hairline);
+  border-radius: 8px;
+}
+
+.coverPreviewFallback {
+  margin: 0;
+  padding: 10px 14px;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  color: var(--soft-text);
+  background: #f5f4f0;
+  border-radius: 6px;
+}
+
 .categoryRow {
   display: flex;
   gap: 8px;
@@ -226,7 +277,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 10px 16px;
   padding: 14px clamp(20px, 4vw, 40px);
   font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 13px;
@@ -237,4 +289,10 @@
 
 .previewFrame {
   flex: 1 1 auto;
+}
+
+@media (max-width: 480px) {
+  .previewBar span {
+    flex: 1 1 100%;
+  }
 }

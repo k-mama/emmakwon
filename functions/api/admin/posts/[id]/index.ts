@@ -1,7 +1,7 @@
 import type { PagesFunction } from "@cloudflare/workers-types";
 import { errorJson, json, type Env } from "../../../../_shared/env";
-import { deletePost, getPost, updatePost } from "../../../../../src/lib/studioRepository";
-import type { StudioPost } from "../../../../../src/lib/studioPublisher";
+import { deletePost, getPost, recordPublishError, updatePost } from "../../../../../src/lib/studioRepository";
+import { removePostFromGithub, type GithubConfig, type StudioPost } from "../../../../../src/lib/studioPublisher";
 
 function paramId(params: Record<string, string | string[]>): string {
   const value = params.id;
@@ -60,11 +60,39 @@ export const onRequestPatch: PagesFunction<Env, "id"> = async (context) => {
   }
 };
 
+/** Deleting a draft (or a legacy scheduled record) only ever touched D1.
+    Deleting an already-published post must also remove it from the
+    public GitHub content file first — otherwise Admin would report
+    "deleted" while the article stays silently live on the public site.
+    D1 is only cleared once GitHub confirms the removal, so a failed
+    attempt leaves the post exactly as it was (still published, still
+    deletable) rather than losing track of it. */
 export const onRequestDelete: PagesFunction<Env, "id"> = async (context) => {
+  const { env } = context;
   const id = paramId(context.params);
-  const existing = await getPost(context.env.STUDIO_DB, id);
+  const existing = await getPost(env.STUDIO_DB, id);
   if (!existing) return errorJson("Post not found.", 404);
 
-  await deletePost(context.env.STUDIO_DB, id);
+  if (existing.status === "published") {
+    if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPO || !env.GITHUB_BRANCH || !env.GITHUB_CONTENT_PATH) {
+      return errorJson("Publishing backend not configured. Could not delete this post.", 503);
+    }
+
+    const config: GithubConfig = {
+      owner: env.GITHUB_OWNER,
+      repo: env.GITHUB_REPO,
+      branch: env.GITHUB_BRANCH,
+      contentPath: env.GITHUB_CONTENT_PATH,
+      token: env.GITHUB_TOKEN,
+    };
+
+    const result = await removePostFromGithub(config, existing.id, existing.title);
+    if (!result.ok) {
+      await recordPublishError(env.STUDIO_DB, id, result.error);
+      return errorJson(`Could not delete this post. The published version is still live. ${result.error}`, 502);
+    }
+  }
+
+  await deletePost(env.STUDIO_DB, id);
   return json({ ok: true });
 };

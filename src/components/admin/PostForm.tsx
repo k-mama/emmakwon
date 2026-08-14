@@ -99,7 +99,11 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Delete this post? This can't be undone.")) return;
+    const confirmMessage =
+      post.status === "published"
+        ? "Delete this post? It's live on the public site — this removes it from emmakwon.com and can't be undone."
+        : "Delete this post? This can't be undone.";
+    if (!window.confirm(confirmMessage)) return;
     setDeleting(true);
     setDeleteError(null);
     try {
@@ -156,13 +160,21 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
 
       <label className={styles.field}>
         <span className={styles.label}>Cover image (optional)</span>
-        <input
-          type="text"
-          className={styles.input}
-          value={post.coverImage ?? ""}
-          onChange={(event) => update("coverImage", event.target.value || undefined)}
-          placeholder="/archive/... or https://..."
-        />
+        <div className={styles.coverImageRow}>
+          <input
+            type="text"
+            className={styles.input}
+            value={post.coverImage ?? ""}
+            onChange={(event) => update("coverImage", event.target.value || undefined)}
+            placeholder="/archive/... or https://..."
+          />
+          {post.coverImage && (
+            <button type="button" className={styles.clearButton} onClick={() => update("coverImage", undefined)}>
+              Clear
+            </button>
+          )}
+        </div>
+        {post.coverImage && <CoverImagePreview key={post.coverImage} src={post.coverImage} />}
       </label>
 
       <label className={styles.field}>
@@ -275,7 +287,7 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
       )}
 
       {saveState === "error" && saveError && <p className={styles.errorNotice}>Could not save draft. {saveError}</p>}
-      {deleteError && <p className={styles.errorNotice}>Could not delete post. {deleteError}</p>}
+      {deleteError && <p className={styles.errorNotice}>Could not delete this post. {deleteError}</p>}
 
       {publishState === "published" && (
         <p className={styles.successNotice}>
@@ -327,6 +339,29 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
             <NoteArticle post={previewPost} />
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+/** Remounted via `key={src}` by the caller whenever the URL changes, so
+    a new URL always starts from a fresh (non-broken) load state without
+    needing an effect to reset it. */
+function CoverImagePreview({ src }: { src: string }) {
+  const [broken, setBroken] = useState(false);
+
+  return (
+    <div className={styles.coverPreview}>
+      {broken ? (
+        <p className={styles.coverPreviewFallback}>Image couldn&rsquo;t be loaded.</p>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt=""
+          className={styles.coverPreviewImage}
+          onError={() => setBroken(true)}
+        />
       )}
     </div>
   );
