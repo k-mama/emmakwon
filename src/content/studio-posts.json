@@ -10,11 +10,15 @@
       "The AI is fast. It is not tasteful on its own. Taste is still the part I have to bring — I just get to see it rendered in minutes instead of days."
     ],
     "category": "BUILD",
-    "tags": ["ai workflow", "web design", "claude code"],
+    "tags": [
+      "ai workflow",
+      "web design",
+      "claude code"
+    ],
     "status": "published",
     "publishedAt": "2026-08-10T09:00:00+10:00",
     "createdAt": "2026-08-07T18:20:00+10:00",
-    "updatedAt": "2026-08-10T09:00:00+10:00",
+    "updatedAt": "2026-08-14T04:46:01.395Z",
     "seoTitle": "Rebuilding EmmaKwon.com with AI",
     "seoDescription": "A behind-the-scenes look at rebuilding this site in small, precise corrections with an AI coding assistant."
   },
@@ -29,7 +33,11 @@
       "Small things get to be iterated on exactly like big things. Nobody sees the four versions that didn't make it — they just see the tab."
     ],
     "category": "BUILD",
-    "tags": ["branding", "iteration", "favicon"],
+    "tags": [
+      "branding",
+      "iteration",
+      "favicon"
+    ],
     "status": "published",
     "publishedAt": "2026-08-03T09:00:00+10:00",
     "createdAt": "2026-08-01T14:10:00+10:00",
@@ -48,7 +56,11 @@
       "It's not a study app. It's just a second pass at my own notes, done in minutes instead of never."
     ],
     "category": "BUILD",
-    "tags": ["notebooklm", "workflow", "english learning"],
+    "tags": [
+      "notebooklm",
+      "workflow",
+      "english learning"
+    ],
     "status": "published",
     "publishedAt": "2026-07-27T09:00:00+10:00",
     "createdAt": "2026-07-25T20:05:00+10:00",
@@ -67,14 +79,23 @@
       "If a note here happens to help someone else learning English, that's a nice side effect — not the point."
     ],
     "category": "LEARN",
-    "tags": ["english learning", "brisbane", "language school"],
+    "tags": [
+      "english learning",
+      "brisbane",
+      "language school"
+    ],
     "status": "published",
     "publishedAt": "2026-07-20T09:00:00+10:00",
     "createdAt": "2026-07-18T19:30:00+10:00",
     "updatedAt": "2026-07-20T09:00:00+10:00",
     "seoTitle": "English I'm Learning in Brisbane",
     "seoDescription": "Notes from language school in Brisbane, written down as I learn, not as a teacher.",
-    "externalMedia": [{ "label": "Watch on YouTube", "url": "#" }]
+    "externalMedia": [
+      {
+        "label": "Watch on YouTube",
+        "url": "#"
+      }
+    ]
   },
   {
     "id": "post-5",
@@ -87,7 +108,11 @@
       "The finished pieces live in Sly Fairy's own world on this site. This note is just the unfinished version of that — what's currently on the workbench."
     ],
     "category": "MAKE",
-    "tags": ["sly fairy", "current work", "visual experiments"],
+    "tags": [
+      "sly fairy",
+      "current work",
+      "visual experiments"
+    ],
     "status": "published",
     "publishedAt": "2026-07-13T09:00:00+10:00",
     "createdAt": "2026-07-10T11:45:00+10:00",
