@@ -216,12 +216,15 @@
 
   .rail {
     display: flex;
-    gap: 18px;
-    width: calc(100% + var(--content-pad));
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
     overflow-x: auto;
-    margin-right: calc(-1 * var(--content-pad));
-    padding-right: var(--content-pad);
+    margin-right: 0;
+    padding: 0 0 8px;
     scroll-snap-type: x mandatory;
+    scroll-padding-inline: 0;
+    overscroll-behavior-inline: contain;
     scrollbar-width: none;
   }
 
@@ -230,8 +233,11 @@
   }
 
   .item {
-    flex: 0 0 min(82vw, 420px);
+    flex: 0 0 100%;
+    width: 100%;
+    max-width: 100%;
     scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 }
 
