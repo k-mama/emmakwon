@@ -34,11 +34,13 @@ export const booksArchive = {
       label: "MANUSCRIPT",
       title: "Drafts & fragments",
       note: "Pages, revisions, and working material can arrive here later without rebuilding the room.",
+      href: "#story",
     },
     {
       label: "EDITIONS",
       title: "The book in motion",
       note: "Future formats, translations, and release material have a place ready when they exist.",
+      href: "#rights-press",
     },
     {
       label: "PRESS & OBJECTS",
