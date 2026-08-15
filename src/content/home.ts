@@ -114,9 +114,9 @@ export type StudioLink = {
 };
 
 export const studioMethod = {
-  eyebrow: "STUDIO",
+  eyebrow: "THE WORKING ROOM",
   headline: "AI builds fast. Taste decides what stays.",
-  body: "Every project here starts as a fast, AI-assisted draft — then gets edited, rejected, or rebuilt until it actually feels right.",
+  body: "The finished work lives upstairs. This is the room behind it — drafts, decisions, experiments, and the parts that had to be rebuilt before they felt right.",
   pullQuote: "The first version is rarely the version that ships.",
   links: [
     { label: "WATCH ME BUILD", href: "/studio/#build" },
@@ -132,13 +132,26 @@ export type ContactMethod = {
 };
 
 export const contact = {
+  eyebrow: "OPEN DOOR",
   headline: "LET'S MAKE SOMETHING INTERESTING.",
   supporting: "Publishing, music, visual worlds, collaborations, or simply hello.",
-  cta: { label: "GET IN TOUCH", href: "#" } satisfies ContactMethod,
+  cta: {
+    label: "GET IN TOUCH",
+    href: "https://www.instagram.com/the_real_emma_kwon",
+  } satisfies ContactMethod,
   methods: [
-    { label: "Email", href: "#" },
-    { label: "Instagram", href: "#" },
-    { label: "YouTube", href: "#" },
+    {
+      label: "Instagram",
+      href: "https://www.instagram.com/the_real_emma_kwon",
+    },
+    {
+      label: "EMMAESTRO",
+      href: "https://www.youtube.com/@emmaestro123",
+    },
+    {
+      label: "K-MAMA English",
+      href: "https://www.youtube.com/@kmama_studio",
+    },
   ] satisfies ContactMethod[],
 };
 
