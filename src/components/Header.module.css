@@ -196,7 +196,10 @@
   .inner {
     height: var(--header-height-mobile);
     display: flex;
-    padding: 0 16px;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
     justify-content: flex-start;
   }
 
