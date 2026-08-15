@@ -59,14 +59,10 @@ export default function ShowroomMediaBay({
             controls
             playsInline
             preload="metadata"
+            aria-label={media.alt ?? title}
           />
         ) : (
-          <div className={styles.emptyMedia} aria-hidden="true">
-            <span className={styles.orbOne} />
-            <span className={styles.orbTwo} />
-            <span className={styles.lineOne} />
-            <span className={styles.lineTwo} />
-          </div>
+          <div className={styles.emptyMedia} aria-hidden="true" />
         )}
         <p className={styles.roomLabel}>{roomLabel}</p>
       </div>

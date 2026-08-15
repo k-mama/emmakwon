@@ -42,8 +42,6 @@ function ArchiveItem({ item, index }: { item: ShowroomArchiveItem; index: number
         ) : (
           <div className={styles.placeholder} aria-hidden="true">
             <span className={styles.placeholderIndex}>{String(index + 1).padStart(2, "0")}</span>
-            <span className={styles.placeholderArc} />
-            <span className={styles.placeholderLine} />
           </div>
         )}
       </div>
