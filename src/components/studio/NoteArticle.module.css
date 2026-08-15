@@ -16,7 +16,8 @@
   transition: color 0.2s ease;
 }
 
-.backLink:hover {
+.backLink:hover,
+.backLink:focus-visible {
   color: var(--hover-accent);
 }
 
@@ -48,12 +49,14 @@
   color: var(--soft-text);
 }
 
+/* Cover media is treated as an editorial plate, not a blog card. */
 .coverFrame {
-  margin: clamp(32px, 5vw, 48px) 0 0;
-  border-radius: var(--panel-radius);
+  width: min(100%, 980px);
+  margin: clamp(38px, 6vw, 64px) 0 0;
+  padding: 10px 0;
   overflow: hidden;
-  border: 1px solid var(--color-hairline);
-  box-shadow: var(--panel-shadow);
+  border-top: 1px solid var(--color-hairline);
+  border-bottom: 1px solid var(--color-hairline);
 }
 
 .coverImage {
@@ -96,4 +99,14 @@
   font-size: 12px;
   letter-spacing: 0.04em;
   color: var(--soft-text);
+}
+
+@media (max-width: 640px) {
+  .coverFrame {
+    width: calc(100% + (2 * var(--content-pad)));
+    margin-left: calc(-1 * var(--content-pad));
+    padding: 0;
+    border-top: 0;
+    border-bottom: 0;
+  }
 }
