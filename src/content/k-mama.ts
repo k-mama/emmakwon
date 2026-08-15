@@ -66,16 +66,19 @@ export const kMamaArchive = {
       label: "CHARACTERS",
       title: "Meet someone new",
       note: "Character studies, expressions, costumes, and future moving-image moments can collect here over time.",
+      href: "#characters",
     },
     {
       label: "STORIES",
       title: "A story finds its shape",
       note: "Picture-book pages, short scenes, printable play, and story fragments have a place before or after publication.",
+      href: "#stories",
     },
     {
       label: "MUSIC",
       title: "Songs that can move",
       note: "New tracks, lyric play, dance moments, and music-led activities can enter without crowding the main room.",
+      href: "#music",
     },
   ],
 };
