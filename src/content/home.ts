@@ -81,10 +81,30 @@ export const houseIndex = {
     imageAlt: "Sly Fairy composing music beside a companion at sunset.",
   },
   rooms: [
-    { category: "MUSIC", name: "EMMAESTRO", href: "/emmaestro/" },
-    { category: "CHILDREN'S WORLD", name: "K-MAMA", href: "/k-mama/" },
-    { category: "BOOKS & PUBLISHING", name: "BOOKS", href: "/books/" },
-    { category: "NOTES · LEARN · BUILD · MAKE", name: "STUDIO", href: "/studio/" },
+    {
+      category: "MUSIC",
+      name: "EMMAESTRO",
+      href: "/emmaestro/",
+      descriptor: "Records, scores, and the work behind the sound.",
+    },
+    {
+      category: "CHILDREN'S WORLD",
+      name: "K-MAMA",
+      href: "/k-mama/",
+      descriptor: "Made for children. Never talked down to.",
+    },
+    {
+      category: "BOOKS & PUBLISHING",
+      name: "BOOKS",
+      href: "/books/",
+      descriptor: "Life first. The book came after.",
+    },
+    {
+      category: "NOTES · LEARN · BUILD · MAKE",
+      name: "STUDIO",
+      href: "/studio/",
+      descriptor: "AI builds fast. Taste decides what stays.",
+    },
   ],
 };
 

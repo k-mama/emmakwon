@@ -37,10 +37,16 @@ export default function HomeHouse() {
         </Link>
 
         <nav className={styles.rooms} aria-label="Explore the creative house">
-          {houseIndex.rooms.map((room) => (
+          {houseIndex.rooms.map((room, index) => (
             <Link className={styles.room} href={room.href} key={room.name}>
-              <span className={styles.roomCategory}>{room.category}</span>
-              <span className={styles.roomName}>{room.name}</span>
+              <span className={styles.roomNumber} aria-hidden="true">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span className={styles.roomIdentity}>
+                <span className={styles.roomCategory}>{room.category}</span>
+                <span className={styles.roomName}>{room.name}</span>
+              </span>
+              <span className={styles.roomDescriptor}>{room.descriptor}</span>
               <span className={styles.roomArrow} aria-hidden="true">
                 →
               </span>
