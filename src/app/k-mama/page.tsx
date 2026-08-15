@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ShowroomMediaBay from "@/components/showroom/ShowroomMediaBay";
 import {
   kMamaCharacters,
   kMamaEnding,
@@ -107,17 +108,15 @@ export default function KMamaPage() {
 
         <section id="characters" className={styles.characters} aria-labelledby="characters-heading">
           <div className="container">
-            <div className={styles.characterStage}>
-              <p className={styles.eyebrow}>{kMamaCharacters.eyebrow}</p>
-              <h2 id="characters-heading" className={styles.characterTitle}>
-                {kMamaCharacters.headline}
-              </h2>
-              <p className={styles.characterBody}>{kMamaCharacters.body}</p>
-              <div className={styles.characterShapes} aria-hidden="true">
-                <span className={styles.shapeOne} />
-                <span className={styles.shapeTwo} />
-                <span className={styles.shapeThree} />
-              </div>
+            <div id="characters-heading">
+              <ShowroomMediaBay
+                eyebrow={kMamaCharacters.eyebrow}
+                title={kMamaCharacters.headline}
+                body={kMamaCharacters.body}
+                roomLabel="CHARACTER / PLAY ROOM"
+                tone="sun"
+                reverse
+              />
             </div>
           </div>
         </section>
