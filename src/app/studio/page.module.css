@@ -226,6 +226,60 @@
   color: var(--hover-accent);
 }
 
+/* The final threshold closes the circulation of the Creative House without
+   turning Studio into another promotional landing page. */
+.ending {
+  padding: clamp(88px, 12vw, 154px) 0;
+  border-top: 1px solid var(--color-hairline);
+  background:
+    radial-gradient(54% 82% at 88% 18%, rgba(143, 218, 224, 0.18), transparent 72%),
+    radial-gradient(46% 68% at 10% 92%, rgba(177, 95, 209, 0.12), transparent 74%),
+    rgba(248, 245, 242, 0.7);
+}
+
+.endingEyebrow {
+  margin: 0;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--soft-text);
+}
+
+.endingHeadline {
+  margin: 15px 0 0;
+  max-width: 11ch;
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(46px, 7vw, 94px);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  color: var(--title-primary);
+}
+
+.endingLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 30px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(24, 38, 74, 0.34);
+  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--title-primary);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.endingLink:hover,
+.endingLink:focus-visible {
+  color: var(--hover-accent);
+  border-color: currentColor;
+}
+
 @media (max-width: 720px) {
   .pillarGrid {
     grid-template-columns: 1fr;
@@ -235,5 +289,13 @@
   .featuredLink:hover,
   .featuredLink:focus-visible {
     padding-left: 0;
+  }
+
+  .ending {
+    padding: 82px 0 92px;
+  }
+
+  .endingHeadline {
+    font-size: clamp(44px, 14vw, 66px);
   }
 }
