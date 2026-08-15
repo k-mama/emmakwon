@@ -1,11 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ShowroomArchiveRail from "@/components/showroom/ShowroomArchiveRail";
-import ShowroomMediaBay from "@/components/showroom/ShowroomMediaBay";
 import {
-  kMamaArchive,
-  kMamaCharacters,
   kMamaEnding,
   kMamaHero,
   kMamaMusic,
@@ -69,14 +65,14 @@ export default function KMamaPage() {
                 {kMamaMusic.headline}
               </h2>
               <p className={styles.musicBody}>{kMamaMusic.body}</p>
-              <div className={styles.soundMarks} aria-hidden="true">
-                <span />
-                <span />
-                <span />
-                <span />
-                <span />
-                <span />
-              </div>
+              <a
+                href={kMamaMusic.cta.href}
+                target="_blank"
+                rel="noreferrer"
+                className={styles.musicLink}
+              >
+                {kMamaMusic.cta.label} <span aria-hidden="true">→</span>
+              </a>
             </div>
           </div>
         </section>
@@ -84,7 +80,7 @@ export default function KMamaPage() {
         <section id="stories" className={styles.stories} aria-labelledby="stories-heading">
           <div className="container">
             <div className={styles.storyGrid}>
-              <div className={styles.artifactCard}>
+              <figure className={styles.artifactCard}>
                 <div className={styles.artifactFrame}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -94,8 +90,8 @@ export default function KMamaPage() {
                     loading="lazy"
                   />
                 </div>
-                <p className={styles.artifactLabel}>{kMamaStories.artifactLabel}</p>
-              </div>
+                <figcaption className={styles.artifactLabel}>{kMamaStories.artifactLabel}</figcaption>
+              </figure>
 
               <div className={styles.storyCopy}>
                 <p className={styles.eyebrow}>{kMamaStories.eyebrow}</p>
@@ -107,29 +103,6 @@ export default function KMamaPage() {
             </div>
           </div>
         </section>
-
-        <section id="characters" className={styles.characters} aria-labelledby="characters-heading">
-          <div className="container">
-            <ShowroomMediaBay
-              eyebrow={kMamaCharacters.eyebrow}
-              title={kMamaCharacters.headline}
-              body={kMamaCharacters.body}
-              roomLabel="CHARACTER / PLAY ROOM"
-              titleId="characters-heading"
-              tone="sun"
-              reverse
-            />
-          </div>
-        </section>
-
-        <ShowroomArchiveRail
-          id="play-archive"
-          eyebrow={kMamaArchive.eyebrow}
-          title={kMamaArchive.title}
-          intro={kMamaArchive.intro}
-          items={kMamaArchive.items}
-          tone="sun"
-        />
 
         <section className={styles.ending}>
           <div className="container">
