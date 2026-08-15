@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ShowroomArchiveRail from "@/components/showroom/ShowroomArchiveRail";
 import {
   centralQuestion,
   cinematicMedia,
@@ -9,6 +10,7 @@ import {
   premise,
   signatureQuote,
   slyFairyHero,
+  slySceneArchive,
   storyBeats,
   visualWorld,
   worldGrowing,
@@ -131,6 +133,15 @@ export default function SlyFairyPage() {
             <CinematicStage media={cinematicMedia.residue} />
           </div>
         </section>
+
+        <ShowroomArchiveRail
+          id="scene-archive"
+          eyebrow={slySceneArchive.eyebrow}
+          title={slySceneArchive.title}
+          intro={slySceneArchive.intro}
+          items={slySceneArchive.items}
+          tone="water"
+        />
 
         <section className={questionStyles.question} aria-labelledby="question-heading">
           <div className={`container ${questionStyles.inner}`}>
