@@ -16,23 +16,48 @@ export default function CinematicVideo({ src, poster, alt = "" }: CinematicVideo
     const video = videoRef.current;
     if (!video) return;
 
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let isInView = false;
+    let reduceMotion = motionQuery.matches;
 
-    const applyMotionPreference = (reduceMotion: boolean) => {
-      if (reduceMotion) {
-        video.pause();
-        video.removeAttribute("autoplay");
-      } else {
+    const syncPlayback = () => {
+      const shouldPlay = isInView && !reduceMotion && document.visibilityState === "visible";
+
+      if (shouldPlay) {
         video.setAttribute("autoplay", "");
         video.play().catch(() => {});
+      } else {
+        video.pause();
+        if (reduceMotion) video.removeAttribute("autoplay");
       }
     };
 
-    applyMotionPreference(query.matches);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isInView = entry.isIntersecting;
+        syncPlayback();
+      },
+      { threshold: 0.08 },
+    );
 
-    const handleChange = (event: MediaQueryListEvent) => applyMotionPreference(event.matches);
-    query.addEventListener("change", handleChange);
-    return () => query.removeEventListener("change", handleChange);
+    observer.observe(video);
+
+    const handleMotionChange = (event: MediaQueryListEvent) => {
+      reduceMotion = event.matches;
+      syncPlayback();
+    };
+
+    const handleVisibilityChange = () => syncPlayback();
+
+    motionQuery.addEventListener("change", handleMotionChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    syncPlayback();
+
+    return () => {
+      observer.disconnect();
+      motionQuery.removeEventListener("change", handleMotionChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   return (
