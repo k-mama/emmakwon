@@ -70,6 +70,7 @@ export const emmaestroArchive = {
       label: "FILM",
       title: "Music in motion",
       note: "Video frames, visualizers, and future music films can grow into the archive without changing the room around them.",
+      href: "#music-videos",
     },
   ],
 };
