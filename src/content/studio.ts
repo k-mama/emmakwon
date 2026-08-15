@@ -69,6 +69,10 @@ export const studioWorkbench = {
       title: "Turn it into something.",
       note: "Music, characters, books, films, and whatever leaves the workbench next.",
       href: "#make",
+      media: {
+        src: "/archive/emma/studio-candid.jpg",
+        alt: "Emma Kwon working in the studio.",
+      },
     },
   ],
 };
