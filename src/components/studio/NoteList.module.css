@@ -34,7 +34,8 @@
   transition: color 0.2s ease;
 }
 
-.link:hover .title {
+.link:hover .title,
+.link:focus-visible .title {
   color: var(--hover-accent);
 }
 
