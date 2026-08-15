@@ -14,6 +14,7 @@ type ShowroomMediaBayProps = {
   title: string;
   body: string;
   roomLabel: string;
+  titleId?: string;
   tone?: ShowroomTone;
   media?: ShowroomMedia | null;
   reverse?: boolean;
@@ -31,6 +32,7 @@ export default function ShowroomMediaBay({
   title,
   body,
   roomLabel,
+  titleId,
   tone = "violet",
   media = null,
   reverse = false,
@@ -71,7 +73,9 @@ export default function ShowroomMediaBay({
 
       <div className={styles.copy}>
         <p className={styles.eyebrow}>{eyebrow}</p>
-        <h2 className={styles.title}>{title}</h2>
+        <h2 id={titleId} className={styles.title}>
+          {title}
+        </h2>
         <p className={styles.body}>{body}</p>
       </div>
     </div>
