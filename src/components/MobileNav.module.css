@@ -2,10 +2,10 @@
   display: none;
   align-items: center;
   justify-content: center;
-  width: 44px;
+  width: 42px;
   height: 44px;
   padding: 0;
-  margin: 0 0 0 -12px;
+  margin: 0;
   color: var(--nav-navy);
   transition: color 0.25s ease;
 }
@@ -20,7 +20,7 @@
 @media (max-width: 640px) {
   .trigger {
     display: inline-flex;
-    order: -1;
+    margin-left: auto;
   }
 }
 
@@ -83,14 +83,20 @@
   }
 }
 
+/* The menu has its own header layer so the original page header cannot show
+   through and double the EMMA KWON wordmark. The menu body stays translucent. */
 .overlayHeader {
+  position: relative;
+  z-index: 2;
   flex: 0 0 auto;
   height: var(--header-height-mobile);
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 0 16px;
   border-bottom: 1px solid rgba(24, 38, 74, 0.065);
+  background: rgba(248, 245, 242, 0.97);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
 }
 
 .brand {
@@ -100,16 +106,23 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--nav-navy);
+  white-space: nowrap;
+}
+
+.overlayUtilities {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
 }
 
 .closeBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
+  width: 42px;
   height: 44px;
   padding: 0;
-  margin-right: -12px;
   color: var(--nav-navy);
   transition: color 0.2s ease-out, text-shadow 0.2s ease-out;
 }
@@ -118,6 +131,17 @@
 .closeBtn:focus-visible {
   color: var(--nav-hover-wave);
   text-shadow: 0 0 8px rgba(110, 223, 235, 0.28);
+}
+
+.headerLanguageTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  min-height: 44px;
+  padding: 6px;
+  margin-right: -6px;
+  color: var(--nav-navy);
 }
 
 /* The two lines rotate in to form a minimal X — quiet, no bounce. */
@@ -295,17 +319,4 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.overlayFooter {
-  flex: 0 0 auto;
-  display: flex;
-  justify-content: center;
-  padding: 20px 0 28px;
-}
-
-.footerTrigger {
-  display: inline-flex;
-  padding: 6px;
-  color: var(--soft-text);
 }
