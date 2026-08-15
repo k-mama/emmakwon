@@ -1,4 +1,5 @@
-/* BOOKS — warm editorial publishing room inside the bright-luxury house. */
+/* BOOKS — warm editorial publishing room.
+   The book is the object; the interface stays quiet around it. */
 
 .hero {
   position: relative;
@@ -8,33 +9,16 @@
 }
 
 .heroStage {
-  position: relative;
-  isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(240px, 0.75fr);
   align-items: end;
   gap: clamp(42px, 7vw, 110px);
   min-height: 100svh;
   padding: calc(var(--header-height) + clamp(68px, 9vw, 126px)) clamp(28px, 6vw, 88px) clamp(58px, 8vw, 100px);
   background:
-    radial-gradient(48% 58% at 84% 18%, rgba(255, 210, 140, 0.62) 0%, rgba(255, 210, 140, 0) 72%),
-    radial-gradient(44% 52% at 13% 82%, rgba(244, 173, 151, 0.38) 0%, rgba(244, 173, 151, 0) 74%),
+    radial-gradient(54% 66% at 90% 12%, rgba(255, 210, 140, 0.54) 0%, rgba(255, 210, 140, 0) 72%),
+    radial-gradient(48% 58% at 8% 88%, rgba(244, 173, 151, 0.3) 0%, rgba(244, 173, 151, 0) 74%),
     linear-gradient(145deg, #fff9ef 0%, #f5ece1 52%, #f8e9df 100%);
-}
-
-.heroStage::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  width: min(32vw, 470px);
-  aspect-ratio: 1;
-  right: 4%;
-  top: 12%;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.22);
-  box-shadow:
-    0 0 0 36px rgba(255, 255, 255, 0.1),
-    0 0 0 96px rgba(255, 255, 255, 0.055);
 }
 
 .heroCopy {
@@ -83,51 +67,25 @@
 
 .heroBook {
   justify-self: end;
-  width: min(30vw, 390px);
-  transform: rotate(2.5deg);
-  filter: drop-shadow(0 34px 48px rgba(74, 51, 38, 0.18));
+  width: min(29vw, 390px);
+  margin: 0;
+  filter: drop-shadow(0 28px 38px rgba(74, 51, 38, 0.15));
 }
 
 .heroBookImage {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 7px;
 }
 
 .bornRare {
-  padding: clamp(100px, 13vw, 174px) 0;
-}
-
-.bookGrid {
-  display: grid;
-  grid-template-columns: minmax(240px, 390px) minmax(0, 1fr);
-  gap: clamp(52px, 10vw, 140px);
-  align-items: center;
-}
-
-.bookFrame {
-  width: 100%;
-  padding: 12px;
-  border-radius: 22px;
-  background: rgba(255, 253, 248, 0.88);
-  border: 1px solid rgba(30, 45, 91, 0.07);
-  box-shadow: 0 28px 80px rgba(56, 45, 37, 0.11);
-}
-
-.bookCover,
-.musicCover {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 13px;
+  padding: clamp(104px, 13vw, 180px) 0;
 }
 
 .sectionTitle,
 .editorialTitle,
-.musicTitle,
-.rightsTitle {
-  margin: 15px 0 0;
+.musicTitle {
+  margin: 0;
   max-width: 12ch;
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: clamp(40px, 5.8vw, 78px);
@@ -139,23 +97,13 @@
 
 .sectionBody,
 .editorialBody,
-.musicBody,
-.rightsBody {
+.musicBody {
   margin: 25px 0 0;
   max-width: 55ch;
   font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: clamp(16px, 1.55vw, 20px);
   line-height: 1.74;
   color: var(--body-text);
-}
-
-.story {
-  padding: clamp(94px, 12vw, 158px) 0;
-  background:
-    radial-gradient(42% 80% at 92% 20%, rgba(255, 218, 163, 0.24) 0%, rgba(255, 218, 163, 0) 75%),
-    rgba(249, 245, 237, 0.72);
-  border-top: 1px solid rgba(30, 45, 91, 0.05);
-  border-bottom: 1px solid rgba(30, 45, 91, 0.05);
 }
 
 .editorialGrid {
@@ -165,106 +113,83 @@
   align-items: start;
 }
 
+.story {
+  padding: clamp(94px, 12vw, 158px) 0;
+  background:
+    radial-gradient(48% 82% at 96% 10%, rgba(255, 218, 163, 0.2) 0%, rgba(255, 218, 163, 0) 74%),
+    rgba(249, 245, 237, 0.68);
+  border-top: 1px solid rgba(30, 45, 91, 0.05);
+  border-bottom: 1px solid rgba(30, 45, 91, 0.05);
+}
+
 .music {
-  padding: clamp(90px, 12vw, 164px) 0;
+  padding: clamp(88px, 11vw, 154px) 0;
 }
 
 .musicStage {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
   display: grid;
-  grid-template-columns: minmax(220px, 330px) minmax(0, 1fr);
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
   gap: clamp(50px, 9vw, 128px);
   align-items: center;
-  padding: clamp(36px, 6vw, 84px);
-  border-radius: 30px;
+  padding-block: clamp(72px, 9vw, 122px);
+  padding-inline: max(var(--content-pad), calc((100vw - var(--content-max)) / 2 + var(--content-pad)));
   background:
-    radial-gradient(52% 62% at 14% 14%, rgba(244, 191, 160, 0.5) 0%, rgba(244, 191, 160, 0) 74%),
-    radial-gradient(48% 62% at 90% 84%, rgba(223, 194, 232, 0.38) 0%, rgba(223, 194, 232, 0) 76%),
+    radial-gradient(58% 78% at 5% 16%, rgba(244, 191, 160, 0.42) 0%, rgba(244, 191, 160, 0) 74%),
+    radial-gradient(54% 72% at 96% 88%, rgba(223, 194, 232, 0.3) 0%, rgba(223, 194, 232, 0) 76%),
     linear-gradient(145deg, #f8efe5 0%, #f6e5df 48%, #eee5ef 100%);
-  border: 1px solid rgba(30, 45, 91, 0.06);
+  border-top: 1px solid rgba(30, 45, 91, 0.06);
+  border-bottom: 1px solid rgba(30, 45, 91, 0.06);
 }
 
 .musicCoverFrame {
-  padding: 10px;
-  border-radius: 24px;
-  background: rgba(255, 254, 250, 0.82);
-  box-shadow: 0 24px 70px rgba(60, 45, 48, 0.1);
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(30, 45, 91, 0.08);
+  background: #fffdf8;
 }
 
-.textLink {
+.musicCover {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.textLink,
+.endingLink {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 28px;
+  min-height: 44px;
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.085em;
   text-transform: uppercase;
   color: var(--title-primary);
   text-decoration: none;
 }
 
+.textLink {
+  margin-top: 28px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(30, 45, 91, 0.28);
+  transition: color 0.18s ease-out, border-color 0.18s ease-out;
+}
+
 .textLink:hover,
 .textLink:focus-visible {
-  text-decoration: underline;
-  text-underline-offset: 5px;
-}
-
-.rights {
-  padding: clamp(98px, 13vw, 170px) 0;
-}
-
-.rightsIntro {
-  max-width: 820px;
-}
-
-.rightsList {
-  margin-top: clamp(60px, 8vw, 100px);
-  border-top: 1px solid var(--color-hairline);
-}
-
-.rightsRow {
-  display: grid;
-  grid-template-columns: 64px minmax(130px, 0.55fr) minmax(0, 1.45fr);
-  gap: clamp(20px, 4vw, 60px);
-  align-items: baseline;
-  padding: clamp(22px, 3vw, 34px) 0;
-  border-bottom: 1px solid var(--color-hairline);
-}
-
-.rowNumber,
-.rowLabel {
-  margin: 0;
-  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-}
-
-.rowNumber {
-  color: var(--soft-text);
-}
-
-.rowLabel {
-  color: var(--title-primary);
-}
-
-.rowText {
-  margin: 0;
-  max-width: 48ch;
-  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: clamp(18px, 2vw, 25px);
-  font-weight: 500;
-  line-height: 1.42;
-  letter-spacing: -0.014em;
-  color: var(--title-primary);
+  color: var(--nav-hover-wave, #6edfeb);
+  border-color: currentColor;
 }
 
 .ending {
-  padding: clamp(90px, 12vw, 154px) 0;
+  padding: clamp(92px, 12vw, 158px) 0;
   text-align: center;
-  background: rgba(249, 245, 237, 0.56);
-  border-top: 1px solid rgba(30, 45, 91, 0.05);
+  background: rgba(249, 245, 237, 0.5);
 }
 
 .endingHeadline {
@@ -279,17 +204,7 @@
 }
 
 .endingLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
   margin-top: 30px;
-  font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.085em;
-  text-transform: uppercase;
-  color: var(--title-primary);
-  text-decoration: none;
 }
 
 .endingLink:hover,
@@ -316,46 +231,32 @@
   }
 
   .heroBook {
-    display: none;
+    justify-self: start;
+    width: min(54vw, 220px);
+    filter: drop-shadow(0 20px 28px rgba(74, 51, 38, 0.13));
   }
 
-  .heroCopy {
-    position: relative;
-    z-index: 1;
-  }
-
-  .bookGrid,
   .editorialGrid,
   .musicStage {
     grid-template-columns: 1fr;
   }
 
-  .bookGrid,
-  .musicStage {
-    gap: 46px;
+  .editorialGrid {
+    gap: 20px;
   }
 
-  .bookFrame,
+  .musicStage {
+    gap: 42px;
+    padding: 62px 20px 70px;
+  }
+
   .musicCoverFrame {
-    max-width: 350px;
+    max-width: 280px;
   }
 
-  .musicStage {
-    border-radius: 0;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
-    padding: 42px 20px;
-  }
-
-  .rightsRow {
-    grid-template-columns: 42px 1fr;
-    row-gap: 10px;
-  }
-
-  .rowText {
-    grid-column: 2;
+  .sectionTitle,
+  .editorialTitle,
+  .musicTitle {
+    font-size: clamp(38px, 12vw, 58px);
   }
 }
-
-/* The book cover is intentionally omitted from the mobile hero so the first
-   physical appearance of BORN RARE belongs to the dedicated book section. */
