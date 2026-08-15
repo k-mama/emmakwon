@@ -36,7 +36,7 @@ export default function NoteArticle({ post, back }: NoteArticleProps) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={post.coverImage}
-              alt=""
+              alt={`Cover image for ${post.title}`}
               className={styles.coverImage}
               loading="lazy"
               decoding="async"
