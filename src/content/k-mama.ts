@@ -13,24 +13,22 @@ export const kMamaWorld = {
 };
 
 export const kMamaMusic = {
-  eyebrow: "MUSIC",
+  eyebrow: "MUSIC & ENGLISH",
   headline: "A good children's song survives the car ride home.",
   body: "The best ones escape the speaker. A child keeps the rhythm, changes a word, sings the wrong bit, asks for it again, and makes the song partly their own.",
+  cta: {
+    label: "WATCH K-MAMA ENGLISH",
+    href: "https://www.youtube.com/@kmama_studio",
+  },
 };
 
 export const kMamaStories = {
-  eyebrow: "STORIES",
+  eyebrow: "STORIES & PLAY",
   headline: "A joke can become a world.",
   body: "A strange rule, a drawing, a question at bedtime, a character who keeps doing the same ridiculous thing — K-MAMA treats those little beginnings seriously enough to follow them somewhere.",
   image: "/archive/k-mama/coloring-book-en.jpg",
   imageAlt: "English K-MAMA coloring book cover",
-  artifactLabel: "K-MAMA ARCHIVE / COLORING BOOK",
-};
-
-export const kMamaCharacters = {
-  eyebrow: "CHARACTERS",
-  headline: "Make someone worth meeting twice.",
-  body: "A K-MAMA character should be easy to recognize without being finished. Songs, stories, drawing, play, and future moving image can reveal different sides without explaining every last thing about them.",
+  artifactLabel: "K-MAMA / COLORING BOOK",
 };
 
 export const kMamaPrinciples = [
@@ -55,33 +53,6 @@ export const kMamaPrinciples = [
     body: "If a child asks for it again, that matters.",
   },
 ];
-
-export const kMamaArchive = {
-  eyebrow: "PLAY ARCHIVE",
-  title: "A shelf for what comes next.",
-  intro:
-    "A new song, story, character, printable, or small experiment can arrive here without making the whole K-MAMA room start over.",
-  items: [
-    {
-      label: "CHARACTERS",
-      title: "Meet someone new",
-      note: "Character studies, expressions, costumes, and future moving-image moments can collect here over time.",
-      href: "#characters",
-    },
-    {
-      label: "STORIES",
-      title: "A story finds its shape",
-      note: "Picture-book pages, short scenes, printable play, and story fragments have a place before or after publication.",
-      href: "#stories",
-    },
-    {
-      label: "MUSIC",
-      title: "Songs that can move",
-      note: "New tracks, lyric play, dance moments, and music-led activities can enter without crowding the main room.",
-      href: "#music",
-    },
-  ],
-};
 
 export const kMamaEnding = {
   headline: "KEEP WONDERING.",
