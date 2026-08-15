@@ -20,21 +20,6 @@
     linear-gradient(145deg, #fff4ef 0%, #f4dff0 34%, #dfd7f2 62%, #c9e5ee 100%);
 }
 
-.heroStage::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  width: min(58vw, 820px);
-  aspect-ratio: 1;
-  top: -22%;
-  right: -8%;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 48px rgba(255, 255, 255, 0.07),
-    0 0 0 126px rgba(255, 255, 255, 0.04);
-}
-
 .heroStage::after {
   content: "";
   position: absolute;
@@ -117,29 +102,28 @@
 .releaseGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(24px, 3vw, 44px);
+  gap: clamp(28px, 3.4vw, 52px);
   margin-top: clamp(56px, 8vw, 104px);
 }
 
 .releaseCard {
   min-width: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-hairline);
 }
 
-.coverFrame,
-.ostCover {
+.coverFrame {
   aspect-ratio: 1 / 1;
-  padding: 9px;
-  border: 1px solid rgba(30, 45, 91, 0.09);
-  border-radius: 22px;
-  background: rgba(255, 253, 248, 0.78);
-  box-shadow: 0 24px 64px rgba(30, 45, 91, 0.12);
+  overflow: hidden;
+  background: rgba(255, 253, 248, 0.52);
+  border: 1px solid rgba(30, 45, 91, 0.08);
 }
 
 .coverImage {
   display: block;
   width: 100%;
-  height: auto;
-  border-radius: 14px;
+  height: 100%;
+  object-fit: cover;
 }
 
 .releaseKind {
@@ -176,11 +160,12 @@
   line-height: 1.62;
 }
 
-.releaseLink {
+.releaseLink,
+.editorialLink,
+.ostLink {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  margin-top: 20px;
   padding-bottom: 3px;
   border-bottom: 1px solid rgba(30, 45, 91, 0.3);
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -192,25 +177,42 @@
   transition: color 0.18s ease-out, border-color 0.18s ease-out;
 }
 
+.releaseLink {
+  margin-top: 20px;
+}
+
+.editorialLink,
+.ostLink {
+  margin-top: 30px;
+}
+
 .releaseLink:hover,
-.releaseLink:focus-visible {
+.releaseLink:focus-visible,
+.editorialLink:hover,
+.editorialLink:focus-visible,
+.ostLink:hover,
+.ostLink:focus-visible {
   color: var(--nav-hover-wave, #6edfeb);
   border-color: currentColor;
 }
 
 .editorialBand {
-  padding: clamp(86px, 11vw, 142px) 0;
-  background:
-    radial-gradient(62% 90% at 92% 18%, rgba(216, 172, 232, 0.28), rgba(216, 172, 232, 0) 72%),
-    rgba(240, 235, 243, 0.7);
+  padding: clamp(92px, 12vw, 156px) 0;
+  background: rgba(240, 235, 243, 0.7);
   border-top: 1px solid rgba(30, 45, 91, 0.055);
   border-bottom: 1px solid rgba(30, 45, 91, 0.055);
 }
 
-.editorialGrid {
+.editorialGrid,
+.ostTextGrid {
   display: grid;
   grid-template-columns: minmax(160px, 0.5fr) minmax(0, 1.5fr);
   gap: clamp(28px, 7vw, 110px);
+  align-items: start;
+}
+
+.editorialCopy {
+  max-width: 760px;
 }
 
 .editorialTitle,
@@ -262,17 +264,10 @@
 }
 
 .ost {
-  padding: clamp(84px, 11vw, 150px) 0;
+  padding: clamp(92px, 12vw, 158px) 0;
   background: rgba(240, 241, 236, 0.72);
   border-top: 1px solid rgba(30, 45, 91, 0.055);
   border-bottom: 1px solid rgba(30, 45, 91, 0.055);
-}
-
-.ostGrid {
-  display: grid;
-  grid-template-columns: minmax(220px, 360px) minmax(0, 1fr);
-  align-items: center;
-  gap: clamp(42px, 8vw, 124px);
 }
 
 .ending {
@@ -307,26 +302,23 @@
 @media (max-width: 820px) {
   .releaseGrid {
     grid-template-columns: 1fr;
-    gap: 52px;
+    gap: 58px;
   }
 
   .releaseCard {
     max-width: 520px;
   }
 
-  .ostGrid,
   .sectionIntro,
-  .editorialGrid {
+  .editorialGrid,
+  .ostTextGrid {
     grid-template-columns: 1fr;
   }
 
   .sectionIntro,
-  .editorialGrid {
+  .editorialGrid,
+  .ostTextGrid {
     gap: 18px;
-  }
-
-  .ostGrid {
-    gap: 38px;
   }
 }
 
@@ -340,12 +332,6 @@
     padding: calc(var(--header-height-mobile) + 72px) 20px 42px;
   }
 
-  .heroStage::before {
-    width: 94vw;
-    top: -8%;
-    right: -42%;
-  }
-
   .heroTitle {
     font-size: clamp(52px, 16vw, 84px);
   }
@@ -355,12 +341,8 @@
     padding: 30px 20px 38px;
   }
 
-  .coverFrame,
-  .ostCover {
-    border-radius: 18px;
-  }
-
-  .coverImage {
-    border-radius: 11px;
+  .editorialBand,
+  .ost {
+    padding-block: 82px;
   }
 }
