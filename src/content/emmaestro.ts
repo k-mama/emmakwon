@@ -33,9 +33,13 @@ export const releases = [
 ];
 
 export const movingImage = {
-  eyebrow: "MUSIC VIDEOS",
+  eyebrow: "MUSIC FILMS",
   headline: "Give the song a room of its own.",
-  body: "A music video does not have to explain the track. It can give it a face, a street, a character, a change in weather — somewhere for the music to keep moving after the sound begins.",
+  body: "A music film does not have to explain the track. It can give it a face, a street, a character, a change in weather — somewhere for the music to keep moving after the sound begins.",
+  cta: {
+    label: "WATCH EMMAESTRO ON YOUTUBE",
+    href: "https://www.youtube.com/@emmaestro123",
+  },
 };
 
 export const classical = {
@@ -48,6 +52,7 @@ export const bornRareOst = {
   eyebrow: "BORN RARE OST",
   headline: "Some chapters wanted a second language.",
   body: "The OST does not summarize the book. It takes feelings that were still moving after the writing stopped and lets them continue as music.",
+  cta: { label: "OPEN BORN RARE", href: "/books/#born-rare" },
 };
 
 export const emmaestroArchive = {
