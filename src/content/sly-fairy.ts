@@ -114,30 +114,18 @@ export const slySceneArchive = {
       title: "Borrowed life",
       note: "Work, fatigue, desire, and the first pleasure of making something that belongs to her.",
       href: "#earth",
-      media: {
-        src: "/media/sly-fairy/home-composing.webp",
-        alt: "Sly Fairy composing beside a collaborator at sunset",
-      },
     },
     {
       label: "MUSIC",
       title: "The song leaves the room",
       note: "The work becomes public. What it means after that is no longer fully hers.",
       href: "#music",
-      media: {
-        src: "/media/sly-fairy/music-piano.webp",
-        alt: "Sly Fairy playing piano in an intimate music room",
-      },
     },
     {
       label: "WATER",
       title: "What remained",
       note: "Fragments travel. Context does not. Curiosity begins where certainty ends.",
       href: "#visual-world",
-      media: {
-        src: "/media/sly-fairy/water-residue.webp",
-        alt: "Sly Fairy reaching toward luminous water residue",
-      },
     },
   ],
 };
