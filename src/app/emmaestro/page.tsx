@@ -1,10 +1,12 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ShowroomArchiveRail from "@/components/showroom/ShowroomArchiveRail";
 import ShowroomMediaBay from "@/components/showroom/ShowroomMediaBay";
 import {
   bornRareOst,
   classical,
+  emmaestroArchive,
   emmaestroEnding,
   emmaestroHero,
   movingImage,
@@ -116,6 +118,15 @@ export default function EmmaestroPage() {
             </div>
           </div>
         </section>
+
+        <ShowroomArchiveRail
+          id="listening-archive"
+          eyebrow={emmaestroArchive.eyebrow}
+          title={emmaestroArchive.title}
+          intro={emmaestroArchive.intro}
+          items={emmaestroArchive.items}
+          tone="studio"
+        />
 
         <section className={styles.ending}>
           <div className="container">
