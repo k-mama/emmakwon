@@ -46,6 +46,33 @@ export const studioHero = {
   supporting: "Notes from the work behind Emma Kwon.",
 };
 
+export const studioWorkbench = {
+  eyebrow: "ON THE WORKBENCH",
+  title: "Three ways the work moves.",
+  intro:
+    "This room is designed to stay useful while the projects keep changing. Notes, experiments, finished pieces, and things still becoming can all enter through the same three doors.",
+  items: [
+    {
+      label: "01 / LEARN",
+      title: "Notice something new.",
+      note: "Language, tools, methods, and the useful things that are still being learned in public.",
+      href: "#learn",
+    },
+    {
+      label: "02 / BUILD",
+      title: "Make the system work.",
+      note: "Websites, AI workflows, publishing systems, experiments, and the engineering behind the visible work.",
+      href: "#build",
+    },
+    {
+      label: "03 / MAKE",
+      title: "Turn it into something.",
+      note: "Music, characters, books, films, and whatever leaves the workbench next.",
+      href: "#make",
+    },
+  ],
+};
+
 export type StudioPillar = {
   number: string;
   label: string;
