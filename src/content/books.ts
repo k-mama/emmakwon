@@ -13,8 +13,10 @@ export const bornRare = {
   title: "Difference without apology.",
   body:
     "BORN RARE began as a life, not a message. It moves through family, rupture, survival, work, reinvention, and the stubborn fact that a person can keep becoming without wrapping the past in a bow.",
-  image: "/archive/born-rare/born-rare-book-cover.jpg",
-  imageAlt: "BORN RARE book cover",
+  cta: {
+    label: "FOLLOW BORN RARE ON INSTAGRAM",
+    href: "https://www.instagram.com/the_real_emma_kwon",
+  },
 };
 
 export const bookStory = {
@@ -22,33 +24,6 @@ export const bookStory = {
   title: "The life came first.",
   body:
     "The work was not to manufacture a perfect arc. It was to decide which fragments belonged beside one another, which rough edges needed to stay rough, and where explanation would make the truth smaller instead of clearer.",
-};
-
-export const booksArchive = {
-  eyebrow: "LIVING ARCHIVE",
-  title: "The book has a life around the book.",
-  intro:
-    "A flexible room for manuscript pages, editions, notes, photographs, press material, and fragments as the archive grows. It can stay beautiful before every shelf is full.",
-  items: [
-    {
-      label: "MANUSCRIPT",
-      title: "Drafts & fragments",
-      note: "Pages, revisions, and working material can arrive here later without rebuilding the room.",
-      href: "#story",
-    },
-    {
-      label: "EDITIONS",
-      title: "The book in motion",
-      note: "Future formats, translations, and release material have a place ready when they exist.",
-      href: "#rights-press",
-    },
-    {
-      label: "PRESS & OBJECTS",
-      title: "The material around it",
-      note: "Selected interviews, physical ephemera, photographs, and publishing objects can live here when they matter.",
-      href: "#rights-press",
-    },
-  ],
 };
 
 export const bookMusic = {
@@ -59,18 +34,6 @@ export const bookMusic = {
   image: "/archive/emmaestro/no-deadline-album-cover.jpg",
   imageAlt: "No Deadline To Be OK album cover by EMMAESTRO",
   cta: { label: "Explore the BORN RARE OST", href: "/emmaestro/#born-rare-ost" },
-};
-
-export const rightsPress = {
-  eyebrow: "RIGHTS & PRESS",
-  title: "The quiet business behind the book.",
-  body:
-    "Rights, press, editions, and future publishing information live here so the reader-facing pages do not have to carry the administrative weight.",
-  items: [
-    { label: "RIGHTS", text: "Publishing, translation, and adaptation enquiries." },
-    { label: "PRESS", text: "Official book information and media materials." },
-    { label: "EDITIONS", text: "Current and future formats, languages, and releases." },
-  ],
 };
 
 export const booksEnding = {
