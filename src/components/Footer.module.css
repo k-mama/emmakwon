@@ -3,6 +3,7 @@
    the site instead of stopping at an opaque slab. */
 .footer {
   border-top: 1px solid var(--color-hairline);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .inner {
@@ -14,10 +15,19 @@
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 12px;
   letter-spacing: 0.02em;
   color: var(--soft-text);
+  transition: color 0.18s ease-out;
+}
+
+.brand:hover,
+.brand:focus-visible {
+  color: var(--title-primary);
 }
 
 .year {
