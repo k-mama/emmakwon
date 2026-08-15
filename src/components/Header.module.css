@@ -209,12 +209,11 @@
     display: none;
   }
 
-  /* Was display:none — that hid the globe entirely on mobile, leaving
-     it reachable only inside the opened hamburger overlay. Keep it in
-     the persistent mobile header bar instead, pinned to the far right
-     of the (otherwise left-grouped: hamburger, then brand) row. */
+  /* Mobile order is intentionally brand | spacer | two-line menu | globe.
+     MobileNav owns the spacer through its trigger's margin-left:auto, so
+     the globe stays directly beside it rather than drifting away. */
   .utility {
     display: flex;
-    margin-left: auto;
+    margin-left: 0;
   }
 }
