@@ -24,6 +24,31 @@ export const bookStory = {
     "The work was not to manufacture a perfect arc. It was to decide which fragments belonged beside one another, which rough edges needed to stay rough, and where explanation would make the truth smaller instead of clearer.",
 };
 
+export const booksArchive = {
+  eyebrow: "LIVING ARCHIVE",
+  title: "The book has a life around the book.",
+  intro:
+    "A flexible room for manuscript pages, editions, notes, photographs, press material, and fragments as the archive grows. It can stay beautiful before every shelf is full.",
+  items: [
+    {
+      label: "MANUSCRIPT",
+      title: "Drafts & fragments",
+      note: "Pages, revisions, and working material can arrive here later without rebuilding the room.",
+    },
+    {
+      label: "EDITIONS",
+      title: "The book in motion",
+      note: "Future formats, translations, and release material have a place ready when they exist.",
+    },
+    {
+      label: "PRESS & OBJECTS",
+      title: "The material around it",
+      note: "Selected interviews, physical ephemera, photographs, and publishing objects can live here when they matter.",
+      href: "#rights-press",
+    },
+  ],
+};
+
 export const bookMusic = {
   eyebrow: "MUSIC & OST",
   title: "Some pages kept sounding.",
