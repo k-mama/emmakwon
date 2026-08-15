@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { footer } from "@/content/home";
 import styles from "./Footer.module.css";
 
@@ -6,7 +7,9 @@ export default function Footer() {
     <footer className={styles.footer}>
       <div className="container">
         <div className={styles.inner}>
-          <span className={styles.brand}>{footer.brand}</span>
+          <Link href="/" className={styles.brand} aria-label="Return to Emma Kwon home">
+            {footer.brand}
+          </Link>
           <span className={styles.year}>© {footer.year}</span>
         </div>
       </div>
