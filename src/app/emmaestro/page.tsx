@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ShowroomMediaBay from "@/components/showroom/ShowroomMediaBay";
 import {
   bornRareOst,
   classical,
@@ -70,14 +71,14 @@ export default function EmmaestroPage() {
 
         <section id="music-videos" className={styles.editorialBand} aria-labelledby="videos-heading">
           <div className="container">
-            <div className={styles.editorialGrid}>
-              <p className={styles.eyebrow}>{movingImage.eyebrow}</p>
-              <div>
-                <h2 id="videos-heading" className={styles.editorialTitle}>
-                  {movingImage.headline}
-                </h2>
-                <p className={styles.editorialBody}>{movingImage.body}</p>
-              </div>
+            <div id="videos-heading">
+              <ShowroomMediaBay
+                eyebrow={movingImage.eyebrow}
+                title={movingImage.headline}
+                body={movingImage.body}
+                roomLabel="MOTION / FILM ROOM"
+                tone="violet"
+              />
             </div>
           </div>
         </section>
