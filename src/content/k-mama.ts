@@ -56,6 +56,30 @@ export const kMamaPrinciples = [
   },
 ];
 
+export const kMamaArchive = {
+  eyebrow: "PLAY ARCHIVE",
+  title: "A shelf for what comes next.",
+  intro:
+    "A new song, story, character, printable, or small experiment can arrive here without making the whole K-MAMA room start over.",
+  items: [
+    {
+      label: "CHARACTERS",
+      title: "Meet someone new",
+      note: "Character studies, expressions, costumes, and future moving-image moments can collect here over time.",
+    },
+    {
+      label: "STORIES",
+      title: "A story finds its shape",
+      note: "Picture-book pages, short scenes, printable play, and story fragments have a place before or after publication.",
+    },
+    {
+      label: "MUSIC",
+      title: "Songs that can move",
+      note: "New tracks, lyric play, dance moments, and music-led activities can enter without crowding the main room.",
+    },
+  ],
+};
+
 export const kMamaEnding = {
   headline: "KEEP WONDERING.",
   cta: { label: "Continue to BOOKS", href: "/books/" },
