@@ -71,15 +71,14 @@ export default function EmmaestroPage() {
 
         <section id="music-videos" className={styles.editorialBand} aria-labelledby="videos-heading">
           <div className="container">
-            <div id="videos-heading">
-              <ShowroomMediaBay
-                eyebrow={movingImage.eyebrow}
-                title={movingImage.headline}
-                body={movingImage.body}
-                roomLabel="MOTION / FILM ROOM"
-                tone="violet"
-              />
-            </div>
+            <ShowroomMediaBay
+              eyebrow={movingImage.eyebrow}
+              title={movingImage.headline}
+              body={movingImage.body}
+              roomLabel="MOTION / FILM ROOM"
+              titleId="videos-heading"
+              tone="violet"
+            />
           </div>
         </section>
 
