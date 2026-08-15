@@ -156,6 +156,16 @@ button {
   outline-offset: 3px;
 }
 
+/* Each brand room ends with one direct next-room CTA. Keep that final
+   threshold easy to hit on touch screens without changing its quiet visual
+   treatment. HOME's featured block also matches this structure but is already
+   much taller than the minimum, so this rule is visually neutral there. */
+@media (max-width: 760px) {
+  main > section:last-of-type > .container > a {
+    min-height: 44px;
+  }
+}
+
 @media (max-width: 640px) {
   section[id] {
     scroll-margin-top: calc(var(--header-height-mobile) + 14px);
