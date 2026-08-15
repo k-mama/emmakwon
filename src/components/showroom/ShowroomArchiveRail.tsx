@@ -92,7 +92,7 @@ export default function ShowroomArchiveRail({
           </p>
         ) : null}
 
-        <div className={styles.rail}>
+        <div className={styles.rail} aria-label={`${title} items`}>
           {items.map((item, index) => (
             <ArchiveItem key={`${item.label}-${item.title}`} item={item} index={index} />
           ))}
