@@ -2,7 +2,15 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NoteList from "@/components/studio/NoteList";
-import { studioHero, studioPillars, getFeaturedPost, getPostsByCategory, getPublishedPosts } from "@/content/studio";
+import ShowroomArchiveRail from "@/components/showroom/ShowroomArchiveRail";
+import {
+  studioHero,
+  studioPillars,
+  studioWorkbench,
+  getFeaturedPost,
+  getPostsByCategory,
+  getPublishedPosts,
+} from "@/content/studio";
 import styles from "./page.module.css";
 
 export const metadata = {
@@ -37,6 +45,15 @@ export default function StudioPage() {
             </div>
           </div>
         </section>
+
+        <ShowroomArchiveRail
+          id="workbench"
+          eyebrow={studioWorkbench.eyebrow}
+          title={studioWorkbench.title}
+          intro={studioWorkbench.intro}
+          items={studioWorkbench.items}
+          tone="studio"
+        />
 
         <section id="learn" className={styles.pillar} aria-labelledby="learn-heading">
           <div className="container">
