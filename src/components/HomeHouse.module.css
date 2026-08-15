@@ -89,7 +89,8 @@
   );
 }
 
-.feature:hover .featureMedia img {
+.feature:hover .featureMedia img,
+.feature:focus-visible .featureMedia img {
   transform: scale(1.014);
 }
 
@@ -145,7 +146,8 @@
   transition: transform 220ms ease;
 }
 
-.feature:hover .featureCta span {
+.feature:hover .featureCta span,
+.feature:focus-visible .featureCta span {
   transform: translateX(5px);
 }
 
@@ -161,12 +163,12 @@
   min-height: 112px;
   gap: 24px;
   border-bottom: 1px solid rgba(24, 38, 74, 0.14);
-  transition: padding 240ms ease, background 240ms ease;
+  transition: padding 240ms ease;
 }
 
-.room:hover {
+.room:hover,
+.room:focus-visible {
   padding-inline: 18px;
-  background: rgba(255, 255, 255, 0.38);
 }
 
 .roomName {
@@ -185,7 +187,8 @@
   transition: transform 220ms ease;
 }
 
-.room:hover .roomArrow {
+.room:hover .roomArrow,
+.room:focus-visible .roomArrow {
   transform: translateX(5px);
 }
 
@@ -243,7 +246,8 @@
     aspect-ratio: 16 / 9;
   }
 
-  .feature:hover .featureMedia img {
+  .feature:hover .featureMedia img,
+  .feature:focus-visible .featureMedia img {
     transform: scale(1.001);
   }
 
@@ -275,9 +279,9 @@
     padding: 18px 0;
   }
 
-  .room:hover {
+  .room:hover,
+  .room:focus-visible {
     padding-inline: 0;
-    background: transparent;
   }
 
   .roomCategory {
