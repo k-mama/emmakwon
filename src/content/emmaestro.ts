@@ -55,31 +55,6 @@ export const bornRareOst = {
   cta: { label: "OPEN BORN RARE", href: "/books/#born-rare" },
 };
 
-export const emmaestroArchive = {
-  eyebrow: "LISTENING ARCHIVE",
-  title: "The room keeps growing.",
-  intro:
-    "Sessions, live rooms, film stills, and finished releases can enter here without forcing the whole music house to be rebuilt around them.",
-  items: [
-    {
-      label: "SESSIONS",
-      title: "In the room",
-      note: "Working notes, alternate takes, studio photographs, and fragments can live here when they are ready.",
-    },
-    {
-      label: "LIVE",
-      title: "After the first note",
-      note: "Performance stills, stage films, set lists, and moments from future shows have a place to arrive.",
-    },
-    {
-      label: "FILM",
-      title: "Music in motion",
-      note: "Video frames, visualizers, and future music films can grow into the archive without changing the room around them.",
-      href: "#music-videos",
-    },
-  ],
-};
-
 export const emmaestroEnding = {
   headline: "KEEP LISTENING.",
   cta: { label: "Continue to K-MAMA", href: "/k-mama/" },
