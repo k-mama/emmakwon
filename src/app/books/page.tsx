@@ -1,22 +1,19 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ShowroomArchiveRail from "@/components/showroom/ShowroomArchiveRail";
 import {
   bookMusic,
   bookStory,
-  booksArchive,
   booksEnding,
   booksHero,
   bornRare,
-  rightsPress,
 } from "@/content/books";
 import styles from "./page.module.css";
 
 export const metadata = {
   title: "Books — Emma Kwon",
   description:
-    "Books and publishing by Emma Kwon, led by the memoir BORN RARE and its connected music and publishing world.",
+    "Books and publishing by Emma Kwon, led by the memoir BORN RARE and its connected music world.",
 };
 
 export default function BooksPage() {
@@ -34,31 +31,34 @@ export default function BooksPage() {
               <p className={styles.heroTagline}>{booksHero.tagline}</p>
               <p className={styles.heroSupporting}>{booksHero.supporting}</p>
             </div>
-            <div className={styles.heroBook} aria-hidden="true">
+            <figure className={styles.heroBook}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={booksHero.image} alt="" className={styles.heroBookImage} />
-            </div>
+              <img
+                src={booksHero.image}
+                alt={booksHero.imageAlt}
+                className={styles.heroBookImage}
+              />
+            </figure>
           </div>
         </section>
 
         <section id="born-rare" className={styles.bornRare} aria-labelledby="born-rare-heading">
           <div className="container">
-            <div className={styles.bookGrid}>
-              <div className={styles.bookFrame}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={bornRare.image}
-                  alt={bornRare.imageAlt}
-                  className={styles.bookCover}
-                  loading="lazy"
-                />
-              </div>
-              <div className={styles.bookCopy}>
-                <p className={styles.eyebrow}>{bornRare.eyebrow}</p>
+            <div className={styles.editorialGrid}>
+              <p className={styles.eyebrow}>{bornRare.eyebrow}</p>
+              <div>
                 <h2 id="born-rare-heading" className={styles.sectionTitle}>
                   {bornRare.title}
                 </h2>
                 <p className={styles.sectionBody}>{bornRare.body}</p>
+                <a
+                  href={bornRare.cta.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.textLink}
+                >
+                  {bornRare.cta.label} <span aria-hidden="true">↗</span>
+                </a>
               </div>
             </div>
           </div>
@@ -78,19 +78,10 @@ export default function BooksPage() {
           </div>
         </section>
 
-        <ShowroomArchiveRail
-          id="living-archive"
-          eyebrow={booksArchive.eyebrow}
-          title={booksArchive.title}
-          intro={booksArchive.intro}
-          items={booksArchive.items}
-          tone="paper"
-        />
-
         <section id="music-ost" className={styles.music} aria-labelledby="music-heading">
           <div className="container">
             <div className={styles.musicStage}>
-              <div className={styles.musicCoverFrame}>
+              <figure className={styles.musicCoverFrame}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={bookMusic.image}
@@ -98,7 +89,7 @@ export default function BooksPage() {
                   className={styles.musicCover}
                   loading="lazy"
                 />
-              </div>
+              </figure>
               <div className={styles.musicCopy}>
                 <p className={styles.eyebrow}>{bookMusic.eyebrow}</p>
                 <h2 id="music-heading" className={styles.musicTitle}>
@@ -109,28 +100,6 @@ export default function BooksPage() {
                   {bookMusic.cta.label} <span aria-hidden="true">→</span>
                 </Link>
               </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="rights-press" className={styles.rights} aria-labelledby="rights-heading">
-          <div className="container">
-            <div className={styles.rightsIntro}>
-              <p className={styles.eyebrow}>{rightsPress.eyebrow}</p>
-              <h2 id="rights-heading" className={styles.rightsTitle}>
-                {rightsPress.title}
-              </h2>
-              <p className={styles.rightsBody}>{rightsPress.body}</p>
-            </div>
-
-            <div className={styles.rightsList}>
-              {rightsPress.items.map((item, index) => (
-                <div key={item.label} className={styles.rightsRow}>
-                  <span className={styles.rowNumber}>{String(index + 1).padStart(2, "0")}</span>
-                  <h3 className={styles.rowLabel}>{item.label}</h3>
-                  <p className={styles.rowText}>{item.text}</p>
-                </div>
-              ))}
             </div>
           </div>
         </section>
