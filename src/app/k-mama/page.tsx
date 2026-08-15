@@ -108,16 +108,15 @@ export default function KMamaPage() {
 
         <section id="characters" className={styles.characters} aria-labelledby="characters-heading">
           <div className="container">
-            <div id="characters-heading">
-              <ShowroomMediaBay
-                eyebrow={kMamaCharacters.eyebrow}
-                title={kMamaCharacters.headline}
-                body={kMamaCharacters.body}
-                roomLabel="CHARACTER / PLAY ROOM"
-                tone="sun"
-                reverse
-              />
-            </div>
+            <ShowroomMediaBay
+              eyebrow={kMamaCharacters.eyebrow}
+              title={kMamaCharacters.headline}
+              body={kMamaCharacters.body}
+              roomLabel="CHARACTER / PLAY ROOM"
+              titleId="characters-heading"
+              tone="sun"
+              reverse
+            />
           </div>
         </section>
 
