@@ -16,6 +16,11 @@
   padding: clamp(20px, 2.6vw, 28px) 0;
 }
 
+.linkWithCover {
+  grid-template-columns: 100px minmax(0, 1fr) auto minmax(104px, 132px);
+  align-items: start;
+}
+
 .category {
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 11px;
@@ -58,10 +63,40 @@
   white-space: nowrap;
 }
 
+.thumb {
+  grid-column: 4;
+  grid-row: 1 / span 2;
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: rgba(30, 45, 91, 0.05);
+}
+
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.001);
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.linkWithCover:hover .thumb img,
+.linkWithCover:focus-visible .thumb img {
+  transform: scale(1.025);
+}
+
 @media (max-width: 720px) {
   .link {
     grid-template-columns: 1fr;
     gap: 6px;
+  }
+
+  .linkWithCover {
+    grid-template-columns: minmax(0, 1fr) 96px;
+    column-gap: 18px;
+    align-items: start;
   }
 
   .category,
@@ -73,5 +108,17 @@
 
   .date {
     grid-row: auto;
+  }
+
+  .thumb {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thumb img {
+    transition: none;
   }
 }
