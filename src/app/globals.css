@@ -160,6 +160,13 @@ button {
   section[id] {
     scroll-margin-top: calc(var(--header-height-mobile) + 14px);
   }
+
+  /* Keep the same atmospheric color field on phones without continuously
+     transforming a viewport-sized fixed layer while the user scrolls. */
+  .atmosphere {
+    animation: none;
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
