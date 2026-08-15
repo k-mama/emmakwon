@@ -86,6 +86,12 @@ export default function ShowroomArchiveRail({
           </div>
         </div>
 
+        {items.length > 1 ? (
+          <p className={styles.mobileHint} aria-hidden="true">
+            SWIPE TO EXPLORE <span>→</span>
+          </p>
+        ) : null}
+
         <div className={styles.rail}>
           {items.map((item, index) => (
             <ArchiveItem key={`${item.label}-${item.title}`} item={item} index={index} />
