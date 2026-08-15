@@ -1,12 +1,9 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ShowroomArchiveRail from "@/components/showroom/ShowroomArchiveRail";
-import ShowroomMediaBay from "@/components/showroom/ShowroomMediaBay";
 import {
   bornRareOst,
   classical,
-  emmaestroArchive,
   emmaestroEnding,
   emmaestroHero,
   movingImage,
@@ -73,14 +70,23 @@ export default function EmmaestroPage() {
 
         <section id="music-videos" className={styles.editorialBand} aria-labelledby="videos-heading">
           <div className="container">
-            <ShowroomMediaBay
-              eyebrow={movingImage.eyebrow}
-              title={movingImage.headline}
-              body={movingImage.body}
-              roomLabel="MOTION / FILM ROOM"
-              titleId="videos-heading"
-              tone="violet"
-            />
+            <div className={styles.editorialGrid}>
+              <p className={styles.eyebrow}>{movingImage.eyebrow}</p>
+              <div className={styles.editorialCopy}>
+                <h2 id="videos-heading" className={styles.editorialTitle}>
+                  {movingImage.headline}
+                </h2>
+                <p className={styles.editorialBody}>{movingImage.body}</p>
+                <a
+                  href={movingImage.cta.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.editorialLink}
+                >
+                  {movingImage.cta.label} <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -98,35 +104,20 @@ export default function EmmaestroPage() {
 
         <section id="born-rare-ost" className={styles.ost} aria-labelledby="ost-heading">
           <div className="container">
-            <div className={styles.ostGrid}>
-              <div className={styles.ostCover}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/archive/emmaestro/no-deadline-album-cover.jpg"
-                  alt="No Deadline To Be OK album cover by EMMAESTRO"
-                  className={styles.coverImage}
-                  loading="lazy"
-                />
-              </div>
+            <div className={styles.ostTextGrid}>
+              <p className={styles.eyebrow}>{bornRareOst.eyebrow}</p>
               <div>
-                <p className={styles.eyebrow}>{bornRareOst.eyebrow}</p>
                 <h2 id="ost-heading" className={styles.ostTitle}>
                   {bornRareOst.headline}
                 </h2>
                 <p className={styles.ostBody}>{bornRareOst.body}</p>
+                <Link href={bornRareOst.cta.href} className={styles.ostLink}>
+                  {bornRareOst.cta.label} <span aria-hidden="true">→</span>
+                </Link>
               </div>
             </div>
           </div>
         </section>
-
-        <ShowroomArchiveRail
-          id="listening-archive"
-          eyebrow={emmaestroArchive.eyebrow}
-          title={emmaestroArchive.title}
-          intro={emmaestroArchive.intro}
-          items={emmaestroArchive.items}
-          tone="studio"
-        />
 
         <section className={styles.ending}>
           <div className="container">
