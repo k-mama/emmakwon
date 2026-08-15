@@ -1,9 +1,11 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ShowroomArchiveRail from "@/components/showroom/ShowroomArchiveRail";
 import {
   bookMusic,
   bookStory,
+  booksArchive,
   booksEnding,
   booksHero,
   bornRare,
@@ -75,6 +77,15 @@ export default function BooksPage() {
             </div>
           </div>
         </section>
+
+        <ShowroomArchiveRail
+          id="living-archive"
+          eyebrow={booksArchive.eyebrow}
+          title={booksArchive.title}
+          intro={booksArchive.intro}
+          items={booksArchive.items}
+          tone="paper"
+        />
 
         <section id="music-ost" className={styles.music} aria-labelledby="music-heading">
           <div className="container">
