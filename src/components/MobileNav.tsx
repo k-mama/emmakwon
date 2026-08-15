@@ -104,19 +104,26 @@ export default function MobileNav({ items, overlay = false }: MobileNavProps) {
           aria-label="Site navigation"
         >
           <div className={styles.overlayHeader}>
-            <span className={styles.brand}>Emma Kwon</span>
-            <button
-              type="button"
-              ref={closeRef}
-              className={styles.closeBtn}
-              aria-label="Close menu"
-              onClick={handleClose}
-            >
-              <span className={styles.closeLines} aria-hidden="true">
-                <span className={styles.closeLineA} />
-                <span className={styles.closeLineB} />
-              </span>
-            </button>
+            <Link href="/" className={styles.brand} onClick={handleClose}>
+              Emma Kwon
+            </Link>
+
+            <div className={styles.overlayUtilities}>
+              <button
+                type="button"
+                ref={closeRef}
+                className={styles.closeBtn}
+                aria-label="Close menu"
+                onClick={handleClose}
+              >
+                <span className={styles.closeLines} aria-hidden="true">
+                  <span className={styles.closeLineA} />
+                  <span className={styles.closeLineB} />
+                </span>
+              </button>
+
+              <LanguageMenu triggerClassName={styles.headerLanguageTrigger} />
+            </div>
           </div>
 
           <nav className={styles.nav} aria-label="Primary">
@@ -163,10 +170,6 @@ export default function MobileNav({ items, overlay = false }: MobileNavProps) {
               );
             })}
           </nav>
-
-          <div className={styles.overlayFooter}>
-            <LanguageMenu triggerClassName={styles.footerTrigger} openUpward align="center" />
-          </div>
         </div>
       )}
     </>
