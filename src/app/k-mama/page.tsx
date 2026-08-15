@@ -1,8 +1,10 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ShowroomArchiveRail from "@/components/showroom/ShowroomArchiveRail";
 import ShowroomMediaBay from "@/components/showroom/ShowroomMediaBay";
 import {
+  kMamaArchive,
   kMamaCharacters,
   kMamaEnding,
   kMamaHero,
@@ -119,6 +121,15 @@ export default function KMamaPage() {
             />
           </div>
         </section>
+
+        <ShowroomArchiveRail
+          id="play-archive"
+          eyebrow={kMamaArchive.eyebrow}
+          title={kMamaArchive.title}
+          intro={kMamaArchive.intro}
+          items={kMamaArchive.items}
+          tone="sun"
+        />
 
         <section className={styles.ending}>
           <div className="container">
