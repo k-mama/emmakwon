@@ -8,6 +8,7 @@ const googleSansFlex = Google_Sans_Flex({
   weight: "variable",
   variable: "--font-display",
   display: "swap",
+  adjustFontFallback: false,
 });
 
 const manrope = Manrope({
