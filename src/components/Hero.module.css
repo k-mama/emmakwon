@@ -11,9 +11,6 @@
   width: 100%;
   height: 100svh;
   min-height: 100svh;
-  /* Pulled up under the sticky, transparent header (see Header.module.css)
-     so the media begins at the very top of the viewport instead of below
-     a space-reserving bar. */
   margin-top: calc(-1 * var(--header-height));
 }
 
@@ -21,28 +18,27 @@
   min-width: 0;
 }
 
-/* The first-screen color is intentionally mineral and slightly greyed,
-   rather than candy-bright. Keep hue in the room, but let the moving image
-   carry the luminosity. */
+/* Luminous rather than grey: the side fields stay sophisticated by using
+   pale, translucent color transitions instead of heavy saturation. */
 .fieldLeft {
   background: linear-gradient(
     165deg,
-    #edf2ef 0%,
-    #bdd3d3 30%,
-    #bcc7d4 55%,
-    #b6b8cd 76%,
-    #c2b5c8 100%
+    #f8fcfa 0%,
+    #d9f0ee 28%,
+    #d7e8f1 54%,
+    #deddf0 77%,
+    #eadced 100%
   );
 }
 
 .fieldRight {
   background: linear-gradient(
     180deg,
-    #eee7e1 0%,
-    #d9cdcc 30%,
-    #cfbec8 60%,
-    #c0adc2 82%,
-    #afa2ba 100%
+    #fffaf6 0%,
+    #f6e6e0 28%,
+    #f0dce5 58%,
+    #e8d7ea 80%,
+    #ddd5e8 100%
   );
 }
 
@@ -111,9 +107,6 @@
   text-shadow: 0 2px 14px rgba(8, 10, 22, 0.4);
 }
 
-/* Once the viewport becomes unusually narrow for its height, let the video
-   become width-limited before it can overflow. Equal grid tracks keep it
-   centered, with a small amount of the two color fields still visible. */
 @media (min-width: 641px) and (max-width: 900px) {
   .videoWrap {
     width: min(92vw, 83.72093svh);
@@ -123,9 +116,6 @@
 
 @media (max-width: 640px) {
   .hero {
-    /* Mobile remains width-driven at the source video's own ratio. Explicitly
-       cancel desktop height so no atmospheric spacer is created above or
-       below the video. The transparent mobile header overlays the first 56px. */
     display: block;
     height: auto;
     min-height: 0;
