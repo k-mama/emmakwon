@@ -16,14 +16,7 @@ import {
 import CinematicStage from "./CinematicStage";
 import styles from "./page.module.css";
 import questionStyles from "./question.module.css";
-
-const slyHeroBackground = [
-  "linear-gradient(104deg, transparent 0 58%, rgba(255, 255, 255, 0.18) 58.12%, transparent 58.42%)",
-  "linear-gradient(78deg, transparent 0 69%, rgba(224, 236, 238, 0.18) 69.1%, transparent 69.42%)",
-  "radial-gradient(72% 80% at 92% 8%, rgba(123, 178, 187, 0.34) 0%, rgba(123, 178, 187, 0) 68%)",
-  "radial-gradient(60% 70% at 14% 92%, rgba(166, 148, 181, 0.24) 0%, rgba(166, 148, 181, 0) 72%)",
-  "linear-gradient(145deg, #eef2f0 0%, #dce6e7 34%, #d0d8e1 58%, #d4cddb 100%)",
-].join(", ");
+import paletteStyles from "@/styles/RoomPalettes.module.css";
 
 export const metadata = {
   title: "Sly Fairy — Emma Kwon",
@@ -37,7 +30,7 @@ export default function SlyFairyPage() {
       <Header />
       <main>
         <section id="hero" className={styles.hero} aria-labelledby="sly-fairy-heading">
-          <div className={styles.heroStage} style={{ background: slyHeroBackground }}>
+          <div className={`${styles.heroStage} ${paletteStyles.slyHero}`}>
             <p className={styles.heroEyebrow}>{slyFairyHero.eyebrow}</p>
             <h1 id="sly-fairy-heading" className={styles.heroTitle}>
               {slyFairyHero.title}
