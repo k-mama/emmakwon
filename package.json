@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "check:site": "node scripts/check-static-site.mjs",
-    "verify:release": "npm run lint && npm run build && npm run check:site"
+    "check:security": "node scripts/check-repo-security.mjs",
+    "audit:prod": "npm audit --omit=dev --audit-level=high",
+    "verify:release": "npm run check:security && npm run audit:prod && npm run lint && npm run build && npm run check:site"
   },
   "dependencies": {
     "next": "16.3.0",
