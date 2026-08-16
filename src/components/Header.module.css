@@ -18,9 +18,8 @@
   border-bottom-color: var(--color-hairline);
 }
 
-/* Keep the primary navigation visually centered in the viewport. The third
-   grid track intentionally balances the brand track even without a utility
-   control on the right. */
+/* Three-zone layout keeps the primary navigation in the true viewport center
+   while the brand and globe occupy balanced outer tracks. */
 .inner {
   height: var(--header-height);
   display: grid;
@@ -56,6 +55,13 @@
 }
 
 .navItem {
+  display: flex;
+  align-items: center;
+}
+
+.utility {
+  grid-column: 3;
+  justify-self: end;
   display: flex;
   align-items: center;
 }
@@ -147,6 +153,28 @@
   }
 }
 
+/* The globe draws its own gradient stroke; this 44px control supplies a
+   stable hit target and keeps the utility aligned with the menu trigger. */
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px;
+  color: rgba(253, 251, 247, 0.9);
+  transition: color 0.25s ease;
+}
+
+.scrolled .iconBtn {
+  color: var(--soft-text);
+}
+
+.iconBtn:hover,
+.iconBtn:focus-visible {
+  color: var(--nav-hover-wave);
+}
+
 /* Five full brand labels become crowded before phone width. Switch to the
    compact menu early so 641–900px tablet widths never clip navigation. */
 @media (max-width: 900px) {
@@ -160,6 +188,11 @@
   .nav,
   .subnav {
     display: none;
+  }
+
+  .utility {
+    display: flex;
+    margin-left: 0;
   }
 }
 
