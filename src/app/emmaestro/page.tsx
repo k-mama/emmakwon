@@ -11,6 +11,7 @@ import {
 } from "@/content/emmaestro";
 import styles from "./page.module.css";
 import paletteStyles from "@/styles/RoomPalettes.module.css";
+import rhythmStyles from "@/styles/EditorialRhythm.module.css";
 
 export const metadata = {
   title: "EMMAESTRO — Emma Kwon",
@@ -30,7 +31,9 @@ export default function EmmaestroPage() {
               {emmaestroHero.title}
             </h1>
             <p className={styles.heroTagline}>{emmaestroHero.tagline}</p>
-            <p className={styles.heroSupporting}>{emmaestroHero.supporting}</p>
+            <p className={`${styles.heroSupporting} ${rhythmStyles.heroSupport}`}>
+              {emmaestroHero.supporting}
+            </p>
           </div>
         </section>
 
@@ -92,9 +95,13 @@ export default function EmmaestroPage() {
           </div>
         </section>
 
-        <section id="classical" className={styles.classical} aria-labelledby="classical-heading">
+        <section
+          id="classical"
+          className={`${styles.classical} ${rhythmStyles.fullBleedSection}`}
+          aria-labelledby="classical-heading"
+        >
           <div className="container">
-            <div className={styles.classicalStage}>
+            <div className={`${styles.classicalStage} ${rhythmStyles.classicalStage}`}>
               <p className={styles.eyebrow}>{classical.eyebrow}</p>
               <h2 id="classical-heading" className={styles.classicalTitle}>
                 {classical.headline}
@@ -121,7 +128,7 @@ export default function EmmaestroPage() {
           </div>
         </section>
 
-        <section className={styles.ending}>
+        <section className={`${styles.ending} ${rhythmStyles.ending}`}>
           <div className="container">
             <h2 className={styles.endingHeadline}>{emmaestroEnding.headline}</h2>
             <Link href={emmaestroEnding.cta.href} className={styles.endingLink}>
