@@ -61,7 +61,7 @@ export default function BooksPage() {
                 <a
                   href={bornRare.cta.href}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className={styles.textLink}
                 >
                   {bornRare.cta.label} <span aria-hidden="true">↗</span>
