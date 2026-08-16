@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NoteArticle from "@/components/studio/NoteArticle";
 import { getPostBySlug, getPublishedPosts } from "@/content/studio";
+import { createArticleMetadata } from "@/lib/site-metadata";
 import { notFound } from "next/navigation";
 
 export function generateStaticParams() {
@@ -17,10 +18,21 @@ export async function generateMetadata(props: PageProps<"/studio/notes/[slug]">)
   const post = getPostBySlug(slug);
   if (!post) return {};
 
-  return {
-    title: post.seoTitle ?? `${post.title} — Emma Kwon`,
-    description: post.seoDescription ?? post.excerpt,
-  };
+  const title = post.seoTitle ?? `${post.title} — Emma Kwon`;
+  const description = post.seoDescription ?? post.excerpt;
+  const image = post.coverImage ?? "/archive/emma/studio-candid.jpg";
+  const imageAlt = post.coverImage ? `Cover image for ${post.title}` : "Emma Kwon working in the studio.";
+
+  return createArticleMetadata({
+    title,
+    description,
+    path: `/studio/notes/${post.slug}/`,
+    image,
+    imageAlt,
+    publishedTime: post.publishedAt,
+    modifiedTime: post.updatedAt,
+    tags: post.tags,
+  });
 }
 
 export default async function StudioNotePage(props: PageProps<"/studio/notes/[slug]">) {
