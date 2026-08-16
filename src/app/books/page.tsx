@@ -8,6 +8,7 @@ import {
   booksHero,
   bornRare,
 } from "@/content/books";
+import { bornRareMockupSrc } from "@/content/generated/bornRareMockup";
 import styles from "./page.module.css";
 import paletteStyles from "@/styles/RoomPalettes.module.css";
 import rhythmStyles from "@/styles/EditorialRhythm.module.css";
@@ -38,8 +39,10 @@ export default function BooksPage() {
             <figure className={styles.heroBook}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={booksHero.image}
-                alt={booksHero.imageAlt}
+                src={bornRareMockupSrc}
+                alt="BORN RARE by Emma Kwon shown as a three-dimensional book in warm natural light"
+                width="500"
+                height="606"
                 className={styles.heroBookImage}
               />
             </figure>
