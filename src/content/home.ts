@@ -2,68 +2,6 @@
 // Keep copy and media choices separate from presentation components so
 // homepage media can evolve without rebuilding the page structure.
 
-export const brandStatement = {
-  eyebrow: "ONE-PERSON CREATIVE HOUSE",
-  headline: "Not a portfolio. A house.",
-  lede: "I got on the AI wave at 50. I'm 52 now.",
-  lines: [
-    "Since then: books, music, children's stories, and cinematic worlds — each one AI-assisted, each one still entirely mine.",
-    "Every world below lives under the same roof.",
-  ],
-  image: "/archive/emma/portrait-card.png",
-  imageAlt: "Emma Kwon portrait",
-};
-
-export type World = {
-  name: string;
-  category: string;
-  descriptor: string;
-  cta: string;
-  href: string;
-  image: string;
-};
-
-const worlds: World[] = [
-  {
-    name: "SLY FAIRY",
-    category: "ORIGINAL STORY WORLD",
-    descriptor: "A celestial fixer gets close enough to human life to be wrong.",
-    cta: "ENTER SLY FAIRY",
-    href: "/sly-fairy/",
-    image: "/media/sly-fairy/home-composing.webp",
-  },
-  {
-    name: "EMMAESTRO",
-    category: "MUSIC",
-    descriptor: "Records, scores, and the work behind the sound.",
-    cta: "ENTER EMMAESTRO",
-    href: "/emmaestro/",
-    image: "/archive/emmaestro/aussie-album-cover.jpg",
-  },
-  {
-    name: "K-MAMA",
-    category: "CHILDREN'S WORLD",
-    descriptor: "Made for children. Never talked down to.",
-    cta: "MEET K-MAMA",
-    href: "/k-mama/",
-    image: "/archive/k-mama/coloring-book-en.jpg",
-  },
-  {
-    name: "BOOKS",
-    category: "BOOKS & PUBLISHING",
-    descriptor: "Life first. The book came after.",
-    cta: "ENTER BOOKS",
-    href: "/books/",
-    image: "/archive/born-rare/born-rare-book-cover.jpg",
-  },
-];
-
-export const curatedWorlds = {
-  eyebrow: "INSIDE THE HOUSE",
-  headline: "Different rooms. One roof.",
-  worlds,
-};
-
 export const houseIndex = {
   eyebrow: "THE CREATIVE HOUSE",
   headline: "Different rooms. One roof.",
