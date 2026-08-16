@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   verify:
-    name: Security, Functions, lint, build, and verify export
+    name: Security, recovery, Functions, lint, build, and verify export
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -34,6 +34,9 @@ jobs:
 
       - name: Check repository security invariants
         run: npm run check:security
+
+      - name: Check Studio recovery seed
+        run: npm run check:studio-seed
 
       - name: Audit production dependencies
         run: npm run audit:prod
