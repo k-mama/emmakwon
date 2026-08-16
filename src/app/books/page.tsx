@@ -10,6 +10,12 @@ import {
 } from "@/content/books";
 import styles from "./page.module.css";
 
+const booksHeroBackground = [
+  "radial-gradient(54% 66% at 90% 12%, rgba(196, 164, 118, 0.3) 0%, rgba(196, 164, 118, 0) 72%)",
+  "radial-gradient(48% 58% at 8% 88%, rgba(194, 155, 143, 0.18) 0%, rgba(194, 155, 143, 0) 74%)",
+  "linear-gradient(145deg, #faf7f1 0%, #efe9e1 52%, #f1e8e3 100%)",
+].join(", ");
+
 export const metadata = {
   title: "Books — Emma Kwon",
   description:
@@ -22,7 +28,7 @@ export default function BooksPage() {
       <Header />
       <main>
         <section id="hero" className={styles.hero} aria-labelledby="books-heading">
-          <div className={styles.heroStage}>
+          <div className={styles.heroStage} style={{ background: booksHeroBackground }}>
             <div className={styles.heroCopy}>
               <p className={styles.eyebrow}>{booksHero.eyebrow}</p>
               <h1 id="books-heading" className={styles.heroTitle}>
