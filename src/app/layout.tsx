@@ -17,9 +17,22 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://emmakwon.pages.dev"),
   title: "Emma Kwon",
   description:
     "Emma Kwon — books, music, character worlds, children's creative work, and the Studio behind them.",
+  applicationName: "Emma Kwon",
+  authors: [{ name: "Emma Kwon" }],
+  creator: "Emma Kwon",
+  publisher: "Emma Kwon",
+  openGraph: {
+    type: "website",
+    siteName: "Emma Kwon",
+    title: "Emma Kwon",
+    description:
+      "Books, music, character worlds, children's creative work, and the Studio behind them.",
+    url: "/",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
