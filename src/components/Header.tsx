@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { primaryNav, type NavItem } from "@/content/navigation";
+import LanguageMenu from "./LanguageMenu";
 import MobileNav from "./MobileNav";
 import styles from "./Header.module.css";
 
@@ -88,6 +89,10 @@ export default function Header({ opaque = false }: HeaderProps = {}) {
             );
           })}
         </nav>
+
+        <div className={styles.utility} onMouseEnter={closeMenu} onFocus={closeMenu}>
+          <LanguageMenu triggerClassName={styles.iconBtn} />
+        </div>
       </div>
 
       {activeItem?.children?.length ? (
