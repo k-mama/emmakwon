@@ -12,7 +12,7 @@ The repository is release-ready, but the current QA 10–18 changes are intentio
 
 The rendered/runtime baseline for this candidate is:
 
-`c9c2735d35d6f5db8c48ea7e9893692969b31674`
+`5f2e6f4c5c36083ac3f0dc9bb3cf2f367f52c3c9`
 
 It is recorded as `PRE_RELEASE_RC_SNAPSHOT`, not yet as a live-verified production state. Full rollback rules are in `RELEASE_ROLLBACK.md`.
 
