@@ -24,6 +24,11 @@
     0 0 32px -20px rgba(143, 218, 224, 0.4),
     0 0 40px -26px rgba(243, 141, 161, 0.29);
 
+  --thumb-depth-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.22),
+    0 12px 24px -20px rgba(24, 38, 74, 0.24),
+    0 0 20px -18px rgba(143, 218, 224, 0.26);
+
   --album-art-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.34),
     0 16px 34px -22px rgba(24, 38, 74, 0.3),
@@ -39,18 +44,26 @@
     0 0 48px -23px rgba(243, 141, 161, 0.4);
 }
 
+/* Standalone editorial images carry their own depth. */
 main img:not([src^="data:image/"]) {
   border-radius: var(--media-image-radius);
   box-shadow: var(--media-depth-shadow);
-  transition: box-shadow 240ms ease-out, filter 240ms ease-out;
+  transition: box-shadow 240ms ease-out;
 }
 
-/* Clip image-only / image-overlay frames to the same curve so scrims,
-   borders, and hover zooms cannot reveal a square parent behind the image.
-   Figures with captions stay un-clipped so their text remains outside. */
+/* Image-only / image-overlay frames need to own the shadow, otherwise their
+   overflow clipping cuts off the image halo. The frame and image share one
+   exact curve, so the result still reads as a single object. Figures with
+   captions stay un-clipped so the caption remains outside the visual plate. */
 main :where(div, figure, span):has(> img:not([src^="data:image/"])):not(:has(> figcaption)) {
   overflow: hidden;
   border-radius: var(--media-image-radius);
+  box-shadow: var(--media-depth-shadow);
+  transition: box-shadow 240ms ease-out;
+}
+
+main :where(div, figure, span):has(> img:not([src^="data:image/"])):not(:has(> figcaption)) > img {
+  box-shadow: none;
 }
 
 /* Small Studio Note thumbnails use the same family of curves at a scale
@@ -62,11 +75,12 @@ main [data-media-size="thumb"] img {
   border-radius: var(--media-thumb-radius);
 }
 
+main [data-media-size="thumb"] {
+  box-shadow: var(--thumb-depth-shadow);
+}
+
 main [data-media-size="thumb"] img {
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.22),
-    0 12px 24px -20px rgba(24, 38, 74, 0.24),
-    0 0 20px -18px rgba(143, 218, 224, 0.26);
+  box-shadow: none;
 }
 
 /* Album covers must read as ONE object. Some room-specific wrappers used to
@@ -86,19 +100,29 @@ main img[src^="/archive/emmaestro/"] {
   --media-image-radius: var(--album-art-radius);
   display: block;
   border-radius: var(--album-art-radius) !important;
-  box-shadow: var(--album-art-shadow);
+  box-shadow: var(--album-art-shadow) !important;
 }
 
 /* Desktop precision: deepen light only when an actual pointing device can
    hover. No translate/scale is added here, so existing room-specific image
    motion remains intact and there is no layout shift. */
 @media (hover: hover) and (pointer: fine) {
-  main :where(a, article, figure):hover img:not([src^="data:image/"]) {
+  main :where(a, article, figure):hover > img:not([src^="data:image/"]),
+  main img:not([src^="data:image/"]):hover {
     box-shadow: var(--media-depth-shadow-hover);
   }
 
-  main :where(a, article, figure):hover img[src^="/archive/emmaestro/"] {
-    box-shadow: var(--album-art-shadow-hover);
+  main :where(div, figure, span):has(> img:not([src^="data:image/"])):not(:has(> figcaption)):hover {
+    box-shadow: var(--media-depth-shadow-hover);
+  }
+
+  main :where(a, article):hover :where(div, figure, span):has(> img:not([src^="data:image/"])):not(:has(> figcaption)) {
+    box-shadow: var(--media-depth-shadow-hover);
+  }
+
+  main :where(a, article, figure):hover img[src^="/archive/emmaestro/"],
+  main img[src^="/archive/emmaestro/"]:hover {
+    box-shadow: var(--album-art-shadow-hover) !important;
   }
 }
 
@@ -123,7 +147,8 @@ main img[src^="/archive/emmaestro/"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  main img:not([src^="data:image/"]) {
+  main img:not([src^="data:image/"]),
+  main :where(div, figure, span):has(> img:not([src^="data:image/"])):not(:has(> figcaption)) {
     transition: none;
   }
 }
