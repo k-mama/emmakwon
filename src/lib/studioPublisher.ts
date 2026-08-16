@@ -135,8 +135,10 @@ export type GithubConfig = {
 };
 
 export type PublishResult =
-  | { ok: true; commitSha: string }
+  | { ok: true; commitSha?: string; unchanged: boolean }
   | { ok: false; error: string };
+
+const GITHUB_REQUEST_TIMEOUT_MS = 12_000;
 
 function utf8ToBase64(input: string): string {
   const bytes = new TextEncoder().encode(input);
@@ -161,6 +163,25 @@ function githubHeaders(token: string): HeadersInit {
   };
 }
 
+async function githubFetch(fetchImpl: typeof fetch, url: string, init?: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), GITHUB_REQUEST_TIMEOUT_MS);
+  try {
+    return await fetchImpl(url, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new Error(`GitHub request timed out after ${GITHUB_REQUEST_TIMEOUT_MS / 1000} seconds.`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function samePosts(left: StudioPost[], right: StudioPost[]): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
 /** Fetches the current public content file's parsed posts and its git
     blob SHA (required to update the file). */
 async function fetchContentFile(
@@ -168,7 +189,7 @@ async function fetchContentFile(
   fetchImpl: typeof fetch,
 ): Promise<{ posts: StudioPost[]; sha: string }> {
   const url = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${config.contentPath}?ref=${config.branch}`;
-  const response = await fetchImpl(url, { headers: githubHeaders(config.token) });
+  const response = await githubFetch(fetchImpl, url, { headers: githubHeaders(config.token) });
 
   if (!response.ok) {
     throw new Error(`GitHub read failed (${response.status}): ${await safeErrorText(response)}`);
@@ -204,7 +225,7 @@ async function commitContentFile(
   fetchImpl: typeof fetch,
 ): Promise<{ ok: true; commitSha: string } | { ok: false; status: number; error: string }> {
   const url = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${config.contentPath}`;
-  const response = await fetchImpl(url, {
+  const response = await githubFetch(fetchImpl, url, {
     method: "PUT",
     headers: { ...githubHeaders(config.token), "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -235,10 +256,10 @@ async function safeErrorText(response: Response): Promise<string> {
 /**
  * Publishes one post to the public content file on GitHub: read → merge
  * → write, with a single refresh-and-retry if the file changed between
- * read and write (GitHub rejects the write with a stale sha). Never
- * loops more than once — a second conflict is reported as a failure
- * rather than retried indefinitely, and publication operations should be
- * serialized by the caller (no parallel publishes of the same file).
+ * read and write (GitHub rejects the write with a stale sha).
+ *
+ * Repeating Publish Now with identical public content is intentionally a
+ * no-op: no extra GitHub commit means no pointless Cloudflare build.
  */
 export async function publishPostToGithub(
   config: GithubConfig,
@@ -250,12 +271,17 @@ export async function publishPostToGithub(
   try {
     let { posts, sha } = await fetchContentFile(config, fetchImpl);
     let merged = mergePost(posts, post);
+    if (samePosts(posts, merged)) return { ok: true, unchanged: true };
+
     let result = await commitContentFile(config, merged, sha, commitMessage, fetchImpl);
 
     if (!result.ok && result.status === 409) {
-      // File moved under us — refresh once, re-merge, retry once.
+      // File moved under us — refresh once, re-merge, and avoid a second
+      // commit if the first competing operation already produced exactly
+      // the public state we wanted.
       ({ posts, sha } = await fetchContentFile(config, fetchImpl));
       merged = mergePost(posts, post);
+      if (samePosts(posts, merged)) return { ok: true, unchanged: true };
       result = await commitContentFile(config, merged, sha, commitMessage, fetchImpl);
     }
 
@@ -263,7 +289,7 @@ export async function publishPostToGithub(
       return { ok: false, error: `GitHub publish failed (${result.status}): ${result.error}` };
     }
 
-    return { ok: true, commitSha: result.commitSha };
+    return { ok: true, commitSha: result.commitSha, unchanged: false };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Unknown publish error." };
   }
@@ -272,11 +298,8 @@ export async function publishPostToGithub(
 /**
  * Removes one post (by id) from the public content file on GitHub, with
  * the same single refresh-and-retry-on-409 behavior as
- * publishPostToGithub. Used by Delete when the post being deleted is
- * currently published, so it can't be left silently live on the public
- * site after Admin reports it deleted. If the post is already absent
- * from the file (e.g. a retry after a prior partial failure), this is a
- * no-op success rather than an error.
+ * publishPostToGithub. If the post is already absent, deletion is an
+ * idempotent no-op and does not create another GitHub/Cloudflare build.
  */
 export async function removePostFromGithub(
   config: GithubConfig,
@@ -290,14 +313,14 @@ export async function removePostFromGithub(
   try {
     let { posts, sha } = await fetchContentFile(config, fetchImpl);
     let remaining = remove(posts);
-    if (remaining.length === posts.length) return { ok: true, commitSha: sha };
+    if (remaining.length === posts.length) return { ok: true, unchanged: true };
 
     let result = await commitContentFile(config, remaining, sha, commitMessage, fetchImpl);
 
     if (!result.ok && result.status === 409) {
       ({ posts, sha } = await fetchContentFile(config, fetchImpl));
       remaining = remove(posts);
-      if (remaining.length === posts.length) return { ok: true, commitSha: sha };
+      if (remaining.length === posts.length) return { ok: true, unchanged: true };
       result = await commitContentFile(config, remaining, sha, commitMessage, fetchImpl);
     }
 
@@ -305,7 +328,7 @@ export async function removePostFromGithub(
       return { ok: false, error: `GitHub removal failed (${result.status}): ${result.error}` };
     }
 
-    return { ok: true, commitSha: result.commitSha };
+    return { ok: true, commitSha: result.commitSha, unchanged: false };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Unknown removal error." };
   }
