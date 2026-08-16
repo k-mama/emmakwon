@@ -30,6 +30,7 @@ export default function CinematicStage({ media }: { media: CinematicMedia }) {
             src={media.src ?? undefined}
             alt={media.alt}
             loading="lazy"
+            decoding="async"
           />
         ) : null}
 
