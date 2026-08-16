@@ -7,7 +7,8 @@ import styles from "./page.module.css";
 
 export const metadata = {
   title: "Studio Notes — Emma Kwon",
-  description: "How Emma actually makes things with AI — real projects, real prompts, what worked and what didn't.",
+  description:
+    "Notes from Emma Kwon's working process: learning English, building with AI, and making music, books, characters, and digital projects.",
 };
 
 export default function StudioNotesPage() {
@@ -25,7 +26,9 @@ export default function StudioNotesPage() {
               </Link>
             </p>
             <h1 className={styles.headline}>Studio Notes</h1>
-            <p className={styles.supporting}>How I actually make things with AI — real projects, what worked and what didn&rsquo;t.</p>
+            <p className={styles.supporting}>
+              Learning, building, and making — notes from the work before it becomes finished work.
+            </p>
           </div>
         </section>
 
