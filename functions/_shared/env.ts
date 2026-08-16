@@ -18,7 +18,12 @@ export type Env = {
 export function json(data: unknown, init?: ResponseInit): Response {
   return new Response(JSON.stringify(data), {
     ...init,
-    headers: { "Content-Type": "application/json", ...init?.headers },
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+      ...init?.headers,
+    },
   });
 }
 
