@@ -22,16 +22,15 @@ publishing pipeline is:
   deployment. This has been verified working in production.
 
 **Publishing is manual through Publish Now.** There is no scheduler, no
-Cron Trigger, and no standalone Cloudflare Worker anywhere in this
-project — a standalone scheduler Worker was built, deployed, and then
-deliberately removed; automatic scheduled publishing is not part of
-this architecture. `scheduledAt` and a `"scheduled"` status still exist
-in the D1 schema and the `StudioPost` type (removing them would need a
-schema migration, and nothing depends on them being gone), but nothing
-in the admin UI creates new scheduled posts, and nothing automatically
-publishes one. A post already in that state is only resolved manually —
-open it in the editor and either **Save Draft** (reverts it) or
-**Publish Now** (publishes it immediately).
+Cron Trigger, and no standalone Cloudflare Worker anywhere in this project —
+a standalone scheduler Worker was built, deployed, and then deliberately
+removed; automatic scheduled publishing is not part of this architecture.
+`scheduledAt` and a `"scheduled"` status still exist in the D1 schema and the
+`StudioPost` type (removing them would need a schema migration, and nothing
+depends on them being gone), but nothing in the admin UI creates new
+scheduled posts, and nothing automatically publishes one. A post already in
+that state is only resolved manually — open it in the editor and either
+**Save Draft** (reverts it) or **Publish Now** (publishes it immediately).
 
 ---
 
@@ -73,16 +72,29 @@ This prints a `database_id`. Fill it into `wrangler.local.toml` for
 your own local use and into the Cloudflare dashboard D1 binding (step
 E) — never into a committed file.
 
-## B. Apply the migrations to the real database
+## B. Apply the schema and current published Studio content
+
+Apply the schema first:
 
 ```
 npx wrangler d1 execute STUDIO_DB --remote --config wrangler.local.toml --file=migrations/0001_create_studio_posts.sql
+```
+
+The published-content seed is deliberately **not committed** because
+`src/content/studio-posts.json` changes whenever Publish Now is used. A
+committed seed would inevitably become stale. Generate a fresh seed from the
+exact Git revision you intend to use, then apply it:
+
+```
+npm run prepare:studio-seed
 npx wrangler d1 execute STUDIO_DB --remote --config wrangler.local.toml --file=migrations/0002_seed_published_posts.sql
 ```
 
-The seed file is idempotent (upserts by `id`) — safe to re-run any time
-`src/content/studio-posts.json` changes (regenerate it first with
-`node scripts/generate-studio-seed.mjs`).
+`migrations/0002_seed_published_posts.sql` is gitignored and generated on
+demand. It is an idempotent upsert by `id`, but it represents **published
+content only**. It is not a backup of drafts or unpublished edits. Do not run
+it as a general repair on a live D1 that may contain newer private edits on
+already-published rows. For data recovery, read `STUDIO_DATA_RECOVERY.md`.
 
 ## C. Configure Cloudflare Access — before any write token exists
 
@@ -139,6 +151,10 @@ configuring these, so there's nothing to keep in sync.
 
 ---
 
-That's the whole pipeline. Once A–E are done, publishing works
-end-to-end: write a post in `/admin`, Preview it, then Publish Now —
-that commits to GitHub and Cloudflare Pages deploys it normally.
+That's the whole publishing pipeline. Once A–E are done, publishing works
+end-to-end: write a post in `/admin`, Preview it, then Publish Now — that
+commits to GitHub and Cloudflare Pages deploys it normally.
+
+For backup, Time Travel, SQL export, and disaster-recovery procedures, use
+`STUDIO_DATA_RECOVERY.md`. Do not improvise a production D1 restore from the
+bootstrap seed.
