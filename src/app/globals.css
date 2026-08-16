@@ -36,10 +36,11 @@
   --header-height: 76px;
   --header-height-mobile: 56px;
 
-  /* shared editorial rhythm for HOME sections below the Hero */
+  /* shared editorial rhythm and reading measure */
   --content-max: 1360px;
   --content-pad: clamp(20px, 4vw, 64px);
-  --section-space: clamp(40px, 7vw, 108px);
+  --section-space: clamp(64px, 7vw, 108px);
+  --reading-measure: 62ch;
 
   /* large rounded panels + atmospheric surfaces */
   --panel-radius: 24px;
