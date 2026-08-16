@@ -10,9 +10,9 @@
 
 .heroStage {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(240px, 0.75fr);
+  grid-template-columns: minmax(0, 1.14fr) minmax(280px, 0.86fr);
   align-items: end;
-  gap: clamp(42px, 7vw, 110px);
+  gap: clamp(44px, 6vw, 92px);
   min-height: 100svh;
   padding: calc(var(--header-height) + clamp(68px, 9vw, 126px)) clamp(28px, 6vw, 88px) clamp(58px, 8vw, 100px);
   background:
@@ -67,15 +67,15 @@
 
 .heroBook {
   justify-self: end;
-  width: min(29vw, 390px);
+  width: min(34vw, 480px);
   margin: 0;
-  filter: drop-shadow(0 28px 38px rgba(74, 51, 38, 0.15));
 }
 
 .heroBookImage {
   display: block;
   width: 100%;
   height: auto;
+  box-shadow: 0 28px 58px -42px rgba(74, 51, 38, 0.34);
 }
 
 .bornRare {
@@ -231,9 +231,12 @@
   }
 
   .heroBook {
-    justify-self: start;
-    width: min(54vw, 220px);
-    filter: drop-shadow(0 20px 28px rgba(74, 51, 38, 0.13));
+    justify-self: center;
+    width: min(72vw, 300px);
+  }
+
+  .heroBookImage {
+    box-shadow: 0 22px 44px -36px rgba(74, 51, 38, 0.3);
   }
 
   .editorialGrid,
