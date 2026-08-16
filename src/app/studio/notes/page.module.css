@@ -1,5 +1,5 @@
 .header {
-  padding: clamp(48px, 7vw, 96px) 0 clamp(24px, 3vw, 32px);
+  padding: clamp(56px, 7vw, 96px) 0 clamp(30px, 3vw, 38px);
 }
 
 .eyebrow {
@@ -16,27 +16,31 @@
   transition: color 0.2s ease;
 }
 
-.backLink:hover {
+.backLink:hover,
+.backLink:focus-visible {
   color: var(--hover-accent);
 }
 
 .headline {
-  margin: 14px 0 0;
+  margin: 16px 0 0;
+  max-width: 14ch;
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-weight: 500;
-  font-size: clamp(32px, 5vw, 56px);
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.06;
+  letter-spacing: -0.018em;
   color: var(--title-primary);
+  text-wrap: balance;
 }
 
 .supporting {
-  margin: 16px 0 0;
-  max-width: 56ch;
+  margin: 18px 0 0;
+  max-width: 52ch;
   font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: clamp(15px, 1.3vw, 18px);
-  line-height: 1.65;
+  line-height: 1.68;
   color: var(--body-text);
+  text-wrap: pretty;
 }
 
 .list {
