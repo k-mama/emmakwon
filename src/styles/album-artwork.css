@@ -1,0 +1,11 @@
+/* Shared album-art treatment.
+   Current album assets live in /archive/emmaestro and can appear in the
+   EMMAESTRO, BOOKS, or SLY FAIRY rooms. Keep books and photography untouched. */
+:where(div, figure):has(> img[src^="/archive/emmaestro/"]) {
+  overflow: hidden;
+  border-radius: clamp(18px, 2.2vw, 28px);
+}
+
+img[src^="/archive/emmaestro/"] {
+  border-radius: inherit;
+}
