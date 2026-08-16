@@ -11,6 +11,7 @@ import {
 } from "@/content/k-mama";
 import styles from "./page.module.css";
 import paletteStyles from "@/styles/RoomPalettes.module.css";
+import rhythmStyles from "@/styles/EditorialRhythm.module.css";
 
 export const metadata = {
   title: "K-MAMA — Emma Kwon",
@@ -30,7 +31,9 @@ export default function KMamaPage() {
               {kMamaHero.title}
             </h1>
             <p className={styles.heroTagline}>{kMamaHero.tagline}</p>
-            <p className={styles.heroSupporting}>{kMamaHero.supporting}</p>
+            <p className={`${styles.heroSupporting} ${rhythmStyles.heroSupport}`}>
+              {kMamaHero.supporting}
+            </p>
           </div>
         </section>
 
@@ -58,9 +61,15 @@ export default function KMamaPage() {
           </div>
         </section>
 
-        <section id="music" className={styles.music} aria-labelledby="music-heading">
+        <section
+          id="music"
+          className={`${styles.music} ${rhythmStyles.fullBleedSection}`}
+          aria-labelledby="music-heading"
+        >
           <div className="container">
-            <div className={`${styles.musicStage} ${paletteStyles.kMamaMusic}`}>
+            <div
+              className={`${styles.musicStage} ${paletteStyles.kMamaMusic} ${rhythmStyles.fullBleedStage}`}
+            >
               <p className={styles.eyebrow}>{kMamaMusic.eyebrow}</p>
               <h2 id="music-heading" className={styles.musicTitle}>
                 {kMamaMusic.headline}
@@ -106,7 +115,7 @@ export default function KMamaPage() {
           </div>
         </section>
 
-        <section className={styles.ending}>
+        <section className={`${styles.ending} ${rhythmStyles.ending}`}>
           <div className="container">
             <h2 className={styles.endingHeadline}>{kMamaEnding.headline}</h2>
             <Link href={kMamaEnding.cta.href} className={styles.endingLink}>
