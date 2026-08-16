@@ -8,25 +8,29 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     const posts = await listPosts(context.env.STUDIO_DB);
     return json({ posts });
   } catch (error) {
-    return errorJson(error instanceof Error ? error.message : "Failed to load posts.", 500);
+    console.error("Studio admin list failed", error);
+    return errorJson("Could not load Studio posts.", 500);
   }
 };
 
-/** Creates a new draft. Only title/category/etc. are accepted from the
-    body — status is always "draft" here; publishing state only ever
-    changes via /publish, so this route can't be used to sneak a post
-    into "published" without going through the real pipeline. */
+/** Creates a new draft. The server always owns the id and status so a
+    malformed/stale client cannot collide with an existing row or bypass the
+    explicit Publish Now pipeline. */
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   let body: Partial<StudioPost>;
   try {
-    body = await context.request.json();
+    const parsed: unknown = await context.request.json();
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return errorJson("JSON body must be an object.", 400);
+    }
+    body = parsed as Partial<StudioPost>;
   } catch {
     return errorJson("Invalid JSON body.", 400);
   }
 
   const now = new Date().toISOString();
   const post: StudioPost = {
-    id: body.id || crypto.randomUUID(),
+    id: crypto.randomUUID(),
     title: body.title ?? "",
     slug: body.slug ?? "",
     excerpt: body.excerpt ?? "",
@@ -46,6 +50,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     await insertPost(context.env.STUDIO_DB, post);
     return json({ post }, { status: 201 });
   } catch (error) {
-    return errorJson(error instanceof Error ? error.message : "Failed to create draft.", 500);
+    console.error("Studio draft creation failed", error);
+    return errorJson("Could not create this draft.", 500);
   }
 };
