@@ -1,11 +1,27 @@
-/* Shared album-art treatment.
-   Current album assets live in /archive/emmaestro and can appear in the
-   EMMAESTRO, BOOKS, or SLY FAIRY rooms. Keep books and photography untouched. */
-:where(div, figure):has(> img[src^="/archive/emmaestro/"]) {
-  overflow: hidden;
-  border-radius: clamp(18px, 2.2vw, 28px);
+/* Shared media softness.
+   Album artwork gets the strongest iOS-like curve; other editorial imagery
+   shares a generous soft radius. The BORN RARE 3D book mockup is a data URI
+   and intentionally stays outside this system so it keeps its object-like edge. */
+:root {
+  --media-image-radius: clamp(30px, 4vw, 48px);
+  --media-thumb-radius: clamp(20px, 2.4vw, 30px);
+  --album-art-radius: 22%;
+  --album-art-shadow: 0 18px 38px -28px rgba(24, 38, 74, 0.42);
 }
 
-img[src^="/archive/emmaestro/"] {
-  border-radius: inherit;
+main img:not([src^="data:image/"]) {
+  border-radius: var(--media-image-radius);
+}
+
+/* Album covers are square, so a percentage radius gives them the soft,
+   continuous visual weight of an iOS/iPadOS icon rather than a hard CD tile. */
+:where(div, figure):has(> img[src^="/archive/emmaestro/"]) {
+  overflow: hidden;
+  border-radius: var(--album-art-radius);
+  box-shadow: var(--album-art-shadow);
+}
+
+main img[src^="/archive/emmaestro/"] {
+  --media-image-radius: var(--album-art-radius);
+  border-radius: var(--album-art-radius);
 }
