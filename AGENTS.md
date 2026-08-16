@@ -13,11 +13,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Release discipline — protect the Cloudflare Pages build quota
 
 - Cloudflare Pages is connected to this repository through Git integration. A normal push to `main` can trigger a Cloudflare build/deployment independently of GitHub Actions.
-- The GitHub `Site CI` workflow is verification only. It runs lint/build/static-export checks; CI success must never be described as proof that the live Cloudflare site was deployed or visually verified.
+- The GitHub `Site CI` workflow is verification only. It runs repository-security, production-dependency-audit, lint, build, and static-export checks; CI success must never be described as proof that the live Cloudflare site was deployed or visually verified.
 - During iterative work, prefix every commit message with **`[CF-Pages-Skip]`**. This is the default for QA passes, refactors, design tuning, documentation changes, and intermediate fixes.
 - Batch related edits into meaningful milestones. Do not consume a Pages build merely to preview or verify one small code change.
 - Omit `[CF-Pages-Skip]` only for an intentional release milestone, after the user has approved deployment and Cloudflare build capacity is available.
-- Before an intentional release, require a green `Site CI` or equivalent successful local checks: `npm run lint`, `npm run build`, and `npm run check:site`.
+- Before an intentional release, require a green `Site CI` or run `npm run verify:release`. Do not bypass the security or dependency-audit stages just to ship.
 - If live deployment status cannot be observed directly, say so. Never infer live state from a GitHub commit, CI result, or expected Cloudflare behavior.
 
 ## Release snapshot and rollback discipline
@@ -29,6 +29,16 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Restore production through a new auditable rollback commit, run `npm run verify:release`, and only then allow one intentional non-skip Cloudflare deployment.
 - During rollback diagnosis/preparation, keep `[CF-Pages-Skip]`. The final verified rollback trigger is the only rollback commit that should omit the skip marker.
 - Do not claim rollback success until the live Cloudflare site has been checked after deployment.
+
+## Dependency, secret, and configuration safety
+
+- `npm run verify:release` must keep the repository-security check and the production dependency audit. Do not remove or weaken them merely to make CI green.
+- Never commit `.env*`, `.dev.vars*`, `.wrangler/`, private-key files, GitHub PATs, or production D1 identifiers.
+- `wrangler.local.toml` is a committed local template only. Its `database_id` must remain `REPLACE_WITH_REAL_D1_DATABASE_ID`, and it must never gain `pages_build_output_dir`.
+- Do not add a production root `wrangler.toml` unless the deployment architecture is deliberately redesigned. Production Pages bindings currently live in the Cloudflare dashboard.
+- `GITHUB_TOKEN` must remain a Cloudflare Pages Secret. Keep the token fine-grained to `k-mama/emmakwon` with Contents read/write only; do not grant Workflows permission.
+- `NEXT_PUBLIC_ADMIN_PASSPHRASE` is client-visible and is not authentication. Cloudflare Access remains the real security boundary for `/admin` and `/api/admin`.
+- Public Studio external-media links must be sanitized to ordinary `http:` or `https:` URLs before publishing and again before rendering. Do not permit executable/custom URL schemes.
 
 ## Product and design guardrails
 
