@@ -3,11 +3,11 @@
 ## Current pre-release snapshot
 
 - Snapshot type: `PRE_RELEASE_RC_SNAPSHOT`
-- Rendered-site baseline commit: `c61e28c2ad108da555e87d5999eabfc05e77d204`
+- Rendered/runtime baseline commit: `c9c2735d35d6f5db8c48ea7e9893692969b31674`
 - Prepared: 2026-08-16
-- Verification: GitHub Site CI green through repository security invariants, High/Critical production dependency audit, lint, production build, static export integrity, accessibility, Studio publishing invariants, approved external-destination checks, and safe Studio external-media handling.
+- Verification: GitHub Site CI green through repository security invariants, High/Critical production dependency audit, Cloudflare Functions typecheck, lint, production build, static export integrity, accessibility, Studio publishing invariants, approved external-destination checks, safe Studio external-media handling, and the QA 17 runtime-resilience code path.
 
-This SHA is the recovery reference for the current release candidate. Later QA 16 documentation commits do not intentionally alter the rendered public website.
+This SHA is the recovery reference for the current release candidate. Later QA 17 documentation commits do not intentionally alter the rendered public website or the Pages Functions runtime behavior.
 
 ## Why this is a commit snapshot instead of a snapshot branch
 
@@ -35,7 +35,7 @@ git pull --ff-only
 git status --short
 # Stop here unless the worktree is clean.
 
-SNAPSHOT=c61e28c2ad108da555e87d5999eabfc05e77d204
+SNAPSHOT=c9c2735d35d6f5db8c48ea7e9893692969b31674
 
 git revert --no-commit "${SNAPSHOT}..HEAD"
 
@@ -49,7 +49,7 @@ git diff --cached
 If verification is green and the staged rollback is exactly what is intended:
 
 ```bash
-git commit -m "Rollback production to verified snapshot c61e28c2"
+git commit -m "Rollback production to verified snapshot c9c2735d"
 git push origin main
 ```
 
@@ -64,6 +64,10 @@ npm run verify:release
 ```
 
 If the desired recovery target is uncertain, stop and inspect the affected commits before creating any deployment-triggering commit.
+
+## Runtime-specific recovery note
+
+QA 17 deliberately added no production D1 schema migration. The recovery snapshot therefore does not depend on a new database column/table being present. If a future release introduces a D1 operation-lock migration, its database rollback/forward plan must be documented separately before that release replaces this snapshot.
 
 ## After a successful production release
 
