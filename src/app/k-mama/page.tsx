@@ -78,7 +78,7 @@ export default function KMamaPage() {
               <a
                 href={kMamaMusic.cta.href}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className={styles.musicLink}
               >
                 {kMamaMusic.cta.label} <span aria-hidden="true">→</span>
