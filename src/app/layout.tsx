@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Google_Sans_Flex, Manrope } from "next/font/google";
 import "./globals.css";
+import "@/styles/album-artwork.css";
 
 const googleSansFlex = Google_Sans_Flex({
   subsets: ["latin"],
