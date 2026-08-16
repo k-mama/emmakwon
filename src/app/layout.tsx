@@ -25,14 +25,6 @@ export const metadata: Metadata = {
   authors: [{ name: "Emma Kwon" }],
   creator: "Emma Kwon",
   publisher: "Emma Kwon",
-  openGraph: {
-    type: "website",
-    siteName: "Emma Kwon",
-    title: "Emma Kwon",
-    description:
-      "Books, music, character worlds, children's creative work, and the Studio behind them.",
-    url: "/",
-  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
