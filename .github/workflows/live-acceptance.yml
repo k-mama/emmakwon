@@ -1,0 +1,236 @@
+name: Live Acceptance Probe
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-acceptance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    if: startsWith(github.event.head_commit.message, '[CF-Pages-Skip] Live acceptance probe')
+    name: Probe deployed production
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Prepare browser probe
+        run: |
+          mkdir -p /tmp/live-probe
+          cd /tmp/live-probe
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "$CHROME_BIN" ]; then
+            echo "No Chrome/Chromium executable found on runner." >&2
+            exit 1
+          fi
+          echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+
+      - name: Probe live public site and Access boundary
+        env:
+          BASE_URL: https://emmakwon.pages.dev
+        run: |
+          mkdir -p live-acceptance-screenshots
+          cat > /tmp/live-probe/check.cjs <<'EOF'
+          const { chromium } = require('/tmp/live-probe/node_modules/playwright-core');
+          const fs = require('node:fs');
+
+          const BASE = process.env.BASE_URL.replace(/\/$/, '');
+          const CHROME = process.env.CHROME_BIN;
+          const failures = [];
+          const report = { baseUrl: BASE, routes: [], viewports: [], access: [], textAssets: [] };
+
+          function fail(message) {
+            failures.push(message);
+            console.error(`FAIL: ${message}`);
+          }
+
+          function ok(message) {
+            console.log(`PASS: ${message}`);
+          }
+
+          async function manualFetch(path) {
+            return fetch(`${BASE}${path}`, {
+              redirect: 'manual',
+              headers: { 'user-agent': 'EmmaKwon-Live-Acceptance/1.0' },
+            });
+          }
+
+          const browser = await chromium.launch({
+            headless: true,
+            executablePath: CHROME,
+            args: ['--no-sandbox', '--disable-dev-shm-usage'],
+          });
+
+          try {
+            const desktop = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+            const page = await desktop.newPage();
+            await page.route('**/*.mp4', (route) => route.abort());
+
+            const routes = ['/', '/sly-fairy/', '/emmaestro/', '/k-mama/', '/books/', '/studio/', '/studio/notes/'];
+            for (const path of routes) {
+              let response;
+              try {
+                response = await page.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+              } catch (error) {
+                fail(`${path} navigation failed: ${error instanceof Error ? error.message : String(error)}`);
+                continue;
+              }
+
+              const status = response?.status() ?? 0;
+              const metrics = await page.evaluate(() => ({
+                title: document.title,
+                h1Count: document.querySelectorAll('h1').length,
+                mainCount: document.querySelectorAll('main').length,
+                scrollWidth: document.documentElement.scrollWidth,
+                innerWidth: window.innerWidth,
+                lang: document.documentElement.lang,
+                canonical: document.querySelector('link[rel="canonical"]')?.href ?? '',
+              }));
+
+              report.routes.push({ path, status, ...metrics });
+              if (status !== 200) fail(`${path} returned HTTP ${status}.`);
+              else ok(`${path} returned HTTP 200.`);
+              if (metrics.h1Count !== 1) fail(`${path} rendered ${metrics.h1Count} h1 elements.`);
+              if (metrics.mainCount !== 1) fail(`${path} rendered ${metrics.mainCount} main elements.`);
+              if (metrics.scrollWidth > metrics.innerWidth + 2) fail(`${path} has horizontal overflow (${metrics.scrollWidth}px > ${metrics.innerWidth}px).`);
+              if (metrics.lang.toLowerCase() !== 'en') fail(`${path} html lang is ${JSON.stringify(metrics.lang)}, expected en.`);
+              if (!metrics.canonical.startsWith(BASE)) fail(`${path} canonical is not on ${BASE}: ${metrics.canonical}`);
+            }
+            await desktop.close();
+
+            const viewportCases = [
+              { name: 'desktop', width: 1440, height: 1000, mode: 'desktop' },
+              { name: 'intermediate', width: 820, height: 1180, mode: 'intermediate' },
+              { name: 'mobile', width: 390, height: 844, mode: 'mobile' },
+            ];
+
+            for (const vp of viewportCases) {
+              const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
+              const home = await context.newPage();
+              await home.route('**/*.mp4', (route) => route.abort());
+              const response = await home.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+              await home.waitForTimeout(500);
+
+              if (!response || response.status() !== 200) {
+                fail(`Home ${vp.name} viewport did not return HTTP 200.`);
+                await context.close();
+                continue;
+              }
+
+              const metrics = await home.evaluate(() => {
+                const hero = document.querySelector('#hero');
+                const video = document.querySelector('#hero video');
+                const languageButtons = [...document.querySelectorAll('button[aria-label="Language — English"]')];
+                const visibleLanguage = languageButtons.some((element) => {
+                  const rect = element.getBoundingClientRect();
+                  const style = getComputedStyle(element);
+                  return rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden';
+                });
+                const heroRect = hero?.getBoundingClientRect();
+                const videoRect = video?.getBoundingClientRect();
+                return {
+                  innerWidth: window.innerWidth,
+                  innerHeight: window.innerHeight,
+                  scrollWidth: document.documentElement.scrollWidth,
+                  h1Count: document.querySelectorAll('h1').length,
+                  languageVisible: visibleLanguage,
+                  hero: heroRect ? { left: heroRect.left, top: heroRect.top, width: heroRect.width, height: heroRect.height } : null,
+                  video: videoRect ? { left: videoRect.left, top: videoRect.top, width: videoRect.width, height: videoRect.height } : null,
+                };
+              });
+
+              report.viewports.push({ ...vp, ...metrics });
+              if (metrics.scrollWidth > metrics.innerWidth + 2) fail(`Home ${vp.name} has horizontal overflow (${metrics.scrollWidth}px > ${metrics.innerWidth}px).`);
+              if (metrics.h1Count !== 1) fail(`Home ${vp.name} h1 count is ${metrics.h1Count}.`);
+              if (!metrics.languageVisible) fail(`Language globe is not visibly rendered at ${vp.name} viewport.`);
+              if (!metrics.video) fail(`Hero video is missing at ${vp.name} viewport.`);
+
+              if (metrics.video) {
+                const center = metrics.video.left + metrics.video.width / 2;
+                if (vp.mode !== 'mobile' && Math.abs(center - metrics.innerWidth / 2) > 3) {
+                  fail(`Hero video is not horizontally centered at ${vp.name}: center=${center.toFixed(2)}, viewportCenter=${(metrics.innerWidth / 2).toFixed(2)}.`);
+                }
+                if (vp.mode === 'mobile') {
+                  if (Math.abs(metrics.video.width - metrics.innerWidth) > 2) {
+                    fail(`Mobile hero video width is ${metrics.video.width.toFixed(2)}px, expected viewport width ${metrics.innerWidth}px.`);
+                  }
+                  const expectedRatio = 1080 / 1290;
+                  const actualRatio = metrics.video.width / metrics.video.height;
+                  if (Math.abs(actualRatio - expectedRatio) > 0.015) {
+                    fail(`Mobile hero aspect ratio drifted: ${actualRatio.toFixed(4)} vs expected ${expectedRatio.toFixed(4)}.`);
+                  }
+                }
+              }
+
+              await home.screenshot({ path: `live-acceptance-screenshots/home-${vp.name}.png`, fullPage: false });
+              ok(`Captured and measured home at ${vp.width}x${vp.height}.`);
+              await context.close();
+            }
+
+            for (const path of ['/robots.txt', '/sitemap.xml']) {
+              const response = await manualFetch(path);
+              const text = await response.text();
+              report.textAssets.push({ path, status: response.status, bytes: text.length });
+              if (response.status !== 200) fail(`${path} returned HTTP ${response.status}.`);
+              else ok(`${path} returned HTTP 200.`);
+              if (path === '/robots.txt' && !/Disallow:\s*\/admin/i.test(text)) fail('robots.txt does not disallow /admin.');
+              if (path === '/sitemap.xml') {
+                for (const expected of ['/sly-fairy/', '/emmaestro/', '/k-mama/', '/books/', '/studio/']) {
+                  if (!text.includes(`${BASE}${expected}`)) fail(`sitemap.xml is missing ${expected}.`);
+                }
+              }
+            }
+
+            for (const path of ['/admin', '/admin/', '/api/admin', '/api/admin/diagnostics']) {
+              const response = await manualFetch(path);
+              const location = response.headers.get('location') ?? '';
+              const protectedStatus = [301, 302, 303, 307, 308, 401, 403].includes(response.status);
+              report.access.push({ path, status: response.status, location: location.replace(/([?&](?:token|code|state)=)[^&]+/gi, '$1[redacted]') });
+              if (!protectedStatus) {
+                fail(`${path} is not blocked by the expected Access boundary (HTTP ${response.status}).`);
+              } else {
+                ok(`${path} is blocked before unauthenticated access (HTTP ${response.status}).`);
+              }
+            }
+          } finally {
+            await browser.close();
+          }
+
+          fs.writeFileSync('live-acceptance-screenshots/report.json', JSON.stringify(report, null, 2));
+          console.log('\nLIVE_ACCEPTANCE_REPORT');
+          console.log(JSON.stringify(report, null, 2));
+
+          if (failures.length) {
+            console.error(`\nLive acceptance failed with ${failures.length} issue(s):`);
+            failures.forEach((message) => console.error(`- ${message}`));
+            process.exit(1);
+          }
+
+          console.log('\nLive acceptance objective checks passed.');
+          EOF
+          node /tmp/live-probe/check.cjs
+
+      - name: Upload acceptance screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-acceptance-${{ github.sha }}
+          path: live-acceptance-screenshots/
+          if-no-files-found: warn
+          retention-days: 7
