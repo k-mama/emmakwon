@@ -11,7 +11,7 @@ export default function Hero() {
           <HeroVideo />
           <div className={styles.scrim} aria-hidden="true" />
           <div className={styles.copy}>
-            <p className={styles.headline}>THE WAVE IS ALREADY HERE.</p>
+            <h1 className={styles.headline}>THE WAVE IS ALREADY HERE.</h1>
             <p className={styles.sub}>Come surf it with me.</p>
           </div>
         </div>
