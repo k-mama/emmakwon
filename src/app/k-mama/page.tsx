@@ -88,6 +88,7 @@ export default function KMamaPage() {
                     alt={kMamaStories.imageAlt}
                     className={styles.artifactImage}
                     loading="lazy"
+                    decoding="async"
                   />
                 </div>
                 <figcaption className={styles.artifactLabel}>{kMamaStories.artifactLabel}</figcaption>
