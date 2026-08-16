@@ -68,7 +68,17 @@ body {
   padding: 0;
   width: 100%;
   max-width: 100%;
+  /* Fallback for older engines. Modern browsers use clip below so horizontal
+     overflow stays suppressed without creating a scroll container that can
+     interfere with position: sticky descendants such as the site header. */
   overflow-x: hidden;
+}
+
+@supports (overflow: clip) {
+  html,
+  body {
+    overflow-x: clip;
+  }
 }
 
 body {
