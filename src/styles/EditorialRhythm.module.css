@@ -1,0 +1,52 @@
+/* Shared rhythm rules for the public creative-house rooms.
+   These intentionally tune spacing and reading scale without flattening
+   each room's individual typography or color identity. */
+
+.heroSupport.heroSupport {
+  font-size: clamp(15px, 1.25vw, 17px);
+  line-height: 1.68;
+}
+
+/* A full-bleed color field is already a section boundary. Do not surround it
+   with a second large band of empty section padding. */
+.fullBleedSection.fullBleedSection {
+  padding-block: 0;
+}
+
+.fullBleedStage.fullBleedStage {
+  padding-block: clamp(92px, 10vw, 142px);
+}
+
+/* EMMAESTRO's classical field is intentionally cinematic, but it should not
+   become a nearly empty 720px slab when no film or artwork is present. */
+.classicalStage.classicalStage {
+  min-height: clamp(440px, 54vw, 640px);
+  padding-block: clamp(72px, 8vw, 112px);
+}
+
+.ending.ending {
+  padding-block: clamp(92px, 11vw, 156px);
+}
+
+@media (max-width: 760px) {
+  .heroSupport.heroSupport {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .fullBleedStage.fullBleedStage {
+    padding-top: 78px;
+    padding-bottom: 86px;
+  }
+
+  .classicalStage.classicalStage {
+    min-height: 62svh;
+    padding-top: 62px;
+    padding-bottom: 70px;
+  }
+
+  .ending.ending {
+    padding-top: 80px;
+    padding-bottom: 88px;
+  }
+}
