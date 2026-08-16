@@ -62,6 +62,7 @@ export default function HeroVideo() {
       loop
       playsInline
       preload="metadata"
+      poster="/media/surf-ai-poster.webp"
       aria-hidden="true"
     >
       <source src="/media/surf-ai.mp4" type="video/mp4" />
