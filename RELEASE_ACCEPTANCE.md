@@ -1,28 +1,30 @@
 # Emma Kwon Website — Release Acceptance
 
-Status: `RELEASED — PUBLIC_LIVE_ACCEPTED — AUTHENTICATED_ADMIN_SMOKE_PENDING`
+Status: `PRODUCTION_LKG — LOCKED`
 
-Production release triggered and deployed on 2026-08-16.
+Production release triggered, deployed, publicly accepted, and authenticated-runtime accepted on 2026-08-16.
 
-## Current production state
+## Production LKG
 
-The QA 20 release candidate was intentionally released through one non-skip commit:
+`PRODUCTION_LKG = beac618e8b7ff5d4a58f0ff567defa14b4d01dee`
 
-`beac618e8b7ff5d4a58f0ff567defa14b4d01dee`
-
-Commit message:
+Release commit message:
 
 `Release production: QA20 release candidate`
 
-Cloudflare Pages reported **Deployed successfully / Deploy successful** for that exact commit. The public production site was then probed from a GitHub-hosted Chrome browser against `https://emmakwon.pages.dev`.
+This is the current live-verified last-known-good production application state.
 
-The deployed commit above is the current **PRODUCTION_LKG candidate**, but it is not promoted to `PRODUCTION_LKG` yet because the authenticated Admin smoke test is still pending.
+Later `[CF-Pages-Skip]` commits are repository-only documentation / validation-tooling changes and did not replace the deployed production application.
 
-Later `[CF-Pages-Skip]` commits that add or fix the live-acceptance workflow are repository-only validation tooling and did not replace the deployed production application.
+## Cloudflare deployment — passed
+
+Cloudflare Pages reported **Deployed successfully / Deploy successful** for the exact production release commit above.
+
+The deployment was not inferred from GitHub Site CI. It was separately observed through the Cloudflare Pages check for the release SHA.
 
 ## Live public acceptance — passed
 
-The successful Live Acceptance Probe ran from commit:
+The successful browser-based Live Acceptance Probe ran from repository validation commit:
 
 `6e8c3f850d80fe207a5120c950c9904d0fdcd4d2`
 
@@ -30,7 +32,7 @@ GitHub Actions run:
 
 `31938302014`
 
-The probe used a real headless Chrome session against the production hostname and passed all objective checks below.
+The probe used a real headless Chrome session against `https://emmakwon.pages.dev`.
 
 ### Public routes
 
@@ -73,7 +75,7 @@ Desktop Hero video geometry measured:
 - width: `837.203125px`
 - viewport width: `1440px`
 
-Its center is therefore the exact viewport center.
+The video center matched the exact viewport center.
 
 Intermediate Hero video geometry measured:
 
@@ -81,7 +83,7 @@ Intermediate Hero video geometry measured:
 - width: `754.390625px`
 - viewport width: `820px`
 
-It is also horizontally centered.
+It was also horizontally centered.
 
 Mobile Hero video geometry measured:
 
@@ -90,7 +92,7 @@ Mobile Hero video geometry measured:
 - height: `465.828125px`
 - viewport width: `390px`
 
-The mobile Hero is edge-to-edge and retains the intended `1080 / 1290` source aspect ratio without the desktop centering treatment being incorrectly shrunk onto mobile.
+The mobile Hero is edge-to-edge and retains the intended `1080 / 1290` source aspect ratio.
 
 ### SEO live files
 
@@ -101,7 +103,7 @@ Production HTTP 200 confirmed for:
 
 `robots.txt` disallows `/admin`, and the sitemap contains the required public room routes.
 
-### Cloudflare Access boundary — verified live
+## Cloudflare Access boundary — verified live
 
 Unauthenticated production requests were redirected by Cloudflare Access before reaching the protected Admin/API surface:
 
@@ -110,90 +112,94 @@ Unauthenticated production requests were redirected by Cloudflare Access before 
 - `/api/admin` → HTTP 302
 - `/api/admin/diagnostics` → HTTP 302
 
-The redirect target was the configured Cloudflare Access login domain. This is live evidence that the Access boundary exists for the four required parent/wildcard surfaces; it is no longer merely a repository assumption.
+The redirect target was the configured Cloudflare Access login domain.
 
-## Remaining acceptance — authenticated Admin smoke only
+## Authenticated runtime acceptance — passed
 
-The only acceptance items still pending require an authenticated Cloudflare Access session and therefore cannot be truthfully completed by unauthenticated CI or by repository inspection.
+An authenticated operator session completed the final checks after the public live acceptance.
 
-Before promoting the deployed commit to `PRODUCTION_LKG`:
+### Diagnostics
 
-1. Sign in through Cloudflare Access.
-2. Open `/api/admin/diagnostics`.
-3. Require HTTP 200 with both D1 and GitHub read checks reporting `status: "ok"`.
-4. Open Studio Admin and confirm the post list loads.
-5. Save one harmless draft/edit without publishing or deleting production content merely for testing.
-6. If any error appears, confirm it includes `Reference: code / requestId` and follow `INCIDENT_DIAGNOSTICS.md`.
+`/api/admin/diagnostics` returned:
 
-Do not use Publish or Delete as a smoke test unless an actual editorial change is intended.
+- `ok: true`
+- D1 check: `status: "ok"`
+- authenticated GitHub read check: `status: "ok"`
 
-After these authenticated checks pass, record:
+This confirms the production D1 binding and the GitHub Contents read path are healthy behind Cloudflare Access.
+
+### Studio Admin
+
+The authenticated Studio Admin loaded successfully and displayed the current D1-backed post inventory, including drafts and the five published Studio Notes.
+
+A published post was opened and a harmless **Save Changes** operation was exercised without changing content, publishing, or deleting. The UI returned from `Saving…` to the normal `Save Changes` state with no error notice.
+
+This completes the authenticated Admin smoke test required for production promotion.
+
+## Production lock decision
+
+The release has now satisfied all required acceptance layers:
+
+1. GitHub release verification green.
+2. Intentional one-build production release.
+3. Cloudflare Pages deploy success.
+4. Desktop live acceptance.
+5. Intermediate/tablet live acceptance.
+6. Mobile live acceptance.
+7. Public route / SEO live checks.
+8. Cloudflare Access boundary verified live.
+9. Authenticated D1 diagnostics passed.
+10. Authenticated GitHub read diagnostics passed.
+11. Studio Admin post inventory loaded.
+12. Harmless authenticated Admin save passed.
+
+Therefore:
 
 `PRODUCTION_LKG = beac618e8b7ff5d4a58f0ff567defa14b4d01dee`
 
-in a later `[CF-Pages-Skip]` documentation commit. Do not create another application deployment merely to record the LKG state.
+No new application deployment is required to record this state.
 
-## Current recovery snapshot
+## Historical pre-release recovery baseline
 
-The pre-release rendered/runtime/recovery/change-control baseline remains:
+The final pre-release rendered/runtime/recovery/change-control baseline remains available as:
 
 `cccad3549f4a3fcb7f46a6893617be091353c630`
 
-That SHA remains a verified rollback baseline for the application tree. The successfully deployed production commit is `beac618e8b7ff5d4a58f0ff567defa14b4d01dee`.
+It remains a useful historical QA 20 baseline, but the default production application rollback target is now the live-verified `PRODUCTION_LKG` above.
 
 Application rollback rules are in `RELEASE_ROLLBACK.md`; Studio editorial-data recovery rules are in `STUDIO_DATA_RECOVERY.md`.
-
-## Release procedure used
-
-The production release followed the QA 20 change-control contract:
-
-1. Iterative QA work remained `[CF-Pages-Skip]`.
-2. The release candidate passed Site CI.
-3. Only `RELEASE_ACCEPTANCE.md` was changed in the release-trigger commit.
-4. The commit message began `Release production:` and intentionally omitted `[CF-Pages-Skip]`.
-5. `scripts/check-deploy-intent.mjs` classified it as an approved production release.
-6. GitHub Site CI passed deployment-intent policy, repository security, production dependency audit, Cloudflare Functions typecheck, lint, production build, and static-export verification.
-7. Cloudflare Pages deployed the exact release commit successfully.
-8. The public production site passed the browser-based Live Acceptance Probe described above.
 
 ## Acceptance coverage already automated
 
 Release verification covers repository secret/configuration/backup invariants, production dependency advisories at High/Critical severity, Cloudflare Pages Functions TypeScript compilation, lint, Next.js production build/static export, required routes/files, internal links and anchors, asset paths, canonical/Open Graph/Twitter metadata, robots/sitemap, public Studio publishing invariants, admin noindex, approved external destinations, safe Studio external-media rendering, and public accessibility invariants including H1/main/lang/image alt/button names/new-window link safety.
 
-QA 17 locks the runtime contracts that static HTML checks cannot prove alone: optimistic version guards for admin mutations, D1 zero-row-write detection, no-change save preservation, idempotent GitHub public-content writes, bounded GitHub/browser requests, no-store Admin API responses, and separate Cloudflare Functions typechecking.
+QA 17 locks runtime resilience: optimistic version guards, D1 zero-row-write detection, no-change save preservation, idempotent GitHub public-content writes, bounded requests, no-store Admin API responses, and separate Cloudflare Functions typechecking.
 
-QA 18 adds incident observability without exposing editorial data: server-generated request IDs, stable Admin API error codes, structured safe runtime logs, browser-visible diagnostic references, and a protected read-only `/api/admin/diagnostics` probe for D1 connectivity and authenticated GitHub content reads. Operating procedure is documented in `INCIDENT_DIAGNOSTICS.md`.
+QA 18 adds incident observability: request IDs, stable Admin API error codes, safe structured logs, diagnostic references, and the protected read-only `/api/admin/diagnostics` probe.
 
-QA 19 separates public-content recovery from private-editorial recovery. `src/content/studio-posts.json` remains the Git-backed source for published content only; full D1 exports are private and gitignored; the published-content seed is generated on demand instead of being committed stale; and repository security rejects both tracked `.studio-backups/` files and a tracked generated seed.
+QA 19 separates public-content recovery from private-editorial recovery. Public Git JSON is not a substitute for a full D1 backup when drafts or unpublished edits matter.
 
-QA 20 places the site under change control. `CHANGE_CONTROL.md` defines Class 0–4 changes, `scripts/check-deploy-intent.mjs` classifies non-skip pushes to `main`, and Site CI tests allowed Studio publish/remove, intentional application release, accidental non-skip, and rollback cases.
-
-The Live Acceptance Probe adds an external production check without causing another Cloudflare deployment. Its screenshot/report artifact is retained by GitHub Actions for the configured retention window.
+QA 20 places the site under change control. `CHANGE_CONTROL.md` defines the release classifications and `[CF-Pages-Skip]` remains the primary control for iterative work.
 
 ## Runtime assumptions and boundaries
 
 - The Admin is intentionally single-creator.
 - Same-tab mutations are serialized by the UI and stale multi-tab edits are rejected by `updatedAt` version checks.
-- There is no global distributed Publish/Delete lock across separate tabs. Do not expand the Admin to multiple simultaneous editors without first designing and deploying an explicit D1 lock/lease migration.
+- There is no global distributed Publish/Delete lock across separate tabs. Do not expand this Admin to multiple simultaneous editors without first designing and deploying an explicit D1 lock/lease migration.
 - Repeating a publish/delete that already matches public GitHub state must remain a no-op so it does not create a needless GitHub commit or Cloudflare build.
 - A browser timeout is an uncertain outcome, not proof that the server did nothing. Refresh Admin state before retrying a timed-out mutation.
 - Diagnostic logs must never include post bodies, request bodies, tokens, authorization headers, passphrases, D1 row dumps, or environment-variable values.
 - `/api/admin/diagnostics` is read-only and incident-driven. It must remain protected by Cloudflare Access and must not become an automatic polling loop.
 - `studio-posts.json` and an on-demand published seed are not substitutes for a full D1 backup when private drafts/unpublished edits matter.
-- QA 17–20 require no new production D1 migration; the release remains compatible with the existing `studio_posts` schema.
 
 ## Security state
 
 Verified live:
 
-- Cloudflare Access blocks unauthenticated access to the four required Admin/API paths.
-
-Still operator-authenticated by nature:
-
-- diagnostics behind Access;
-- D1 binding health after authentication;
-- authenticated GitHub Contents read through the Functions runtime;
-- harmless Admin save.
+- Cloudflare Access protects the required Admin/API paths.
+- D1 production binding is healthy behind authenticated Access.
+- authenticated GitHub Contents read is healthy.
+- authenticated Studio Admin loading and save path are healthy.
 
 Repository constraints that remain mandatory:
 
@@ -217,7 +223,7 @@ Preserve the approved bright-luxury creative-house direction, including:
 
 ## Post-release discipline
 
-The site is no longer in open-ended rebuild mode.
+The site is now production-locked, not in open-ended rebuild mode.
 
 For any new change:
 
