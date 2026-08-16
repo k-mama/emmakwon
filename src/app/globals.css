@@ -100,23 +100,19 @@ section[id] {
   scroll-margin-top: calc(var(--header-height) + 18px);
 }
 
-/* The ONE continuous Emma Kwon atmosphere behind the entire homepage — no
-   per-section backgrounds. Sections are transparent; only content surfaces
-   (room cards, the Studio panel, the Contact card, the portrait card) have
-   their own light or dark fill. Built from large, soft, off-center radial
-   blooms (not a conic sweep) so there is no pinwheel/starburst convergence
-   point — just air-like color that stays legible under body text
-   everywhere. --color-ivory (body's own background) is the fallback
-   underneath. */
+/* One continuous creative-house atmosphere. The hues stay recognisably Emma,
+   but each bloom is mixed into a warm mineral grey rather than pure white so
+   the page reads polished and luminous instead of candy-bright. */
 .atmosphere {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(62% 58% at 14% 12%, color-mix(in srgb, var(--sky-aqua) 55%, white) 0%, transparent 72%),
-    radial-gradient(62% 58% at 87% 16%, color-mix(in srgb, var(--playful-violet) 50%, white) 0%, transparent 72%),
-    radial-gradient(66% 62% at 90% 90%, color-mix(in srgb, var(--candy-pink) 50%, white) 0%, transparent 74%),
-    radial-gradient(62% 58% at 10% 92%, color-mix(in srgb, var(--tiger-gold) 45%, white) 0%, transparent 72%),
+  background:
+    radial-gradient(62% 58% at 14% 12%, color-mix(in srgb, var(--sky-aqua) 38%, #ebe9e6) 0%, transparent 72%),
+    radial-gradient(62% 58% at 87% 16%, color-mix(in srgb, var(--playful-violet) 34%, #ebe9e6) 0%, transparent 72%),
+    radial-gradient(66% 62% at 90% 90%, color-mix(in srgb, var(--candy-pink) 34%, #eee9e7) 0%, transparent 74%),
+    radial-gradient(62% 58% at 10% 92%, color-mix(in srgb, var(--tiger-gold) 30%, #ece9e4) 0%, transparent 72%),
     var(--cream-white);
   animation: rareLightDrift 24s ease-in-out infinite;
 }
