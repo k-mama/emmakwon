@@ -34,6 +34,9 @@ jobs:
       - name: Check deployment intent
         run: node scripts/check-deploy-intent.mjs
 
+      - name: Test deployment-intent policy
+        run: node scripts/test-deploy-intent.mjs
+
       - name: Install dependencies
         run: npm ci
 
