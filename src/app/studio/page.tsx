@@ -2,11 +2,9 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NoteList from "@/components/studio/NoteList";
-import ShowroomArchiveRail from "@/components/showroom/ShowroomArchiveRail";
 import {
   studioHero,
   studioPillars,
-  studioWorkbench,
   getFeaturedPost,
   getPostsByCategory,
   getPublishedPosts,
@@ -31,29 +29,32 @@ export default function StudioPage() {
       <Header opaque />
       <main>
         <section className={styles.hero} aria-labelledby="studio-heading">
-          <div className="container">
-            <div className={styles.heroPanel}>
-              <p className={styles.eyebrow}>{studioHero.eyebrow}</p>
-              <h1 id="studio-heading" className={styles.headline}>
-                {studioHero.headlineLines.map((line) => (
-                  <span key={line} className={styles.headlineLine}>
-                    {line}
-                  </span>
-                ))}
-              </h1>
-              <p className={styles.supporting}>{studioHero.supporting}</p>
+          <div className={styles.heroPanel}>
+            <div className={styles.heroGrid}>
+              <div className={styles.heroCopy}>
+                <p className={styles.eyebrow}>{studioHero.eyebrow}</p>
+                <h1 id="studio-heading" className={styles.headline}>
+                  {studioHero.headlineLines.map((line) => (
+                    <span key={line} className={styles.headlineLine}>
+                      {line}
+                    </span>
+                  ))}
+                </h1>
+                <p className={styles.supporting}>{studioHero.supporting}</p>
+              </div>
+
+              <figure className={styles.heroImageFrame}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/archive/emma/studio-candid.jpg"
+                  alt="Emma Kwon working in the studio"
+                  className={styles.heroImage}
+                />
+                <figcaption className={styles.heroImageCaption}>IN THE STUDIO</figcaption>
+              </figure>
             </div>
           </div>
         </section>
-
-        <ShowroomArchiveRail
-          id="workbench"
-          eyebrow={studioWorkbench.eyebrow}
-          title={studioWorkbench.title}
-          intro={studioWorkbench.intro}
-          items={studioWorkbench.items}
-          tone="studio"
-        />
 
         <section id="learn" className={styles.pillar} aria-labelledby="learn-heading">
           <div className="container">
@@ -73,9 +74,6 @@ export default function StudioPage() {
                     <span className={styles.featuredExcerpt}>{learnPost.excerpt}</span>
                   </Link>
                 )}
-                <Link className={styles.pillarCta} href={studioPillars.learn.cta.href}>
-                  {studioPillars.learn.cta.label} <span aria-hidden="true">→</span>
-                </Link>
               </div>
             </div>
           </div>
@@ -110,9 +108,6 @@ export default function StudioPage() {
                     ))}
                   </ul>
                 )}
-                <Link className={styles.pillarCta} href={studioPillars.build.cta.href}>
-                  {studioPillars.build.cta.label} <span aria-hidden="true">→</span>
-                </Link>
               </div>
             </div>
           </div>
@@ -136,9 +131,6 @@ export default function StudioPage() {
                     <span className={styles.featuredExcerpt}>{makePost.excerpt}</span>
                   </Link>
                 )}
-                <Link className={styles.pillarCta} href={studioPillars.make.cta.href}>
-                  {studioPillars.make.cta.label} <span aria-hidden="true">→</span>
-                </Link>
               </div>
             </div>
           </div>
