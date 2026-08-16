@@ -66,7 +66,6 @@ export default function CinematicVideo({ src, poster, alt = "" }: CinematicVideo
       className={styles.asset}
       src={src}
       poster={poster}
-      autoPlay
       muted
       loop
       playsInline
