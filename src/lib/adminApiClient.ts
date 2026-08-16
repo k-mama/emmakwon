@@ -6,9 +6,10 @@
 // If these calls fail — most commonly because there's no Cloudflare
 // Functions runtime at all (e.g. running under plain `next dev`, or D1
 // isn't bound yet in production) — callers must show that honestly
-// ("Publishing backend not configured") rather than silently falling
-// back to a local save that looks like it worked.
+// rather than silently falling back to a local save that looks like it worked.
 import type { StudioPost } from "@/content/studio";
+
+const REQUEST_TIMEOUT_MS = 30_000;
 
 export class AdminApiError extends Error {
   status: number;
@@ -19,29 +20,54 @@ export class AdminApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
   let response: Response;
   try {
     response = await fetch(path, {
       ...init,
+      cache: "no-store",
+      signal: controller.signal,
       headers: { "Content-Type": "application/json", ...init?.headers },
     });
   } catch {
-    throw new AdminApiError("Publishing backend not configured.", 0);
+    if (controller.signal.aborted) {
+      throw new AdminApiError(
+        "The admin request timed out. The server may still have completed the operation, so refresh before retrying it.",
+        408,
+      );
+    }
+    throw new AdminApiError("Publishing backend not configured or temporarily unreachable.", 0);
+  } finally {
+    clearTimeout(timeout);
   }
 
   const contentType = response.headers.get("content-type") ?? "";
   if (!contentType.includes("application/json")) {
-    // No Functions runtime answered with JSON at all — most likely
-    // there's no backend here (e.g. plain `next dev`).
-    throw new AdminApiError("Publishing backend not configured.", response.status);
+    throw new AdminApiError("Publishing backend returned an unexpected response.", response.status);
   }
 
-  const body = await response.json();
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch {
+    throw new AdminApiError("Publishing backend returned invalid JSON.", response.status);
+  }
+
   if (!response.ok) {
-    throw new AdminApiError(body?.error ?? "Request failed.", response.status);
+    const message =
+      body && typeof body === "object" && "error" in body && typeof (body as { error?: unknown }).error === "string"
+        ? (body as { error: string }).error
+        : "Request failed.";
+    throw new AdminApiError(message, response.status);
   }
 
   return body as T;
+}
+
+function postPath(id: string): string {
+  return `/api/admin/posts/${encodeURIComponent(id)}`;
 }
 
 export function fetchAllPosts(): Promise<StudioPost[]> {
@@ -49,7 +75,7 @@ export function fetchAllPosts(): Promise<StudioPost[]> {
 }
 
 export function fetchPost(id: string): Promise<StudioPost> {
-  return request<{ post: StudioPost }>(`/api/admin/posts/${id}`).then((data) => data.post);
+  return request<{ post: StudioPost }>(postPath(id)).then((data) => data.post);
 }
 
 export function createDraft(initial: Partial<StudioPost> = {}): Promise<StudioPost> {
@@ -65,19 +91,27 @@ export function savePost(id: string, patch: Partial<StudioPost>): Promise<Studio
   // /admin/posts/new must never create a phantom draft.
   if (!id) return createDraft(patch);
 
-  return request<{ post: StudioPost }>(`/api/admin/posts/${id}`, {
+  return request<{ post: StudioPost }>(postPath(id), {
     method: "PATCH",
     body: JSON.stringify(patch),
   }).then((data) => data.post);
 }
 
-export function deletePost(id: string): Promise<void> {
-  // Deleting an unsaved New Post is already complete: there is no D1 row.
+export function deletePost(id: string, expectedUpdatedAt?: string): Promise<void> {
   if (!id) return Promise.resolve();
 
-  return request(`/api/admin/posts/${id}`, { method: "DELETE" }).then(() => undefined);
+  return request(postPath(id), {
+    method: "DELETE",
+    body: JSON.stringify({ expectedUpdatedAt }),
+  }).then(() => undefined);
 }
 
-export function publishPost(id: string): Promise<{ commitSha: string; publishedAt: string }> {
-  return request(`/api/admin/posts/${id}/publish`, { method: "POST" });
+export function publishPost(
+  id: string,
+  expectedUpdatedAt?: string,
+): Promise<{ commitSha: string | null; publishedAt: string; unchanged: boolean }> {
+  return request(`${postPath(id)}/publish`, {
+    method: "POST",
+    body: JSON.stringify({ expectedUpdatedAt }),
+  });
 }
