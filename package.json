@@ -9,8 +9,9 @@
     "lint": "eslint",
     "check:site": "node scripts/check-static-site.mjs",
     "check:security": "node scripts/check-repo-security.mjs",
+    "check:functions": "tsc -p functions/tsconfig.json --noEmit",
     "audit:prod": "npm audit --omit=dev --audit-level=high",
-    "verify:release": "npm run check:security && npm run audit:prod && npm run lint && npm run build && npm run check:site"
+    "verify:release": "npm run check:security && npm run audit:prod && npm run check:functions && npm run lint && npm run build && npm run check:site"
   },
   "dependencies": {
     "next": "16.3.0",
