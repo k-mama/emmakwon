@@ -12,8 +12,6 @@
 
 .triggerOverlay {
   color: var(--nav-navy);
-  /* Subtle light halo (not a dark shadow) keeps the navy icon readable
-     over the video without dimming its color. */
   filter: drop-shadow(0 1px 8px rgba(255, 253, 247, 0.55));
 }
 
@@ -24,8 +22,6 @@
   }
 }
 
-/* Two thin, identical typographic lines rather than a heavy 3-bar
-   hamburger — precision and restraint, not mismatched line lengths. */
 .triggerLines {
   position: relative;
   width: 19px;
@@ -50,9 +46,6 @@
   top: 7.5px;
 }
 
-/* Thin warm editorial veil: keep the Hero video clearly present behind the
-   menu. The tint separates the interface from the moving image while the
-   deliberately light blur preserves the video's shape and color. */
 .overlay {
   position: fixed;
   inset: 0;
@@ -83,8 +76,6 @@
   }
 }
 
-/* The menu has its own header layer so the original page header cannot show
-   through and double the EMMA KWON wordmark. The menu body stays translucent. */
 .overlayHeader {
   position: relative;
   z-index: 2;
@@ -112,13 +103,6 @@
   white-space: nowrap;
 }
 
-.overlayUtilities {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 0;
-}
-
 .closeBtn {
   display: inline-flex;
   align-items: center;
@@ -126,6 +110,7 @@
   width: 44px;
   height: 44px;
   padding: 0;
+  margin-left: auto;
   color: var(--nav-navy);
   transition: color 0.2s ease-out, text-shadow 0.2s ease-out;
 }
@@ -136,18 +121,6 @@
   text-shadow: 0 0 8px rgba(110, 223, 235, 0.28);
 }
 
-.headerLanguageTrigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 6px;
-  margin-right: -6px;
-  color: var(--nav-navy);
-}
-
-/* The two lines rotate in to form a minimal X — quiet, no bounce. */
 .closeLines {
   position: relative;
   width: 17px;
