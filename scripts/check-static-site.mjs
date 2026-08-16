@@ -17,6 +17,12 @@ const requiredRoutes = [
   "/studio/notes/",
 ];
 
+const approvedExternalLinks = new Set([
+  "https://www.instagram.com/the_real_emma_kwon",
+  "https://www.youtube.com/@emmaestro123",
+  "https://www.youtube.com/@kmama_studio",
+]);
+
 const requiredFiles = ["404.html", "robots.txt", "sitemap.xml"];
 const errors = [];
 const warnings = [];
@@ -200,10 +206,17 @@ for (const [relativeFile, html] of htmlByFile) {
 
     for (const anchorMatch of html.matchAll(/<a\b([^>]*)>/gi)) {
       const attributes = anchorMatch[1];
+      const href = extract(attributes, /\bhref\s*=\s*["']([^"']+)["']/i) ?? "";
+      const isExternal = /^https?:\/\//i.test(href);
+
+      if (isExternal && !approvedExternalLinks.has(href)) {
+        fail(`${currentRoute} contains an unapproved external destination: ${href}`);
+      }
+
       if (!/\btarget\s*=\s*["']_blank["']/i.test(attributes)) continue;
       const rel = extract(attributes, /\brel\s*=\s*["']([^"']+)["']/i) ?? "";
-      if (!/\b(?:noopener|noreferrer)\b/i.test(rel)) {
-        fail(`${currentRoute} contains target="_blank" without rel="noopener" or rel="noreferrer".`);
+      if (!/\bnoopener\b/i.test(rel) || !/\bnoreferrer\b/i.test(rel)) {
+        fail(`${currentRoute} contains target="_blank" without rel="noopener noreferrer".`);
       }
     }
   }
@@ -327,4 +340,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Static integrity check passed: ${htmlFiles.length} HTML files, ${publishedNotePages.length} published Studio Notes, public content and accessibility invariants verified.`);
+console.log(`Static integrity check passed: ${htmlFiles.length} HTML files, ${publishedNotePages.length} published Studio Notes, public content, external destinations, and accessibility invariants verified.`);
