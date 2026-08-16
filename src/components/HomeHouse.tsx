@@ -2,9 +2,16 @@ import Link from "next/link";
 import { houseIndex } from "@/content/home";
 import styles from "./HomeHouse.module.css";
 
+const homeHouseBackground = [
+  "radial-gradient(64% 54% at 8% 12%, rgba(126, 218, 226, 0.24) 0%, rgba(126, 218, 226, 0) 72%)",
+  "radial-gradient(58% 54% at 92% 20%, rgba(202, 164, 218, 0.2) 0%, rgba(202, 164, 218, 0) 74%)",
+  "radial-gradient(62% 58% at 86% 92%, rgba(239, 165, 180, 0.16) 0%, rgba(239, 165, 180, 0) 74%)",
+  "#fcfbf8",
+].join(", ");
+
 export default function HomeHouse() {
   return (
-    <section className={styles.house} aria-labelledby="house-title">
+    <section className={styles.house} style={{ background: homeHouseBackground }} aria-labelledby="house-title">
       <div className="container">
         <header className={styles.intro}>
           <p className={styles.eyebrow}>{houseIndex.eyebrow}</p>
