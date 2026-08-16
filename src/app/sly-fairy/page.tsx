@@ -17,6 +17,7 @@ import CinematicStage from "./CinematicStage";
 import styles from "./page.module.css";
 import questionStyles from "./question.module.css";
 import paletteStyles from "@/styles/RoomPalettes.module.css";
+import rhythmStyles from "@/styles/EditorialRhythm.module.css";
 
 export const metadata = {
   title: "Sly Fairy — Emma Kwon",
@@ -36,7 +37,9 @@ export default function SlyFairyPage() {
               {slyFairyHero.title}
             </h1>
             <p className={styles.heroTagline}>{slyFairyHero.tagline}</p>
-            <p className={styles.heroSupporting}>{slyFairyHero.supporting}</p>
+            <p className={`${styles.heroSupporting} ${rhythmStyles.heroSupport}`}>
+              {slyFairyHero.supporting}
+            </p>
           </div>
         </section>
 
@@ -154,7 +157,7 @@ export default function SlyFairyPage() {
           </div>
         </section>
 
-        <section className={styles.ending}>
+        <section className={`${styles.ending} ${rhythmStyles.ending}`}>
           <div className="container">
             <h2 className={styles.endingHeadline}>{endingCta.headline}</h2>
             <Link href={endingCta.cta.href} className={styles.endingLink}>
