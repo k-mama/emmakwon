@@ -42,39 +42,8 @@ export type StudioPost = {
 
 export const studioHero = {
   eyebrow: "STUDIO",
-  headlineLines: ["What I'm learning.", "What I'm making.", "What actually worked."],
+  headlineLines: ["What I'm learning.", "What I'm building.", "What I'm making."],
   supporting: "Notes from the work behind Emma Kwon.",
-};
-
-export const studioWorkbench = {
-  eyebrow: "ON THE WORKBENCH",
-  title: "Three ways the work moves.",
-  intro:
-    "This room is designed to stay useful while the projects keep changing. Notes, experiments, finished pieces, and things still becoming can all enter through the same three doors.",
-  items: [
-    {
-      label: "01 / LEARN",
-      title: "Notice something new.",
-      note: "Language, tools, methods, and the useful things that are still being learned in public.",
-      href: "#learn",
-    },
-    {
-      label: "02 / BUILD",
-      title: "Make the system work.",
-      note: "Websites, AI workflows, publishing systems, experiments, and the engineering behind the visible work.",
-      href: "#build",
-    },
-    {
-      label: "03 / MAKE",
-      title: "Turn it into something.",
-      note: "Music, characters, books, films, and whatever leaves the workbench next.",
-      href: "#make",
-      media: {
-        src: "/archive/emma/studio-candid.jpg",
-        alt: "Emma Kwon working in the studio.",
-      },
-    },
-  ],
 };
 
 export type StudioPillar = {
@@ -82,7 +51,6 @@ export type StudioPillar = {
   label: string;
   headline: string;
   descriptor: string;
-  cta: { label: string; href: string };
 };
 
 export const studioPillars: Record<"learn" | "build" | "make", StudioPillar> = {
@@ -91,21 +59,18 @@ export const studioPillars: Record<"learn" | "build" | "make", StudioPillar> = {
     label: "LEARN",
     headline: "What I'm learning.",
     descriptor: "English I'm learning in Brisbane.",
-    cta: { label: "VIEW STUDIO NOTES", href: "/studio/notes/" },
   },
   build: {
     number: "02",
     label: "BUILD",
     headline: "How I make things with AI.",
     descriptor: "Real projects, real prompts, what actually worked.",
-    cta: { label: "VIEW ALL NOTES", href: "/studio/notes/" },
   },
   make: {
     number: "03",
     label: "MAKE",
     headline: "What I'm making now.",
     descriptor: "Music, characters, books, and whatever I'm making next.",
-    cta: { label: "VIEW STUDIO NOTES", href: "/studio/notes/" },
   },
 };
 
