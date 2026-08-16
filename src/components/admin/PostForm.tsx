@@ -95,7 +95,7 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
     }
 
     try {
-      const result = await publishPost(saved.id);
+      const result = await publishPost(saved.id, saved.updatedAt);
       setPost((prev) => ({ ...prev, status: "published", publishedAt: result.publishedAt, scheduledAt: undefined }));
       setPublishState("published");
     } catch (error) {
@@ -113,7 +113,7 @@ export default function PostForm({ post: initialPost }: { post: StudioPost }) {
     setDeleting(true);
     setDeleteError(null);
     try {
-      await deletePostApi(post.id);
+      await deletePostApi(post.id, post.updatedAt);
       router.push("/admin/posts/");
     } catch (error) {
       setDeleting(false);
