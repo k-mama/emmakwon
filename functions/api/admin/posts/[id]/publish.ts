@@ -2,21 +2,7 @@ import type { PagesFunction } from "@cloudflare/workers-types";
 import { errorJson, json, type Env } from "../../../../_shared/env";
 import { getPost, markPublished, recordPublishError } from "../../../../../src/lib/studioRepository";
 import { publishPostToGithub, validatePost, type GithubConfig } from "../../../../../src/lib/studioPublisher";
-
-function paramId(params: Record<string, string | string[]>): string {
-  const value = params.id;
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function publicExternalMedia(post: Awaited<ReturnType<typeof getPost>>) {
-  if (!post?.externalMedia) return undefined;
-
-  const valid = post.externalMedia
-    .map((media) => ({ label: media.label.trim(), url: media.url.trim() }))
-    .filter((media) => media.label && media.url && media.url !== "#");
-
-  return valid.length ? valid : undefined;
-}
+import { sanitizePublicExternalMedia } from "../../../../../src/lib/publicUrl";
 
 /**
  * The one real "Publish Now" path: validate → sanitize public-only link
@@ -26,7 +12,8 @@ function publicExternalMedia(post: Awaited<ReturnType<typeof getPost>>) {
  */
 export const onRequestPost: PagesFunction<Env, "id"> = async (context) => {
   const { env } = context;
-  const id = paramId(context.params);
+  const rawId = context.params.id;
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
   const post = await getPost(env.STUDIO_DB, id);
   if (!post) return errorJson("Post not found.", 404);
 
@@ -52,7 +39,7 @@ export const onRequestPost: PagesFunction<Env, "id"> = async (context) => {
     ...post,
     status: "published",
     publishedAt,
-    externalMedia: publicExternalMedia(post),
+    externalMedia: sanitizePublicExternalMedia(post.externalMedia),
   });
 
   if (!result.ok) {
