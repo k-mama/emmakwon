@@ -22,18 +22,28 @@ const forbiddenTrackedFiles = [
   /^\.env(?:\.|$)/i,
   /^\.dev\.vars(?:\.|$)/i,
   /^\.wrangler(?:\/|$)/i,
+  /^\.studio-backups(?:\/|$)/i,
+  /^migrations\/0002_seed_published_posts\.sql$/i,
   /(?:^|\/)wrangler\.toml$/i,
   /\.pem$/i,
 ];
 
 for (const file of trackedFiles) {
   if (forbiddenTrackedFiles.some((pattern) => pattern.test(file))) {
-    fail(`Sensitive/local-only file must not be tracked: ${file}`);
+    fail(`Sensitive/local-only/generated file must not be tracked: ${file}`);
   }
 }
 
 const gitignore = read(".gitignore");
-for (const required of [".env*", ".dev.vars", ".dev.vars.*", ".wrangler/", "*.pem"]) {
+for (const required of [
+  ".env*",
+  ".dev.vars",
+  ".dev.vars.*",
+  ".wrangler/",
+  ".studio-backups/",
+  "/migrations/0002_seed_published_posts.sql",
+  "*.pem",
+]) {
   if (!gitignore.includes(required)) fail(`.gitignore is missing required protection: ${required}`);
 }
 
@@ -79,4 +89,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Repository security check passed: ${trackedFiles.length} tracked files inspected; local secrets/config invariants preserved.`);
+console.log(`Repository security check passed: ${trackedFiles.length} tracked files inspected; local secrets/config/backup invariants preserved.`);
