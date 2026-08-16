@@ -5,6 +5,7 @@ import { URL } from "node:url";
 const ROOT = process.cwd();
 const OUT = path.join(ROOT, "out");
 const SITE_ORIGIN = "https://emmakwon.pages.dev";
+const STUDIO_POSTS_FILE = path.join(ROOT, "src", "content", "studio-posts.json");
 
 const requiredRoutes = [
   "/",
@@ -141,7 +142,16 @@ for (const route of requiredRoutes) {
 
 for (const [relativeFile, html] of htmlByFile) {
   const currentRoute = htmlRouteFromFile(relativeFile);
-  const publicHtml = !currentRoute.startsWith("/admin/");
+  const isAdmin = currentRoute.startsWith("/admin/");
+  const publicHtml = !isAdmin;
+
+  if (isAdmin) {
+    const robotsMeta = extract(html, /<meta[^>]+name=["']robots["'][^>]+content=["']([^"']*)["'][^>]*>/i)
+      ?? extract(html, /<meta[^>]+content=["']([^"']*)["'][^>]+name=["']robots["'][^>]*>/i);
+    if (!robotsMeta || !/noindex/i.test(robotsMeta) || !/nofollow/i.test(robotsMeta)) {
+      fail(`${currentRoute} must render robots noindex,nofollow metadata.`);
+    }
+  }
 
   for (const match of html.matchAll(/\b(href|src)=["']([^"']*)["']/gi)) {
     const attribute = match[1].toLowerCase();
@@ -193,8 +203,9 @@ if (exists("robots.txt")) {
   if (!robots.includes(`${SITE_ORIGIN}/sitemap.xml`)) fail("robots.txt must reference the production sitemap URL.");
 }
 
+let sitemap = "";
 if (exists("sitemap.xml")) {
-  const sitemap = readOut("sitemap.xml");
+  sitemap = readOut("sitemap.xml");
   for (const route of requiredRoutes) {
     const expected = `${SITE_ORIGIN}${route}`;
     if (!sitemap.includes(expected)) fail(`sitemap.xml is missing ${expected}`);
@@ -202,10 +213,44 @@ if (exists("sitemap.xml")) {
   if (sitemap.includes(`${SITE_ORIGIN}/admin/`)) fail("sitemap.xml must not expose /admin/ routes.");
 }
 
+let publicStudioPosts = [];
+try {
+  publicStudioPosts = JSON.parse(fs.readFileSync(STUDIO_POSTS_FILE, "utf8"));
+} catch (error) {
+  fail(`Could not parse src/content/studio-posts.json: ${error instanceof Error ? error.message : String(error)}`);
+}
+
+const seenPostIds = new Set();
+const seenPostSlugs = new Set();
+for (const post of publicStudioPosts) {
+  if (post.status !== "published") fail(`Public Studio content contains non-published post ${post.id ?? "<missing id>"}.`);
+  if (!post.id || seenPostIds.has(post.id)) fail(`Studio post id is missing or duplicated: ${post.id ?? "<missing>"}`);
+  if (!post.slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(post.slug)) fail(`Studio post has invalid slug: ${post.slug ?? "<missing>"}`);
+  if (post.slug && seenPostSlugs.has(post.slug)) fail(`Studio post slug is duplicated: ${post.slug}`);
+  if (!post.title?.trim()) fail(`Studio post ${post.id ?? "<missing id>"} is missing a title.`);
+  if (!post.excerpt?.trim()) fail(`Studio post ${post.id ?? "<missing id>"} is missing an excerpt.`);
+  if (!Array.isArray(post.body) || post.body.every((paragraph) => !String(paragraph).trim())) {
+    fail(`Studio post ${post.id ?? "<missing id>"} has an empty body.`);
+  }
+  if (!post.publishedAt) fail(`Published Studio post ${post.id ?? "<missing id>"} is missing publishedAt.`);
+
+  if (post.id) seenPostIds.add(post.id);
+  if (post.slug) {
+    seenPostSlugs.add(post.slug);
+    const noteRoute = `/studio/notes/${post.slug}/`;
+    const noteFile = routeToHtml(noteRoute);
+    if (!exists(noteFile)) fail(`Published Studio post ${post.slug} is missing static page ${noteFile}.`);
+    if (sitemap && !sitemap.includes(`${SITE_ORIGIN}${noteRoute}`)) fail(`sitemap.xml is missing published Studio post ${noteRoute}.`);
+  }
+}
+
 const publishedNotePages = htmlFiles.filter((file) => {
   const relative = path.relative(OUT, file).split(path.sep).join("/");
   return /^studio\/notes\/[^/]+\/index\.html$/.test(relative);
 });
+if (publishedNotePages.length !== publicStudioPosts.length) {
+  fail(`Static Studio Note page count (${publishedNotePages.length}) does not match public Studio content count (${publicStudioPosts.length}).`);
+}
 if (publishedNotePages.length === 0) {
   warn("No published Studio Note detail pages were found in the static export.");
 }
@@ -222,4 +267,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Static integrity check passed: ${htmlFiles.length} HTML files, ${publishedNotePages.length} published Studio Notes.`);
+console.log(`Static integrity check passed: ${htmlFiles.length} HTML files, ${publishedNotePages.length} published Studio Notes, public content invariants verified.`);
