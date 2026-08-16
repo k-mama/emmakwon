@@ -21,7 +21,7 @@ export default function NoteList({ posts }: { posts: StudioPost[] }) {
                 {formatStudioDate(dateValue)}
               </time>
               {post.coverImage ? (
-                <span className={styles.thumb} aria-hidden="true">
+                <span className={styles.thumb} data-media-size="thumb" aria-hidden="true">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={post.coverImage} alt="" loading="lazy" decoding="async" />
                 </span>
