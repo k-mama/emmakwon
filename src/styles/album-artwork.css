@@ -29,15 +29,22 @@ main [data-media-size="thumb"] img {
   border-radius: var(--media-thumb-radius);
 }
 
-/* Album covers are square, so a percentage radius gives them the soft,
-   continuous visual weight of an iOS/iPadOS icon rather than a hard CD tile. */
-:where(div, figure, span):has(> img[src^="/archive/emmaestro/"]) {
-  overflow: hidden;
-  border-radius: var(--album-art-radius);
-  box-shadow: var(--album-art-shadow);
+/* Album covers must read as ONE object. Some room-specific wrappers used to
+   add their own ivory plate, padding, border, radius, or shadow, which created
+   a visible second rounded rectangle behind the artwork. Neutralize the direct
+   wrapper completely and let the album image itself carry the only squircle. */
+main :where(div, figure, span):has(> img[src^="/archive/emmaestro/"]) {
+  padding: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
 main img[src^="/archive/emmaestro/"] {
   --media-image-radius: var(--album-art-radius);
-  border-radius: var(--album-art-radius);
+  display: block;
+  border-radius: var(--album-art-radius) !important;
+  box-shadow: var(--album-art-shadow);
 }
