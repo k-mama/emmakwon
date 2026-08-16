@@ -85,7 +85,7 @@ export default function EmmaestroPage() {
                 <a
                   href={movingImage.cta.href}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className={styles.editorialLink}
                 >
                   {movingImage.cta.label} <span aria-hidden="true">→</span>
