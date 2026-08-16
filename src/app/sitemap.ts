@@ -3,6 +3,8 @@ import { getPublishedPosts } from "@/content/studio";
 
 const SITE_URL = "https://emmakwon.pages.dev";
 
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
     "",
