@@ -20,6 +20,16 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Before an intentional release, require a green `Site CI` or equivalent successful local checks: `npm run lint`, `npm run build`, and `npm run check:site`.
 - If live deployment status cannot be observed directly, say so. Never infer live state from a GitHub commit, CI result, or expected Cloudflare behavior.
 
+## Release snapshot and rollback discipline
+
+- Read `RELEASE_ACCEPTANCE.md` and `RELEASE_ROLLBACK.md` before an intentional production release or rollback.
+- Treat a full Git commit SHA as the immutable recovery reference. Do not create snapshot/preview branches merely for backup while Cloudflare quota is constrained; branch creation may be observed by a Git-integrated Pages project depending on its preview configuration.
+- Distinguish `PRE_RELEASE_RC_SNAPSHOT` from `PRODUCTION_LKG`. CI can establish the former; only a completed Cloudflare deployment plus live visual acceptance can establish the latter.
+- Never force-push `main`, reset published history, or move `main` backward as a rollback shortcut.
+- Restore production through a new auditable rollback commit, run `npm run verify:release`, and only then allow one intentional non-skip Cloudflare deployment.
+- During rollback diagnosis/preparation, keep `[CF-Pages-Skip]`. The final verified rollback trigger is the only rollback commit that should omit the skip marker.
+- Do not claim rollback success until the live Cloudflare site has been checked after deployment.
+
 ## Product and design guardrails
 
 - Preserve the approved bright-luxury creative-house direction: colorful and luminous, never globally greyed or desaturated.
