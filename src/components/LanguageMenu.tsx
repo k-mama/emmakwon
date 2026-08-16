@@ -13,14 +13,16 @@ type LanguageMenuProps = {
   align?: "right" | "center";
 };
 
-// English is the only live locale today. Keep the future locale list visible
-// without pretending that selecting an unreleased language translates the page.
+// Keep the globe as a permanent part of the Emma Kwon header, while only
+// exposing locales that actually exist. Future language metadata can remain
+// ready in content/languages.ts without turning the public UI into a roadmap.
 export default function LanguageMenu({ triggerClassName, openUpward, align = "right" }: LanguageMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const activeOptionRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
+  const availableLanguages = languages.filter((language) => language.code === defaultLanguageCode);
 
   const closeMenu = (restoreFocus = false) => {
     setOpen(false);
@@ -69,7 +71,7 @@ export default function LanguageMenu({ triggerClassName, openUpward, align = "ri
         aria-haspopup="true"
         aria-expanded={open}
         aria-controls={panelId}
-        aria-label="Change language"
+        aria-label="Language — English"
         onClick={() => setOpen((value) => !value)}
       >
         <VisualGlobeIcon />
@@ -82,35 +84,22 @@ export default function LanguageMenu({ triggerClassName, openUpward, align = "ri
             .filter(Boolean)
             .join(" ")}
           role="menu"
-          aria-label="Select a language"
+          aria-label="Current language"
         >
-          {languages.map((language) => {
-            const isActive = language.code === defaultLanguageCode;
-            const isAvailable = language.code === defaultLanguageCode;
-
-            return (
-              <button
-                key={language.code}
-                type="button"
-                ref={isActive ? activeOptionRef : undefined}
-                role="menuitemradio"
-                aria-checked={isActive}
-                aria-disabled={!isAvailable}
-                disabled={!isAvailable}
-                className={`${styles.option} ${isActive ? styles.optionActive : ""}`}
-                onClick={() => closeMenu(true)}
-              >
-                <span>{language.label}</span>
-                {isAvailable ? (
-                  <span className={styles.check} aria-hidden="true" />
-                ) : (
-                  <span className={styles.optionStatus} aria-hidden="true">
-                    SOON
-                  </span>
-                )}
-              </button>
-            );
-          })}
+          {availableLanguages.map((language) => (
+            <button
+              key={language.code}
+              type="button"
+              ref={activeOptionRef}
+              role="menuitemradio"
+              aria-checked="true"
+              className={`${styles.option} ${styles.optionActive}`}
+              onClick={() => closeMenu(true)}
+            >
+              <span>{language.label}</span>
+              <span className={styles.check} aria-hidden="true" />
+            </button>
+          ))}
         </div>
       )}
     </div>
