@@ -11,6 +11,12 @@ import {
 } from "@/content/emmaestro";
 import styles from "./page.module.css";
 
+const emmaestroHeroBackground = [
+  "radial-gradient(74% 78% at 88% 10%, rgba(190, 150, 173, 0.32) 0%, rgba(190, 150, 173, 0) 66%)",
+  "radial-gradient(68% 76% at 16% 90%, rgba(133, 177, 193, 0.34) 0%, rgba(133, 177, 193, 0) 70%)",
+  "linear-gradient(145deg, #f3efec 0%, #e7dfe4 34%, #d9d7df 62%, #cadce1 100%)",
+].join(", ");
+
 export const metadata = {
   title: "EMMAESTRO — Emma Kwon",
   description:
@@ -23,7 +29,7 @@ export default function EmmaestroPage() {
       <Header />
       <main>
         <section id="hero" className={styles.hero} aria-labelledby="emmaestro-heading">
-          <div className={styles.heroStage}>
+          <div className={styles.heroStage} style={{ background: emmaestroHeroBackground }}>
             <p className={styles.eyebrow}>{emmaestroHero.eyebrow}</p>
             <h1 id="emmaestro-heading" className={styles.heroTitle}>
               {emmaestroHero.title}
