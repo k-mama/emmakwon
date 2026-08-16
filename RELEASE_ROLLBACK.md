@@ -3,11 +3,11 @@
 ## Current pre-release snapshot
 
 - Snapshot type: `PRE_RELEASE_RC_SNAPSHOT`
-- Rendered-site baseline commit: `d210c5830698b3278246c3cd8ece57d35eec91f0`
+- Rendered-site baseline commit: `c61e28c2ad108da555e87d5999eabfc05e77d204`
 - Prepared: 2026-08-16
-- Verification: GitHub Site CI green through lint, production build, static export integrity, accessibility, Studio publishing invariants, and approved external-destination checks.
+- Verification: GitHub Site CI green through repository security invariants, High/Critical production dependency audit, lint, production build, static export integrity, accessibility, Studio publishing invariants, approved external-destination checks, and safe Studio external-media handling.
 
-This SHA is the recovery reference for the current release candidate. QA 15 adds operating documentation only; it does not intentionally alter the rendered public website.
+This SHA is the recovery reference for the current release candidate. Later QA 16 documentation commits do not intentionally alter the rendered public website.
 
 ## Why this is a commit snapshot instead of a snapshot branch
 
@@ -35,7 +35,7 @@ git pull --ff-only
 git status --short
 # Stop here unless the worktree is clean.
 
-SNAPSHOT=d210c5830698b3278246c3cd8ece57d35eec91f0
+SNAPSHOT=c61e28c2ad108da555e87d5999eabfc05e77d204
 
 git revert --no-commit "${SNAPSHOT}..HEAD"
 
@@ -49,7 +49,7 @@ git diff --cached
 If verification is green and the staged rollback is exactly what is intended:
 
 ```bash
-git commit -m "Rollback production to verified snapshot d210c583"
+git commit -m "Rollback production to verified snapshot c61e28c2"
 git push origin main
 ```
 
