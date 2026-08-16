@@ -46,9 +46,11 @@ jobs:
           BASE_URL: https://emmakwon.pages.dev
         run: |
           mkdir -p live-acceptance-screenshots
-          cat > /tmp/live-probe/check.cjs <<'EOF'
+          cat > /tmp/live-probe/check.mjs <<'EOF'
+          import { createRequire } from 'node:module';
+          import fs from 'node:fs';
+          const require = createRequire(import.meta.url);
           const { chromium } = require('/tmp/live-probe/node_modules/playwright-core');
-          const fs = require('node:fs');
 
           const BASE = process.env.BASE_URL.replace(/\/$/, '');
           const CHROME = process.env.CHROME_BIN;
@@ -224,7 +226,7 @@ jobs:
 
           console.log('\nLive acceptance objective checks passed.');
           EOF
-          node /tmp/live-probe/check.cjs
+          node /tmp/live-probe/check.mjs
 
       - name: Upload acceptance screenshots and report
         if: always()
