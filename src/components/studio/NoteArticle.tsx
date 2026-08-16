@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatStudioDate, type StudioPost } from "@/content/studio";
+import { sanitizePublicExternalMedia } from "@/lib/publicUrl";
 import styles from "./NoteArticle.module.css";
 
 type NoteArticleProps = {
@@ -12,10 +13,7 @@ type NoteArticleProps = {
 // /studio/notes/[slug] page and by the admin preview, so preview always
 // shows exactly what will go live, not a separate approximation.
 export default function NoteArticle({ post, back }: NoteArticleProps) {
-  const externalMedia =
-    post.externalMedia
-      ?.map((media) => ({ label: media.label.trim(), url: media.url.trim() }))
-      .filter((media) => media.label && media.url && media.url !== "#") ?? [];
+  const externalMedia = sanitizePublicExternalMedia(post.externalMedia) ?? [];
 
   return (
     <article className={styles.article}>
@@ -60,7 +58,9 @@ export default function NoteArticle({ post, back }: NoteArticleProps) {
           <p className={styles.media}>
             {externalMedia.map((media, index) => (
               <span key={`${media.url}-${index}`}>
-                <a href={media.url}>{media.label}</a>
+                <a href={media.url} target="_blank" rel="noopener noreferrer">
+                  {media.label}
+                </a>
                 {index < externalMedia.length - 1 ? <span aria-hidden="true"> · </span> : null}
               </span>
             ))}
