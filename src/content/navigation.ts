@@ -7,10 +7,7 @@
 // the most distinctive character IP first, then music, children's work,
 // books, and finally STUDIO last (what she makes, then how she makes it).
 //
-// Submenus are intentionally shallow. They define the finished information
-// architecture now without forcing us to build a large number of empty
-// routes. Existing worlds use real page anchors so submenu clicks already
-// land somewhere meaningful.
+// Submenus stay shallow and only point to sections that exist today.
 
 export type NavSubItem = {
   label: string;
@@ -39,7 +36,7 @@ export const primaryNav: NavItem[] = [
     href: "/emmaestro/",
     children: [
       { label: "RELEASES", href: "/emmaestro/#releases" },
-      { label: "MUSIC VIDEOS", href: "/emmaestro/#music-videos" },
+      { label: "MUSIC FILMS", href: "/emmaestro/#music-videos" },
       { label: "CLASSICAL", href: "/emmaestro/#classical" },
       { label: "BORN RARE OST", href: "/emmaestro/#born-rare-ost" },
     ],
@@ -49,9 +46,8 @@ export const primaryNav: NavItem[] = [
     href: "/k-mama/",
     children: [
       { label: "THE WORLD", href: "/k-mama/#world" },
-      { label: "MUSIC", href: "/k-mama/#music" },
-      { label: "STORIES", href: "/k-mama/#stories" },
-      { label: "CHARACTERS", href: "/k-mama/#characters" },
+      { label: "MUSIC & ENGLISH", href: "/k-mama/#music" },
+      { label: "STORIES & PLAY", href: "/k-mama/#stories" },
     ],
   },
   {
@@ -61,7 +57,6 @@ export const primaryNav: NavItem[] = [
       { label: "BORN RARE", href: "/books/#born-rare" },
       { label: "THE STORY BEHIND THE BOOK", href: "/books/#story" },
       { label: "MUSIC & OST", href: "/books/#music-ost" },
-      { label: "RIGHTS & PRESS", href: "/books/#rights-press" },
     ],
   },
   {
