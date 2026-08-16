@@ -13,9 +13,19 @@ const REQUEST_TIMEOUT_MS = 30_000;
 
 export class AdminApiError extends Error {
   status: number;
-  constructor(message: string, status: number) {
-    super(message);
+  code?: string;
+  requestId?: string;
+
+  constructor(message: string, status: number, code?: string, requestId?: string) {
+    const reference = requestId
+      ? ` Reference: ${code ?? "API_ERROR"} / ${requestId}`
+      : code
+        ? ` Reference: ${code}`
+        : "";
+    super(`${message}${reference}`);
     this.status = status;
+    this.code = code;
+    this.requestId = requestId;
   }
 }
 
@@ -36,31 +46,33 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       throw new AdminApiError(
         "The admin request timed out. The server may still have completed the operation, so refresh before retrying it.",
         408,
+        "CLIENT_TIMEOUT",
       );
     }
-    throw new AdminApiError("Publishing backend not configured or temporarily unreachable.", 0);
+    throw new AdminApiError("Publishing backend not configured or temporarily unreachable.", 0, "NETWORK_UNREACHABLE");
   } finally {
     clearTimeout(timeout);
   }
 
+  const headerRequestId = response.headers.get("x-request-id") ?? undefined;
   const contentType = response.headers.get("content-type") ?? "";
   if (!contentType.includes("application/json")) {
-    throw new AdminApiError("Publishing backend returned an unexpected response.", response.status);
+    throw new AdminApiError("Publishing backend returned an unexpected response.", response.status, "INVALID_RESPONSE", headerRequestId);
   }
 
   let body: unknown;
   try {
     body = await response.json();
   } catch {
-    throw new AdminApiError("Publishing backend returned invalid JSON.", response.status);
+    throw new AdminApiError("Publishing backend returned invalid JSON.", response.status, "INVALID_RESPONSE", headerRequestId);
   }
 
   if (!response.ok) {
-    const message =
-      body && typeof body === "object" && "error" in body && typeof (body as { error?: unknown }).error === "string"
-        ? (body as { error: string }).error
-        : "Request failed.";
-    throw new AdminApiError(message, response.status);
+    const objectBody = body && typeof body === "object" ? (body as Record<string, unknown>) : undefined;
+    const message = typeof objectBody?.error === "string" ? objectBody.error : "Request failed.";
+    const code = typeof objectBody?.code === "string" ? objectBody.code : "API_ERROR";
+    const requestId = typeof objectBody?.requestId === "string" ? objectBody.requestId : headerRequestId;
+    throw new AdminApiError(message, response.status, code, requestId);
   }
 
   return body as T;
@@ -114,4 +126,17 @@ export function publishPost(
     method: "POST",
     body: JSON.stringify({ expectedUpdatedAt }),
   });
+}
+
+export type AdminDiagnostics = {
+  ok: boolean;
+  requestId: string;
+  checks: {
+    d1: { status: "ok" | "failed" | "misconfigured"; reason?: string; missing?: string[]; httpStatus?: number };
+    githubRead: { status: "ok" | "failed" | "misconfigured"; reason?: string; missing?: string[]; httpStatus?: number };
+  };
+};
+
+export function fetchAdminDiagnostics(): Promise<AdminDiagnostics> {
+  return request<AdminDiagnostics>("/api/admin/diagnostics");
 }
