@@ -1,12 +1,8 @@
 .header {
-  /* Editorial navy used consistently for the brand, primary nav, and
-     language globe — inherited by MobileNav/LanguageMenu too, since both
-     render as DOM descendants of this element. */
+  /* Editorial navy used consistently for the brand and primary navigation. */
   --nav-navy: #1e2d5b;
   --nav-navy-hover: color-mix(in srgb, #1e2d5b 78%, black);
-  /* Luminous AI-wave sky blue/aqua — connects the nav hover to the
-     Hero's blue/aqua atmosphere. Represents the whole Emma Kwon house,
-     not one world, so it stays cool and airy rather than playful. */
+  /* Luminous AI-wave sky blue/aqua connects nav interaction to the Hero. */
   --nav-hover-wave: #6edfeb;
   position: sticky;
   top: 0;
@@ -22,11 +18,9 @@
   border-bottom-color: var(--color-hairline);
 }
 
-/* Three-zone geometric layout so the primary nav sits at the true visual
-   center of the header/viewport regardless of how wide the brand or
-   language slot are — not centered only in the leftover space between
-   them. Grid (not flex + margins) keeps this exact under both the
-   transparent Hero-overlay and scrolled states. */
+/* Keep the primary navigation visually centered in the viewport. The third
+   grid track intentionally balances the brand track even without a utility
+   control on the right. */
 .inner {
   height: var(--header-height);
   display: grid;
@@ -43,8 +37,6 @@
   font-weight: 500;
   letter-spacing: 0.01em;
   color: var(--nav-navy);
-  /* Subtle light halo (not a dark shadow) keeps the now-dark navy readable
-     over the video without dimming the text color itself. */
   text-shadow: 0 1px 8px rgba(255, 253, 247, 0.55);
   white-space: nowrap;
   transition: color 0.25s ease, text-shadow 0.25s ease;
@@ -64,13 +56,6 @@
 }
 
 .navItem {
-  display: flex;
-  align-items: center;
-}
-
-.utility {
-  grid-column: 3;
-  justify-self: end;
   display: flex;
   align-items: center;
 }
@@ -102,15 +87,11 @@
 .scrolled .navLink:focus-visible,
 .scrolled .navLinkActive {
   color: var(--nav-hover-wave);
-  /* Same hover color, but the halo reads as a blur artifact rather than
-     luminous against the light scrolled header — keep the color, drop
-     the glow. */
   text-shadow: none;
 }
 
 /* Desktop subnavigation is one quiet editorial strip, not a floating card.
-   It overlays the page rather than changing layout height so opening a
-   submenu never makes the Hero or content jump. */
+   It overlays the page rather than changing layout height. */
 .subnav {
   position: absolute;
   top: 100%;
@@ -166,32 +147,6 @@
   }
 }
 
-/* Globe icon renders its own gradient stroke (see VisualGlobeIcon), so
-   this button's color is only a legibility aid over the video, not the
-   icon's actual color. */
-.iconBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 6px;
-  color: rgba(253, 251, 247, 0.9);
-  transition: color 0.25s ease;
-}
-
-.scrolled .iconBtn {
-  color: var(--soft-text);
-}
-
-.iconBtn:hover {
-  color: #fdfbf7;
-}
-
-.scrolled .iconBtn:hover {
-  color: var(--title-primary);
-}
-
 @media (max-width: 640px) {
   .inner {
     height: var(--header-height-mobile);
@@ -212,13 +167,5 @@
   .nav,
   .subnav {
     display: none;
-  }
-
-  /* Mobile order is intentionally brand | spacer | two-line menu | globe.
-     MobileNav owns the spacer through its trigger's margin-left:auto, so
-     the globe stays directly beside it rather than drifting away. */
-  .utility {
-    display: flex;
-    margin-left: 0;
   }
 }
