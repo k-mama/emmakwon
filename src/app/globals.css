@@ -79,6 +79,14 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Editorial headings should resolve into intentional lines at intermediate
+   viewport widths instead of leaving a single short orphan line. */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
 section[id] {
   scroll-margin-top: calc(var(--header-height) + 18px);
 }
