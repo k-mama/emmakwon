@@ -51,7 +51,7 @@ export const studioMethod = {
   body: "The finished work lives upstairs. This is the room behind it — drafts, decisions, experiments, and the parts that had to be rebuilt before they felt right.",
   pullQuote: "The first version is rarely the version that ships.",
   links: [
-    { label: "WATCH ME BUILD", href: "/studio/#build" },
+    { label: "SEE WHAT I'M BUILDING", href: "/studio/#build" },
     { label: "STUDIO NOTES", href: "/studio/notes/" },
     { label: "LEARN", href: "/studio/#learn" },
     { label: "MAKE", href: "/studio/#make" },
