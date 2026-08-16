@@ -12,9 +12,9 @@ Change classification and post-QA20 freeze rules are in `CHANGE_CONTROL.md`.
 
 ## Current recovery snapshot
 
-The rendered/runtime/recovery baseline for this candidate is:
+The rendered/runtime/recovery/change-control baseline for this candidate is:
 
-`8a3403c3c026cc686edf619c0f64a6f5595742f2`
+`cccad3549f4a3fcb7f46a6893617be091353c630`
 
 It is recorded as `PRE_RELEASE_RC_SNAPSHOT`, not yet as a live-verified production state. Application rollback rules are in `RELEASE_ROLLBACK.md`; Studio editorial-data recovery rules are in `STUDIO_DATA_RECOVERY.md`.
 
