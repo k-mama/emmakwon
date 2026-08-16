@@ -29,7 +29,13 @@ export default function NoteArticle({ post, back }: NoteArticleProps) {
         )}
         <p className={styles.category}>{post.category}</p>
         <h1 className={styles.headline}>{post.title}</h1>
-        <p className={styles.date}>{post.publishedAt ? formatStudioDate(post.publishedAt) : "Not yet published"}</p>
+        {post.publishedAt ? (
+          <time className={styles.date} dateTime={post.publishedAt}>
+            {formatStudioDate(post.publishedAt)}
+          </time>
+        ) : (
+          <p className={styles.date}>Not yet published</p>
+        )}
 
         {post.coverImage && (
           <div className={styles.coverFrame}>
