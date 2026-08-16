@@ -52,6 +52,7 @@ export default function EmmaestroPage() {
                       alt={release.imageAlt}
                       className={styles.coverImage}
                       loading="lazy"
+                      decoding="async"
                     />
                   </div>
                   <p className={styles.releaseKind}>{release.kind}</p>
