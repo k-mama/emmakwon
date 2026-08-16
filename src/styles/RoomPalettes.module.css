@@ -1,0 +1,54 @@
+.slyHero {
+  background:
+    linear-gradient(104deg, transparent 0 58%, rgba(255, 255, 255, 0.18) 58.12%, transparent 58.42%),
+    linear-gradient(78deg, transparent 0 69%, rgba(224, 236, 238, 0.18) 69.1%, transparent 69.42%),
+    radial-gradient(72% 80% at 92% 8%, rgba(123, 178, 187, 0.34) 0%, rgba(123, 178, 187, 0) 68%),
+    radial-gradient(60% 70% at 14% 92%, rgba(166, 148, 181, 0.24) 0%, rgba(166, 148, 181, 0) 72%),
+    linear-gradient(145deg, #eef2f0 0%, #dce6e7 34%, #d0d8e1 58%, #d4cddb 100%);
+}
+
+.emmaestroHero {
+  background:
+    radial-gradient(74% 78% at 88% 10%, rgba(190, 150, 173, 0.32) 0%, rgba(190, 150, 173, 0) 66%),
+    radial-gradient(68% 76% at 16% 90%, rgba(133, 177, 193, 0.34) 0%, rgba(133, 177, 193, 0) 70%),
+    linear-gradient(145deg, #f3efec 0%, #e7dfe4 34%, #d9d7df 62%, #cadce1 100%);
+}
+
+.kMamaHero {
+  background:
+    radial-gradient(54% 62% at 86% 14%, rgba(207, 184, 107, 0.46) 0%, rgba(207, 184, 107, 0) 72%),
+    radial-gradient(56% 68% at 13% 88%, rgba(196, 146, 160, 0.28) 0%, rgba(196, 146, 160, 0) 74%),
+    radial-gradient(48% 58% at 96% 92%, rgba(114, 179, 175, 0.3) 0%, rgba(114, 179, 175, 0) 74%),
+    linear-gradient(145deg, #faf7ef 0%, #f1eaea 44%, #e5efec 100%);
+}
+
+.kMamaMusic {
+  background:
+    radial-gradient(62% 92% at 4% 18%, rgba(208, 190, 124, 0.38) 0%, rgba(208, 190, 124, 0) 72%),
+    radial-gradient(58% 82% at 96% 88%, rgba(111, 176, 171, 0.28) 0%, rgba(111, 176, 171, 0) 74%),
+    linear-gradient(145deg, #f3e8ea 0%, #f1ede3 48%, #e5efeb 100%);
+}
+
+.booksHero {
+  background:
+    radial-gradient(54% 66% at 90% 12%, rgba(196, 164, 118, 0.3) 0%, rgba(196, 164, 118, 0) 72%),
+    radial-gradient(48% 58% at 8% 88%, rgba(194, 155, 143, 0.18) 0%, rgba(194, 155, 143, 0) 74%),
+    linear-gradient(145deg, #faf7f1 0%, #efe9e1 52%, #f1e8e3 100%);
+}
+
+@media (max-width: 640px) {
+  .slyHero {
+    background:
+      linear-gradient(105deg, transparent 0 63%, rgba(255, 255, 255, 0.16) 63.1%, transparent 63.5%),
+      radial-gradient(82% 76% at 100% 8%, rgba(124, 177, 185, 0.32) 0%, rgba(124, 177, 185, 0) 70%),
+      radial-gradient(72% 64% at 6% 94%, rgba(166, 148, 181, 0.22) 0%, rgba(166, 148, 181, 0) 74%),
+      linear-gradient(150deg, #eef2f0 0%, #dfe7e7 38%, #d2dae2 64%, #d5cedb 100%);
+  }
+
+  .kMamaHero {
+    background:
+      radial-gradient(76% 62% at 100% 10%, rgba(207, 184, 107, 0.42) 0%, rgba(207, 184, 107, 0) 74%),
+      radial-gradient(78% 66% at 0% 92%, rgba(196, 146, 160, 0.25) 0%, rgba(196, 146, 160, 0) 76%),
+      linear-gradient(150deg, #faf7ef 0%, #f1eaea 48%, #e5efec 100%);
+  }
+}
