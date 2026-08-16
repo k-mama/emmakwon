@@ -3,7 +3,7 @@ import styles from "./Contact.module.css";
 
 function externalProps(href: string) {
   return href.startsWith("http")
-    ? { target: "_blank", rel: "noreferrer" }
+    ? { target: "_blank", rel: "noopener noreferrer" }
     : {};
 }
 
