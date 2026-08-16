@@ -1,6 +1,6 @@
 :root {
   /* Emma Kwon color DNA — source of truth */
-  --cream-white: #f8f5f2;
+  --cream-white: #fcfaf7;
   --title-primary: #18264a;
   --body-text: #4c4a63;
   --soft-text: #7c748a;
@@ -27,8 +27,6 @@
   --color-hairline: rgba(24, 38, 74, 0.1);
 
   --radius-video: 30px;
-  /* Layered elevation for a floating/lifted feel: a tight near-shadow for
-     grounding, a mid shadow, and a large soft far shadow for ambient lift. */
   --shadow-video: 0 12px 20px -12px rgba(24, 38, 74, 0.28),
     0 40px 70px -30px rgba(24, 38, 74, 0.22),
     0 90px 130px -55px rgba(24, 38, 74, 0.18);
@@ -81,26 +79,23 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Submenu links jump to section IDs while the header remains sticky.
-   Keep the section heading visibly below the header instead of hidden
-   underneath it after an in-page navigation jump. */
 section[id] {
   scroll-margin-top: calc(var(--header-height) + 18px);
 }
 
-/* One continuous creative-house atmosphere. The hues stay recognisably Emma,
-   but each bloom is mixed into a warm mineral grey rather than pure white so
-   the page reads polished and luminous instead of candy-bright. */
+/* Bright luxury: keep Emma's color in the air, but mix into near-white
+   light rather than mineral grey. The house should feel illuminated,
+   not desaturated. */
 .atmosphere {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(62% 58% at 14% 12%, color-mix(in srgb, var(--sky-aqua) 38%, #ebe9e6) 0%, transparent 72%),
-    radial-gradient(62% 58% at 87% 16%, color-mix(in srgb, var(--playful-violet) 34%, #ebe9e6) 0%, transparent 72%),
-    radial-gradient(66% 62% at 90% 90%, color-mix(in srgb, var(--candy-pink) 34%, #eee9e7) 0%, transparent 74%),
-    radial-gradient(62% 58% at 10% 92%, color-mix(in srgb, var(--tiger-gold) 30%, #ece9e4) 0%, transparent 72%),
+    radial-gradient(64% 60% at 14% 12%, color-mix(in srgb, var(--sky-aqua) 46%, #fbfaf8) 0%, transparent 72%),
+    radial-gradient(62% 58% at 87% 16%, color-mix(in srgb, var(--playful-violet) 39%, #fbf9fb) 0%, transparent 72%),
+    radial-gradient(66% 62% at 90% 90%, color-mix(in srgb, var(--candy-pink) 40%, #fcfaf9) 0%, transparent 74%),
+    radial-gradient(62% 58% at 10% 92%, color-mix(in srgb, var(--tiger-gold) 34%, #fcfaf6) 0%, transparent 72%),
     var(--cream-white);
   animation: rareLightDrift 24s ease-in-out infinite;
 }
@@ -135,17 +130,11 @@ button {
   cursor: pointer;
 }
 
-/* Follow each control's actual foreground color so keyboard focus remains
-   visible on both the light editorial rooms and the dark Studio surfaces. */
 :focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 3px;
 }
 
-/* Each brand room ends with one direct next-room CTA. Keep that final
-   threshold easy to hit on touch screens without changing its quiet visual
-   treatment. HOME's featured block also matches this structure but is already
-   much taller than the minimum, so this rule is visually neutral there. */
 @media (max-width: 760px) {
   main > section:last-of-type > .container > a {
     min-height: 44px;
@@ -157,8 +146,6 @@ button {
     scroll-margin-top: calc(var(--header-height-mobile) + 14px);
   }
 
-  /* Keep the same atmospheric color field on phones without continuously
-     transforming a viewport-sized fixed layer while the user scrolls. */
   .atmosphere {
     animation: none;
     transform: none;
