@@ -63,6 +63,18 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - `D1_FINALIZE_FAILED` and client timeouts after Publish are uncertain-side-effect states. The operating rule is refresh/inspect before retry, never repeated blind clicks.
 - Do not remove diagnostic references from Admin errors merely for cosmetic cleanliness; they are the support bridge between the editor screen and runtime logs.
 
+## Studio data backup and recovery
+
+- Read `STUDIO_DATA_RECOVERY.md` before any D1 restore, import, binding replacement, destructive maintenance query, or attempt to rebuild Studio editorial data.
+- `src/content/studio-posts.json` is the durable Git-backed source for **published public content only**. It is not a backup of drafts or unpublished edits.
+- Full D1 exports can contain private drafts/editorial material. Keep `.studio-backups/` private and outside Git; the repository security check must continue rejecting tracked backup files.
+- `migrations/0002_seed_published_posts.sql` is an on-demand generated artifact and must remain gitignored. Generate it with `npm run prepare:studio-seed` from the exact Git revision whose public content is intended for recovery. Do not reintroduce a committed seed file.
+- A published-content seed is not a general D1 repair tool. It can overwrite newer unpublished edits on already-published rows and cannot recreate D1-only drafts. Prefer D1 Time Travel or a verified full D1 SQL export when private editorial state matters.
+- `npm run backup:studio` is an explicit operator action against remote D1; never run it automatically in CI, page requests, or background polling. It writes a private SQL export plus SHA-256 checksum and manifest into `.studio-backups/`.
+- Verify long-term backup files with `npm run verify:studio-backup -- <backup.sql>` before trusting them. A checksum mismatch means do not restore.
+- Time Travel restore and SQL import are destructive production actions. Never trigger them automatically from application code, CI, or an agent without an explicit incident decision and a confirmed target point/state.
+- Before any real restore, preserve the current state if readable, record the current Time Travel bookmark when applicable, and verify the intended recovery point. After recovery, re-check Cloudflare Access, `/api/admin/diagnostics`, Admin read/save behavior, and public Studio pages before declaring success.
+
 ## Product and design guardrails
 
 - Preserve the approved bright-luxury creative-house direction: colorful and luminous, never globally greyed or desaturated.
