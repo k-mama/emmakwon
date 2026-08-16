@@ -147,25 +147,32 @@
   }
 }
 
+/* Five full brand labels become crowded before phone width. Switch to the
+   compact menu early so 641–900px tablet widths never clip navigation. */
+@media (max-width: 900px) {
+  .inner {
+    display: flex;
+    padding-left: max(24px, env(safe-area-inset-left));
+    padding-right: max(24px, env(safe-area-inset-right));
+    justify-content: flex-start;
+  }
+
+  .nav,
+  .subnav {
+    display: none;
+  }
+}
+
 @media (max-width: 640px) {
   .inner {
     height: var(--header-height-mobile);
-    display: flex;
-    padding-top: 0;
-    padding-bottom: 0;
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
-    justify-content: flex-start;
   }
 
   .brand {
     text-transform: uppercase;
     font-size: 15px;
     letter-spacing: 0.08em;
-  }
-
-  .nav,
-  .subnav {
-    display: none;
   }
 }
