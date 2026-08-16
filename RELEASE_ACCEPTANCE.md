@@ -1,6 +1,6 @@
 # Emma Kwon Website — Release Acceptance
 
-Status: `RC_PENDING_CLOUDFLARE_CAPACITY`
+Status: `RELEASED`
 
 Release candidate prepared on 2026-08-16.
 
