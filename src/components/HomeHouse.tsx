@@ -23,6 +23,8 @@ export default function HomeHouse() {
 
         <Link className={styles.feature} href={houseIndex.feature.href}>
           <figure className={styles.featureMedia}>
+            {/* Static export intentionally uses the original lightweight asset directly. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={houseIndex.feature.image}
               alt={houseIndex.feature.imageAlt}
