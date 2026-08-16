@@ -3,7 +3,7 @@
    shares a generous soft radius. The BORN RARE 3D book mockup is a data URI
    and intentionally stays outside this system so it keeps its object-like edge. */
 :root {
-  --media-image-radius: clamp(30px, 4vw, 48px);
+  --media-image-radius: clamp(32px, 5vw, 56px);
   --media-thumb-radius: clamp(20px, 2.4vw, 30px);
   --album-art-radius: 22%;
   --album-art-shadow: 0 18px 38px -28px rgba(24, 38, 74, 0.42);
@@ -19,6 +19,14 @@ main img:not([src^="data:image/"]) {
 main :where(div, figure, span):has(> img:not([src^="data:image/"])):not(:has(> figcaption)) {
   overflow: hidden;
   border-radius: var(--media-image-radius);
+}
+
+/* Small Studio Note thumbnails use the same family of curves at a scale
+   appropriate to their compact 4:3 footprint. */
+main [data-media-size="thumb"],
+main [data-media-size="thumb"] img {
+  --media-image-radius: var(--media-thumb-radius);
+  border-radius: var(--media-thumb-radius);
 }
 
 /* Album covers are square, so a percentage radius gives them the soft,
