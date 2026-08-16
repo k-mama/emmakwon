@@ -88,6 +88,7 @@ export default function BooksPage() {
                   alt={bookMusic.imageAlt}
                   className={styles.musicCover}
                   loading="lazy"
+                  decoding="async"
                 />
               </figure>
               <div className={styles.musicCopy}>
