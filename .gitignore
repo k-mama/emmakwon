@@ -42,6 +42,10 @@ yarn-error.log*
 .dev.vars
 .dev.vars.*
 
+# private Studio D1 exports — these can contain draft/editorial content
+# and must stay outside Git. Keep long-term copies in private storage.
+.studio-backups/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
