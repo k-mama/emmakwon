@@ -12,7 +12,7 @@ The repository is release-ready, but the current QA 10–16 changes are intentio
 
 The rendered-site baseline for this candidate is:
 
-`d210c5830698b3278246c3cd8ece57d35eec91f0`
+`c61e28c2ad108da555e87d5999eabfc05e77d204`
 
 It is recorded as `PRE_RELEASE_RC_SNAPSHOT`, not yet as a live-verified production state. Full rollback rules are in `RELEASE_ROLLBACK.md`.
 
