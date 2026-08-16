@@ -58,7 +58,6 @@ export default function HeroVideo() {
     <video
       ref={videoRef}
       className={styles.video}
-      autoPlay
       muted
       loop
       playsInline
