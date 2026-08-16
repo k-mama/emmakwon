@@ -10,19 +10,7 @@ import {
   kMamaWorld,
 } from "@/content/k-mama";
 import styles from "./page.module.css";
-
-const kMamaHeroBackground = [
-  "radial-gradient(54% 62% at 86% 14%, rgba(207, 184, 107, 0.46) 0%, rgba(207, 184, 107, 0) 72%)",
-  "radial-gradient(56% 68% at 13% 88%, rgba(196, 146, 160, 0.28) 0%, rgba(196, 146, 160, 0) 74%)",
-  "radial-gradient(48% 58% at 96% 92%, rgba(114, 179, 175, 0.3) 0%, rgba(114, 179, 175, 0) 74%)",
-  "linear-gradient(145deg, #faf7ef 0%, #f1eaea 44%, #e5efec 100%)",
-].join(", ");
-
-const kMamaMusicBackground = [
-  "radial-gradient(62% 92% at 4% 18%, rgba(208, 190, 124, 0.38) 0%, rgba(208, 190, 124, 0) 72%)",
-  "radial-gradient(58% 82% at 96% 88%, rgba(111, 176, 171, 0.28) 0%, rgba(111, 176, 171, 0) 74%)",
-  "linear-gradient(145deg, #f3e8ea 0%, #f1ede3 48%, #e5efeb 100%)",
-].join(", ");
+import paletteStyles from "@/styles/RoomPalettes.module.css";
 
 export const metadata = {
   title: "K-MAMA — Emma Kwon",
@@ -36,7 +24,7 @@ export default function KMamaPage() {
       <Header />
       <main>
         <section id="hero" className={styles.hero} aria-labelledby="k-mama-heading">
-          <div className={styles.heroStage} style={{ background: kMamaHeroBackground }}>
+          <div className={`${styles.heroStage} ${paletteStyles.kMamaHero}`}>
             <p className={styles.eyebrow}>{kMamaHero.eyebrow}</p>
             <h1 id="k-mama-heading" className={styles.heroTitle}>
               {kMamaHero.title}
@@ -72,7 +60,7 @@ export default function KMamaPage() {
 
         <section id="music" className={styles.music} aria-labelledby="music-heading">
           <div className="container">
-            <div className={styles.musicStage} style={{ background: kMamaMusicBackground }}>
+            <div className={`${styles.musicStage} ${paletteStyles.kMamaMusic}`}>
               <p className={styles.eyebrow}>{kMamaMusic.eyebrow}</p>
               <h2 id="music-heading" className={styles.musicTitle}>
                 {kMamaMusic.headline}
