@@ -13,11 +13,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Release discipline — protect the Cloudflare Pages build quota
 
 - Cloudflare Pages is connected to this repository through Git integration. A normal push to `main` can trigger a Cloudflare build/deployment independently of GitHub Actions.
-- The GitHub `Site CI` workflow is verification only. It runs repository-security, production-dependency-audit, lint, build, and static-export checks; CI success must never be described as proof that the live Cloudflare site was deployed or visually verified.
+- The GitHub `Site CI` workflow is verification only. It runs repository-security, production-dependency-audit, Cloudflare Functions typecheck, lint, build, and static-export checks; CI success must never be described as proof that the live Cloudflare site was deployed or visually verified.
 - During iterative work, prefix every commit message with **`[CF-Pages-Skip]`**. This is the default for QA passes, refactors, design tuning, documentation changes, and intermediate fixes.
 - Batch related edits into meaningful milestones. Do not consume a Pages build merely to preview or verify one small code change.
 - Omit `[CF-Pages-Skip]` only for an intentional release milestone, after the user has approved deployment and Cloudflare build capacity is available.
-- Before an intentional release, require a green `Site CI` or run `npm run verify:release`. Do not bypass the security or dependency-audit stages just to ship.
+- Before an intentional release, require a green `Site CI` or run `npm run verify:release`. Do not bypass security, dependency-audit, or Functions-typecheck stages just to ship.
 - If live deployment status cannot be observed directly, say so. Never infer live state from a GitHub commit, CI result, or expected Cloudflare behavior.
 
 ## Release snapshot and rollback discipline
@@ -32,13 +32,25 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Dependency, secret, and configuration safety
 
-- `npm run verify:release` must keep the repository-security check and the production dependency audit. Do not remove or weaken them merely to make CI green.
+- `npm run verify:release` must keep the repository-security check, production dependency audit, and Cloudflare Functions typecheck. Do not remove or weaken them merely to make CI green.
 - Never commit `.env*`, `.dev.vars*`, `.wrangler/`, private-key files, GitHub PATs, or production D1 identifiers.
 - `wrangler.local.toml` is a committed local template only. Its `database_id` must remain `REPLACE_WITH_REAL_D1_DATABASE_ID`, and it must never gain `pages_build_output_dir`.
 - Do not add a production root `wrangler.toml` unless the deployment architecture is deliberately redesigned. Production Pages bindings currently live in the Cloudflare dashboard.
 - `GITHUB_TOKEN` must remain a Cloudflare Pages Secret. Keep the token fine-grained to `k-mama/emmakwon` with Contents read/write only; do not grant Workflows permission.
 - `NEXT_PUBLIC_ADMIN_PASSPHRASE` is client-visible and is not authentication. Cloudflare Access remains the real security boundary for `/admin` and `/api/admin`.
 - Public Studio external-media links must be sanitized to ordinary `http:` or `https:` URLs before publishing and again before rendering. Do not permit executable/custom URL schemes.
+
+## Studio runtime resilience
+
+- Keep `npm run check:functions` in both `verify:release` and GitHub `Site CI`. Next.js build success alone is not proof that Pages Functions compile.
+- Admin Save/Publish/Delete operations are version-aware. Preserve the `updatedAt` optimistic-concurrency contract: stale tabs must receive a conflict instead of overwriting or deleting newer work.
+- D1 `UPDATE` and `DELETE` operations must continue checking `D1Result.meta.changes`; a zero-row write is not success.
+- A no-change editorial save must not bump `updatedAt`. This is required so repeated Publish Now can recognize already-current public content.
+- Publishing/removing a Studio note is idempotent at the GitHub content-file layer. If the desired public JSON already exists (or is already absent for Delete), do not create another GitHub commit or unnecessary Cloudflare build.
+- GitHub API calls are deliberately bounded by a timeout, and browser Admin API calls are also bounded. Do not restore indefinite waits. A client timeout must be treated as an uncertain outcome: tell the editor to refresh before retrying because the server-side operation may have completed.
+- Publish finalization may update publication bookkeeping, but must not overwrite `updatedAt` or newer private editorial fields that were saved while GitHub was responding.
+- Admin JSON responses must remain `Cache-Control: no-store`.
+- The current architecture is intentionally single-creator. Same-tab mutations are serialized by the UI and stale multi-tab edits are guarded by versions, but there is no global distributed operation lock. Do not broaden Admin to multiple simultaneous editors or promise full cross-tab Publish/Delete serialization without first adding and deploying an explicit D1 lock/lease migration.
 
 ## Product and design guardrails
 
