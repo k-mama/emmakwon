@@ -6,13 +6,13 @@ Release candidate prepared on 2026-08-16.
 
 ## What this status means
 
-The repository is release-ready, but the current QA 10–16 changes are intentionally not being sent to Cloudflare Pages while the free build quota is constrained. GitHub `Site CI` is verification only and must not be treated as proof of live deployment.
+The repository is release-ready, but the current QA 10–17 changes are intentionally not being sent to Cloudflare Pages while the free build quota is constrained. GitHub `Site CI` is verification only and must not be treated as proof of live deployment.
 
 ## Current recovery snapshot
 
-The rendered-site baseline for this candidate is:
+The rendered/runtime baseline for this candidate is:
 
-`c61e28c2ad108da555e87d5999eabfc05e77d204`
+`c9c2735d35d6f5db8c48ea7e9893692969b31674`
 
 It is recorded as `PRE_RELEASE_RC_SNAPSHOT`, not yet as a live-verified production state. Full rollback rules are in `RELEASE_ROLLBACK.md`.
 
@@ -22,18 +22,29 @@ Before changing this status to `RELEASED`:
 
 1. Confirm Cloudflare Pages build capacity is available.
 2. Confirm the intended release still matches the approved visual direction and content.
-3. Run `npm run verify:release` locally, or confirm the latest GitHub `Site CI` is green for the release candidate HEAD. This includes repository secret/config checks and a High/Critical production dependency audit.
+3. Run `npm run verify:release` locally, or confirm the latest GitHub `Site CI` is green for the release candidate HEAD. This includes repository secret/config checks, High/Critical production dependency audit, Cloudflare Functions typecheck, lint, build, and static export integrity.
 4. Confirm `RELEASE_ROLLBACK.md` still names the intended recovery snapshot.
 5. Confirm Cloudflare Access still protects `/admin`, `/admin/*`, `/api/admin`, and `/api/admin/*`; repository documentation alone is not proof of the live dashboard state.
 6. Do not make unrelated code or design changes in the release-trigger commit.
 7. Change only this file's status from `RC_PENDING_CLOUDFLARE_CAPACITY` to `RELEASED` and commit **without** `[CF-Pages-Skip]`.
 8. That single non-skip commit is the intentional Cloudflare Pages deployment trigger.
 9. After Cloudflare finishes, visually accept the live site at desktop, intermediate/tablet width, and phone width before calling the release production-locked.
-10. Only after live visual acceptance may a snapshot be promoted from `PRE_RELEASE_RC_SNAPSHOT` to `PRODUCTION_LKG` in a later `[CF-Pages-Skip]` documentation commit.
+10. Exercise Studio Admin once after release: load posts, save a harmless draft/edit, and confirm the backend responds normally. Do not use a production publish/delete as a smoke test unless an actual content change is intended.
+11. Only after live visual/runtime acceptance may a snapshot be promoted from `PRE_RELEASE_RC_SNAPSHOT` to `PRODUCTION_LKG` in a later `[CF-Pages-Skip]` documentation commit.
 
 ## Acceptance coverage already automated
 
-The release verification covers repository secret/configuration invariants, production dependency advisories at High/Critical severity, lint, Next.js production build/static export, required routes/files, internal links and anchors, asset paths, canonical/Open Graph/Twitter metadata, robots/sitemap, public Studio publishing invariants, admin noindex, approved external destinations, safe Studio external-media rendering, and public accessibility invariants including H1/main/lang/image alt/button names/new-window link safety.
+The release verification covers repository secret/configuration invariants, production dependency advisories at High/Critical severity, Cloudflare Pages Functions TypeScript compilation, lint, Next.js production build/static export, required routes/files, internal links and anchors, asset paths, canonical/Open Graph/Twitter metadata, robots/sitemap, public Studio publishing invariants, admin noindex, approved external destinations, safe Studio external-media rendering, and public accessibility invariants including H1/main/lang/image alt/button names/new-window link safety.
+
+QA 17 additionally locks the runtime contracts that static HTML checks cannot prove alone: optimistic version guards for admin mutations, D1 zero-row-write detection, no-change save preservation, idempotent GitHub public-content writes, bounded GitHub/browser requests, no-store Admin API responses, and separate Cloudflare Functions typechecking.
+
+## Runtime assumptions and boundaries
+
+- The Admin is intentionally single-creator. Same-tab mutations are serialized by the UI and stale multi-tab edits are rejected by `updatedAt` version checks.
+- There is no global distributed Publish/Delete lock across separate tabs. Do not expand this Admin to multiple simultaneous editors without first designing and deploying an explicit D1 lock/lease migration.
+- Repeating a publish/delete that already matches public GitHub state must remain a no-op so it does not create a needless GitHub commit or Cloudflare build.
+- A browser timeout is an uncertain outcome, not proof that the server did nothing. Refresh Admin state before retrying a timed-out mutation.
+- QA 17 requires no new production D1 migration; the current release candidate remains compatible with the existing `studio_posts` schema.
 
 ## Security assumptions that remain external to the repository
 
