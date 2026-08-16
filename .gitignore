@@ -46,6 +46,10 @@ yarn-error.log*
 # and must stay outside Git. Keep long-term copies in private storage.
 .studio-backups/
 
+# generated Studio published-content recovery seed. The public JSON in Git
+# is the source of truth; regenerate this immediately before using it.
+/migrations/0002_seed_published_posts.sql
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
