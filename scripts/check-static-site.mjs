@@ -78,6 +78,32 @@ function extractIds(html) {
   return ids;
 }
 
+function countTags(html, tagName) {
+  return (html.match(new RegExp(`<${tagName}\\b`, "gi")) ?? []).length;
+}
+
+function visibleText(htmlFragment) {
+  return htmlFragment
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;|&#160;/gi, " ")
+    .replace(/&[a-z0-9#]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function checkDocumentSemantics(route, html) {
+  const lang = extract(html, /<html[^>]+\blang=["']([^"']+)["']/i);
+  if (!lang || lang.toLowerCase().split("-")[0] !== "en") {
+    fail(`${route} must render an English html lang attribute.`);
+  }
+
+  const mainCount = countTags(html, "main");
+  if (mainCount !== 1) fail(`${route} must render exactly one <main>; found ${mainCount}.`);
+
+  const h1Count = countTags(html, "h1");
+  if (h1Count !== 1) fail(`${route} must render exactly one <h1>; found ${h1Count}.`);
+}
+
 function targetFileForPathname(pathname) {
   const clean = pathname.replace(/^\/+/, "");
   if (!clean) return "index.html";
@@ -121,6 +147,8 @@ for (const route of requiredRoutes) {
   if (!htmlByFile.has(file)) continue;
   const html = htmlByFile.get(file);
 
+  checkDocumentSemantics(route, html);
+
   const canonical = extract(html, /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["'][^>]*>/i)
     ?? extract(html, /<link[^>]+href=["']([^"']+)["'][^>]+rel=["']canonical["'][^>]*>/i);
   const ogTitle = extract(html, /<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']*)["'][^>]*>/i);
@@ -150,6 +178,33 @@ for (const [relativeFile, html] of htmlByFile) {
       ?? extract(html, /<meta[^>]+content=["']([^"']*)["'][^>]+name=["']robots["'][^>]*>/i);
     if (!robotsMeta || !/noindex/i.test(robotsMeta) || !/nofollow/i.test(robotsMeta)) {
       fail(`${currentRoute} must render robots noindex,nofollow metadata.`);
+    }
+  }
+
+  if (publicHtml) {
+    for (const imageMatch of html.matchAll(/<img\b[^>]*>/gi)) {
+      const imageTag = imageMatch[0];
+      if (!/\balt\s*=\s*["'][^"']*["']/i.test(imageTag)) {
+        fail(`${currentRoute} contains an <img> without an alt attribute.`);
+      }
+    }
+
+    for (const buttonMatch of html.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>/gi)) {
+      const attributes = buttonMatch[1];
+      const body = buttonMatch[2];
+      const hasAccessibleName = /\baria-label\s*=\s*["'][^"']+["']/i.test(attributes)
+        || /\baria-labelledby\s*=\s*["'][^"']+["']/i.test(attributes)
+        || visibleText(body).length > 0;
+      if (!hasAccessibleName) fail(`${currentRoute} contains a button without an accessible name.`);
+    }
+
+    for (const anchorMatch of html.matchAll(/<a\b([^>]*)>/gi)) {
+      const attributes = anchorMatch[1];
+      if (!/\btarget\s*=\s*["']_blank["']/i.test(attributes)) continue;
+      const rel = extract(attributes, /\brel\s*=\s*["']([^"']+)["']/i) ?? "";
+      if (!/\b(?:noopener|noreferrer)\b/i.test(rel)) {
+        fail(`${currentRoute} contains target="_blank" without rel="noopener" or rel="noreferrer".`);
+      }
     }
   }
 
@@ -239,7 +294,12 @@ for (const post of publicStudioPosts) {
     seenPostSlugs.add(post.slug);
     const noteRoute = `/studio/notes/${post.slug}/`;
     const noteFile = routeToHtml(noteRoute);
-    if (!exists(noteFile)) fail(`Published Studio post ${post.slug} is missing static page ${noteFile}.`);
+    if (!exists(noteFile)) {
+      fail(`Published Studio post ${post.slug} is missing static page ${noteFile}.`);
+    } else {
+      const noteHtml = htmlByFile.get(noteFile);
+      if (noteHtml) checkDocumentSemantics(noteRoute, noteHtml);
+    }
     if (sitemap && !sitemap.includes(`${SITE_ORIGIN}${noteRoute}`)) fail(`sitemap.xml is missing published Studio post ${noteRoute}.`);
   }
 }
@@ -267,4 +327,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Static integrity check passed: ${htmlFiles.length} HTML files, ${publishedNotePages.length} published Studio Notes, public content invariants verified.`);
+console.log(`Static integrity check passed: ${htmlFiles.length} HTML files, ${publishedNotePages.length} published Studio Notes, public content and accessibility invariants verified.`);
