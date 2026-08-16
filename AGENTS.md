@@ -10,14 +10,23 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Emma Kwon project operating rules
 
+## Launch freeze and change control
+
+- Read `CHANGE_CONTROL.md` before changing this repository after QA 20. The site is in `PRE_RELEASE_FREEZE`, not open-ended redesign mode.
+- Classify work by impact before editing: Class 0 Studio editorial publishing; Class 1 low-risk content/media maintenance; Class 2 UI/layout/navigation/SEO/routes; Class 3 runtime/security/dependencies/Functions/D1/deployment architecture; Class 4 emergency recovery.
+- Do not make speculative design refinements after QA 20. Reopen approved visual systems only for an explicit user request, a concrete defect, a security/platform requirement, or a feature that genuinely needs structural change.
+- `scripts/check-deploy-intent.mjs` is a second-line policy gate for pushes to `main`. Do not weaken it to make an accidental non-skip commit pass.
+- Approved non-skip `main` commits are limited to: Studio Publish/Remove commits that change only `src/content/studio-posts.json`; `Release production:` commits that change only `RELEASE_ACCEPTANCE.md` to `RELEASED`; and explicit `Rollback production to verified snapshot ...` recovery commits.
+- The deploy-intent CI gate cannot undo Cloudflare quota already consumed after a mistaken push. `[CF-Pages-Skip]` remains the primary build-quota protection for iterative work.
+
 ## Release discipline — protect the Cloudflare Pages build quota
 
 - Cloudflare Pages is connected to this repository through Git integration. A normal push to `main` can trigger a Cloudflare build/deployment independently of GitHub Actions.
-- The GitHub `Site CI` workflow is verification only. It runs repository-security, production-dependency-audit, Cloudflare Functions typecheck, lint, build, and static-export checks; CI success must never be described as proof that the live Cloudflare site was deployed or visually verified.
+- The GitHub `Site CI` workflow is verification only. It runs deploy-intent policy, repository-security, production-dependency-audit, Cloudflare Functions typecheck, lint, build, and static-export checks; CI success must never be described as proof that the live Cloudflare site was deployed or visually verified.
 - During iterative work, prefix every commit message with **`[CF-Pages-Skip]`**. This is the default for QA passes, refactors, design tuning, documentation changes, and intermediate fixes.
 - Batch related edits into meaningful milestones. Do not consume a Pages build merely to preview or verify one small code change.
-- Omit `[CF-Pages-Skip]` only for an intentional release milestone, after the user has approved deployment and Cloudflare build capacity is available.
-- Before an intentional release, require a green `Site CI` or run `npm run verify:release`. Do not bypass security, dependency-audit, or Functions-typecheck stages just to ship.
+- Omit `[CF-Pages-Skip]` only for an approved deployment-intent commit defined in `CHANGE_CONTROL.md`, after the relevant release/runtime conditions are satisfied.
+- Before an intentional application release, require a green `Site CI` or run `npm run verify:release`. Do not bypass security, dependency-audit, or Functions-typecheck stages just to ship.
 - If live deployment status cannot be observed directly, say so. Never infer live state from a GitHub commit, CI result, or expected Cloudflare behavior.
 
 ## Release snapshot and rollback discipline
