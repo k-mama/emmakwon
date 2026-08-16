@@ -13,9 +13,17 @@ main img:not([src^="data:image/"]) {
   border-radius: var(--media-image-radius);
 }
 
+/* Clip image-only / image-overlay frames to the same curve so scrims,
+   borders, and hover zooms cannot reveal a square parent behind the image.
+   Figures with captions stay un-clipped so their text remains outside. */
+main :where(div, figure, span):has(> img:not([src^="data:image/"])):not(:has(> figcaption)) {
+  overflow: hidden;
+  border-radius: var(--media-image-radius);
+}
+
 /* Album covers are square, so a percentage radius gives them the soft,
    continuous visual weight of an iOS/iPadOS icon rather than a hard CD tile. */
-:where(div, figure):has(> img[src^="/archive/emmaestro/"]) {
+:where(div, figure, span):has(> img[src^="/archive/emmaestro/"]) {
   overflow: hidden;
   border-radius: var(--album-art-radius);
   box-shadow: var(--album-art-shadow);
