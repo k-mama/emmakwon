@@ -152,12 +152,12 @@ export default function StudioPage() {
 
         <section className={styles.ending} aria-labelledby="studio-ending-heading">
           <div className="container">
-            <p className={styles.endingEyebrow}>THE CREATIVE HOUSE</p>
+            <p className={styles.endingEyebrow}>OPEN DOOR</p>
             <h2 id="studio-ending-heading" className={styles.endingHeadline}>
               The work keeps moving.
             </h2>
-            <Link href="/" className={styles.endingLink}>
-              RETURN TO THE HOUSE <span aria-hidden="true">→</span>
+            <Link href="/#contact" className={styles.endingLink}>
+              GET IN TOUCH <span aria-hidden="true">→</span>
             </Link>
           </div>
         </section>
