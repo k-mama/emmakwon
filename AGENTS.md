@@ -52,6 +52,17 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Admin JSON responses must remain `Cache-Control: no-store`.
 - The current architecture is intentionally single-creator. Same-tab mutations are serialized by the UI and stale multi-tab edits are guarded by versions, but there is no global distributed operation lock. Do not broaden Admin to multiple simultaneous editors or promise full cross-tab Publish/Delete serialization without first adding and deploying an explicit D1 lock/lease migration.
 
+## Observability and incident diagnostics
+
+- Read `INCIDENT_DIAGNOSTICS.md` before changing Admin error handling or diagnosing a production incident.
+- Admin API errors must keep a stable machine-readable `code` plus a server-generated `requestId`; responses should also expose the same id as `X-Request-Id` so browser errors can be correlated with Cloudflare logs.
+- Keep Cloudflare runtime logs structured and minimal: request id, error code, route, method, optional post id, and a short internal error message only. Never log request bodies, post text, D1 row dumps, tokens, passphrases, authorization headers, or environment values.
+- Expected concurrency conflicts should remain distinguishable from infrastructure failures. `VERSION_CONFLICT` is an expected warning-class condition, not a generic 500.
+- Preserve the protected, read-only `/api/admin/diagnostics` endpoint. It may test D1 connectivity and read the configured GitHub content file, but must never mutate either system or return secret values/post content.
+- Do not add automatic polling of `/api/admin/diagnostics` to the Admin UI. Diagnostics are incident-driven, not a background health-check loop.
+- `D1_FINALIZE_FAILED` and client timeouts after Publish are uncertain-side-effect states. The operating rule is refresh/inspect before retry, never repeated blind clicks.
+- Do not remove diagnostic references from Admin errors merely for cosmetic cleanliness; they are the support bridge between the editor screen and runtime logs.
+
 ## Product and design guardrails
 
 - Preserve the approved bright-luxury creative-house direction: colorful and luminous, never globally greyed or desaturated.
