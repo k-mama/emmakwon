@@ -77,15 +77,21 @@ export async function insertPost(db: D1Database, post: StudioPost): Promise<void
     .run();
 }
 
-export async function updatePost(db: D1Database, post: StudioPost): Promise<void> {
+/**
+ * Writes one editorial version only if the row still has the version
+ * (`expectedUpdatedAt`) that the caller read. This is an optimistic
+ * concurrency guard for multiple admin tabs: a stale save never silently
+ * overwrites a newer edit.
+ */
+export async function updatePost(db: D1Database, post: StudioPost, expectedUpdatedAt: string): Promise<boolean> {
   const v = toRowValues(post);
-  await db
+  const result = await db
     .prepare(
       `UPDATE studio_posts SET
          title = ?, slug = ?, excerpt = ?, cover_image = ?, body = ?, category = ?, tags = ?,
          status = ?, published_at = ?, scheduled_at = ?, updated_at = ?,
          seo_title = ?, seo_description = ?, external_media = ?
-       WHERE id = ?`,
+       WHERE id = ? AND updated_at = ?`,
     )
     .bind(
       v.title,
@@ -103,32 +109,45 @@ export async function updatePost(db: D1Database, post: StudioPost): Promise<void
       v.seo_description,
       v.external_media,
       v.id,
+      expectedUpdatedAt,
     )
     .run();
+  return result.meta.changes > 0;
 }
 
-export async function deletePost(db: D1Database, id: string): Promise<void> {
-  await db.prepare("DELETE FROM studio_posts WHERE id = ?").bind(id).run();
+/** Delete only the version the caller inspected. If another tab saves
+    between read and delete, the row survives and the caller can refresh. */
+export async function deletePost(db: D1Database, id: string, expectedUpdatedAt: string): Promise<boolean> {
+  const result = await db
+    .prepare("DELETE FROM studio_posts WHERE id = ? AND updated_at = ?")
+    .bind(id, expectedUpdatedAt)
+    .run();
+  return result.meta.changes > 0;
 }
 
-/** After a successful GitHub commit, records the outcome and clears any
-    prior error. */
-export async function markPublished(db: D1Database, id: string, publishedAt: string, commitSha: string): Promise<void> {
-  await db
+/** After a successful GitHub commit, records that a public copy exists.
+    Deliberately does not overwrite `updated_at`: another tab may have
+    saved newer private edits while GitHub was responding, and those edits
+    (and their version timestamp) must survive. */
+export async function markPublished(
+  db: D1Database,
+  id: string,
+  publishedAt: string,
+  commitSha?: string,
+): Promise<boolean> {
+  const result = await db
     .prepare(
       `UPDATE studio_posts SET status = 'published', published_at = ?, scheduled_at = NULL,
-       github_commit_sha = ?, last_publish_error = NULL, updated_at = ? WHERE id = ?`,
+       github_commit_sha = COALESCE(?, github_commit_sha), last_publish_error = NULL WHERE id = ?`,
     )
-    .bind(publishedAt, commitSha, publishedAt, id)
+    .bind(publishedAt, commitSha ?? null, id)
     .run();
+  return result.meta.changes > 0;
 }
 
-/** After a failed publish attempt, preserves status/scheduled_at exactly
-    as they were and records why — never marks a failed attempt
-    published. */
+/** After a failed publish attempt, preserves the editorial version and
+    records why. A transport failure is not an editorial edit, so it must
+    not bump `updated_at` and make the still-open admin form stale. */
 export async function recordPublishError(db: D1Database, id: string, error: string): Promise<void> {
-  await db
-    .prepare("UPDATE studio_posts SET last_publish_error = ?, updated_at = ? WHERE id = ?")
-    .bind(error, new Date().toISOString(), id)
-    .run();
+  await db.prepare("UPDATE studio_posts SET last_publish_error = ? WHERE id = ?").bind(error, id).run();
 }
