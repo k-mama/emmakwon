@@ -102,6 +102,13 @@
   white-space: nowrap;
 }
 
+.overlayUtilities {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+
 .closeBtn {
   display: inline-flex;
   align-items: center;
@@ -109,7 +116,6 @@
   width: 44px;
   height: 44px;
   padding: 0;
-  margin-left: auto;
   color: var(--nav-navy);
   transition: color 0.2s ease-out, text-shadow 0.2s ease-out;
 }
@@ -118,6 +124,17 @@
 .closeBtn:focus-visible {
   color: var(--nav-hover-wave);
   text-shadow: 0 0 8px rgba(110, 223, 235, 0.28);
+}
+
+.headerLanguageTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px;
+  margin-right: -6px;
+  color: var(--nav-navy);
 }
 
 .closeLines {
