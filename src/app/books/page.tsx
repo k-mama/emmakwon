@@ -10,6 +10,7 @@ import {
 } from "@/content/books";
 import styles from "./page.module.css";
 import paletteStyles from "@/styles/RoomPalettes.module.css";
+import rhythmStyles from "@/styles/EditorialRhythm.module.css";
 
 export const metadata = {
   title: "Books — Emma Kwon",
@@ -30,7 +31,9 @@ export default function BooksPage() {
                 {booksHero.title}
               </h1>
               <p className={styles.heroTagline}>{booksHero.tagline}</p>
-              <p className={styles.heroSupporting}>{booksHero.supporting}</p>
+              <p className={`${styles.heroSupporting} ${rhythmStyles.heroSupport}`}>
+                {booksHero.supporting}
+              </p>
             </div>
             <figure className={styles.heroBook}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -79,9 +82,13 @@ export default function BooksPage() {
           </div>
         </section>
 
-        <section id="music-ost" className={styles.music} aria-labelledby="music-heading">
+        <section
+          id="music-ost"
+          className={`${styles.music} ${rhythmStyles.fullBleedSection}`}
+          aria-labelledby="music-heading"
+        >
           <div className="container">
-            <div className={styles.musicStage}>
+            <div className={`${styles.musicStage} ${rhythmStyles.fullBleedStage}`}>
               <figure className={styles.musicCoverFrame}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -106,7 +113,7 @@ export default function BooksPage() {
           </div>
         </section>
 
-        <section className={styles.ending}>
+        <section className={`${styles.ending} ${rhythmStyles.ending}`}>
           <div className="container">
             <h2 className={styles.endingHeadline}>{booksEnding.headline}</h2>
             <Link href={booksEnding.cta.href} className={styles.endingLink}>
