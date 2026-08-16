@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { NavItem } from "@/content/navigation";
-import LanguageMenu from "./LanguageMenu";
 import styles from "./MobileNav.module.css";
 
 type MobileNavProps = {
@@ -108,22 +107,18 @@ export default function MobileNav({ items, overlay = false }: MobileNavProps) {
               Emma Kwon
             </Link>
 
-            <div className={styles.overlayUtilities}>
-              <button
-                type="button"
-                ref={closeRef}
-                className={styles.closeBtn}
-                aria-label="Close menu"
-                onClick={handleClose}
-              >
-                <span className={styles.closeLines} aria-hidden="true">
-                  <span className={styles.closeLineA} />
-                  <span className={styles.closeLineB} />
-                </span>
-              </button>
-
-              <LanguageMenu triggerClassName={styles.headerLanguageTrigger} />
-            </div>
+            <button
+              type="button"
+              ref={closeRef}
+              className={styles.closeBtn}
+              aria-label="Close menu"
+              onClick={handleClose}
+            >
+              <span className={styles.closeLines} aria-hidden="true">
+                <span className={styles.closeLineA} />
+                <span className={styles.closeLineB} />
+              </span>
+            </button>
           </div>
 
           <nav className={styles.nav} aria-label="Primary">
