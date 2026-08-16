@@ -43,6 +43,7 @@
 }
 
 .date {
+  display: block;
   margin: 14px 0 0;
   font-family: var(--font-display), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 13px;
