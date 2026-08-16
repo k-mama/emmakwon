@@ -1,0 +1,79 @@
+name: Optimize Hero Media
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/optimize-hero-media.yml
+
+permissions:
+  contents: write
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Inspect source
+        run: |
+          ffprobe -v error \
+            -show_entries format=duration,size,bit_rate \
+            -show_entries stream=codec_name,width,height,r_frame_rate,pix_fmt \
+            -of default=noprint_wrappers=1 \
+            public/media/surf-ai.mp4
+
+      - name: Create optimized MP4 and poster
+        run: |
+          set -euo pipefail
+
+          ffmpeg -y -i public/media/surf-ai.mp4 \
+            -map 0:v:0 -an \
+            -c:v libx264 -preset slow -crf 23 \
+            -profile:v high -pix_fmt yuv420p \
+            -movflags +faststart \
+            public/media/surf-ai-optimized.mp4
+
+          ffmpeg -y -ss 0.20 -i public/media/surf-ai.mp4 \
+            -frames:v 1 \
+            -vf "scale=1080:-2:flags=lanczos" \
+            -c:v libwebp -quality 84 -compression_level 6 \
+            public/media/surf-ai-poster.webp
+
+          original_size=$(stat -c%s public/media/surf-ai.mp4)
+          optimized_size=$(stat -c%s public/media/surf-ai-optimized.mp4)
+          poster_size=$(stat -c%s public/media/surf-ai-poster.webp)
+
+          echo "Original bytes:  $original_size"
+          echo "Optimized bytes: $optimized_size"
+          echo "Poster bytes:    $poster_size"
+
+          if [ "$optimized_size" -ge "$original_size" ]; then
+            echo "Optimized file is not smaller; keeping the original video as the delivery asset."
+            rm public/media/surf-ai-optimized.mp4
+          fi
+
+      - name: Commit generated media
+        run: |
+          if git diff --quiet -- public/media/surf-ai-optimized.mp4 public/media/surf-ai-poster.webp && \
+             [ -z "$(git status --short -- public/media/surf-ai-optimized.mp4 public/media/surf-ai-poster.webp)" ]; then
+            echo "No generated media changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/media/surf-ai-optimized.mp4 public/media/surf-ai-poster.webp
+          git commit -m "Generate optimized hero media"
+          git push
