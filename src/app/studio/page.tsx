@@ -55,12 +55,14 @@ export default function StudioPage() {
                 </div>
 
                 <figure className={styles.heroImageFrame}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/archive/emma/studio-candid.jpg"
-                    alt="Emma Kwon working in the studio"
-                    className={styles.heroImage}
-                  />
+                  <div className={styles.heroImageShell}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/archive/emma/studio-candid.jpg"
+                      alt="Emma Kwon working in the studio"
+                      className={styles.heroImage}
+                    />
+                  </div>
                   <figcaption className={styles.heroImageCaption}>IN THE STUDIO</figcaption>
                 </figure>
               </div>

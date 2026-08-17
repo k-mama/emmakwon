@@ -117,15 +117,65 @@
   justify-self: end;
 }
 
+.heroImageShell {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: 24px !important;
+  background: transparent !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.26),
+    0 16px 34px -25px rgba(24, 38, 74, 0.38),
+    0 36px 72px -45px rgba(24, 38, 74, 0.30),
+    0 0 34px -29px rgba(143, 218, 224, 0.20),
+    0 0 40px -34px rgba(243, 141, 161, 0.13) !important;
+  transition: box-shadow 220ms ease-out;
+}
+
+.heroImageShell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.10) 0%,
+      rgba(255, 255, 255, 0.03) 18%,
+      rgba(255, 255, 255, 0) 40%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.035);
+}
+
 .heroImage {
   display: block;
   width: 100%;
   height: auto;
-  border: 1px solid rgba(255, 255, 255, 0.64);
-  border-radius: 24px;
-  box-shadow:
-    0 12px 26px -18px rgba(24, 38, 74, 0.32),
-    0 38px 70px -44px rgba(24, 38, 74, 0.26);
+  border: 0 !important;
+  border-radius: inherit !important;
+  box-shadow: none !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .heroImageShell:hover {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.32),
+      0 18px 38px -24px rgba(24, 38, 74, 0.42),
+      0 40px 78px -43px rgba(24, 38, 74, 0.33),
+      0 0 38px -27px rgba(143, 218, 224, 0.23),
+      0 0 44px -32px rgba(243, 141, 161, 0.15) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroImageShell {
+    transition: none;
+  }
 }
 
 .heroImageCaption {
@@ -465,8 +515,8 @@
     justify-self: stretch;
   }
 
-  .heroImage {
-    border-radius: 20px;
+  .heroImageShell {
+    border-radius: 20px !important;
   }
 
   .quickTabs {

@@ -13,6 +13,16 @@ export const releases = [
     image: "/archive/emmaestro/sly-fairy-album-cover.jpg",
     imageAlt: "Sly Fairy album cover by EMMAESTRO",
     note: "The record that kept growing until it had a character, a story, and a world of its own.",
+    streaming: [
+      {
+        label: "Spotify",
+        href: "https://open.spotify.com/album/73jtNDnHgNkRqpBbIuyBoT",
+      },
+      {
+        label: "Apple Music",
+        href: "https://music.apple.com/au/album/sly-fairy/6785117705",
+      },
+    ],
     cta: { label: "Enter the story world", href: "/sly-fairy/" },
   },
   {
@@ -21,6 +31,16 @@ export const releases = [
     image: "/archive/emmaestro/no-deadline-album-cover.jpg",
     imageAlt: "No Deadline To Be OK album cover by EMMAESTRO",
     note: "Music for the part of BORN RARE that did not become tidy just because the page ended.",
+    streaming: [
+      {
+        label: "Spotify",
+        href: "https://open.spotify.com/album/1FL6HJ0lR24MloZXWe3fYE",
+      },
+      {
+        label: "Apple Music",
+        href: "https://music.apple.com/au/album/no-deadline-to-be-okay-ep/6787253426",
+      },
+    ],
     cta: { label: "Open the book room", href: "/books/#born-rare" },
   },
   {
@@ -29,6 +49,12 @@ export const releases = [
     image: "/archive/emmaestro/aussie-album-cover.jpg",
     imageAlt: "Aussie Morning album cover by EMMAESTRO",
     note: "A brighter room: movement, morning light, and the pleasure of beginning somewhere new.",
+    streaming: [
+      {
+        label: "Spotify",
+        href: "https://open.spotify.com/album/7wwePbfKpU75puc1l2C8dD",
+      },
+    ],
   },
 ];
 

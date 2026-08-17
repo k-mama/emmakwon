@@ -21,6 +21,11 @@ const approvedExternalLinks = new Set([
   "https://www.instagram.com/the_real_emma_kwon",
   "https://www.youtube.com/@emmaestro123",
   "https://www.youtube.com/@kmama_studio",
+  "https://open.spotify.com/album/7wwePbfKpU75puc1l2C8dD",
+  "https://open.spotify.com/album/73jtNDnHgNkRqpBbIuyBoT",
+  "https://music.apple.com/au/album/sly-fairy/6785117705",
+  "https://open.spotify.com/album/1FL6HJ0lR24MloZXWe3fYE",
+  "https://music.apple.com/au/album/no-deadline-to-be-okay-ep/6787253426",
 ]);
 
 const requiredFiles = ["404.html", "robots.txt", "sitemap.xml"];

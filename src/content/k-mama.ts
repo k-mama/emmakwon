@@ -26,7 +26,7 @@ export const kMamaStories = {
   eyebrow: "STORIES & PLAY",
   headline: "A joke can become a world.",
   body: "A strange rule, a drawing, a question at bedtime, a character who keeps doing the same ridiculous thing — K-MAMA treats those little beginnings seriously enough to follow them somewhere.",
-  image: "/archive/k-mama/coloring-book-en.jpg",
+  image: "/archive/k-mama/luxury-fashion-cover-en.png",
   imageAlt: "English K-MAMA coloring book cover",
   artifactLabel: "K-MAMA / COLORING BOOK",
 };

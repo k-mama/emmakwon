@@ -61,6 +61,26 @@ export default function EmmaestroPage() {
                   </div>
                   <p className={styles.releaseKind}>{release.kind}</p>
                   <h3 className={styles.releaseTitle}>{release.title}</h3>
+
+                  {release.streaming?.length ? (
+                    <div
+                      className={styles.streamingLinks}
+                      aria-label={`${release.title} streaming services`}
+                    >
+                      {release.streaming.map((service) => (
+                        <a
+                          key={service.label}
+                          href={service.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.streamingLink}
+                        >
+                          {service.label}
+                        </a>
+                      ))}
+                    </div>
+                  ) : null}
+
                   <p className={styles.releaseNote}>{release.note}</p>
                   {release.cta ? (
                     <Link href={release.cta.href} className={styles.releaseLink}>

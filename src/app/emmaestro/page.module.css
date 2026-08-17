@@ -160,6 +160,36 @@
   line-height: 1.62;
 }
 
+.streamingLinks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 22px;
+  margin-top: 11px;
+}
+
+.streamingLink {
+  display: inline-flex;
+  align-items: center;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(30, 45, 91, 0.24);
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--title-primary);
+  text-decoration: none;
+  transition:
+    color 180ms ease-out,
+    border-color 180ms ease-out;
+}
+
+.streamingLink:hover,
+.streamingLink:focus-visible {
+  color: var(--nav-hover-wave, #6edfeb);
+  border-color: currentColor;
+}
+
 .releaseLink,
 .editorialLink,
 .ostLink {

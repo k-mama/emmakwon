@@ -205,15 +205,28 @@
 }
 
 .artifactFrame {
-  overflow: hidden;
-  border: 1px solid rgba(30, 45, 91, 0.09);
-  background: #fffdf8;
+  overflow: visible !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .artifactImage {
   display: block;
   width: 100%;
   height: auto;
+  border: 0 !important;
+  border-radius: var(--album-art-radius) !important;
+  box-shadow: var(--album-art-shadow) !important;
+  transition: box-shadow 240ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .artifactCard:hover .artifactImage {
+    box-shadow: var(--album-art-shadow-hover) !important;
+  }
 }
 
 .artifactLabel {

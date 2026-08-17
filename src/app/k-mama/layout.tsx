@@ -6,7 +6,7 @@ export const metadata = createPageMetadata({
   description:
     "K-MAMA is Emma Kwon's children's creative world for music, stories, characters, and playful imagination.",
   path: "/k-mama/",
-  image: "/archive/k-mama/coloring-book-en.jpg",
+  image: "/archive/k-mama/luxury-fashion-cover-en.png",
   imageAlt: "English K-MAMA coloring book cover.",
 });
 
