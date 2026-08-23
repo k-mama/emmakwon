@@ -1,0 +1,67 @@
+name: QA K-MAMA Visual
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    if: startsWith(github.head_ref, 'qa/k-mama-visual-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Prepare browser
+        run: |
+          mkdir -p /tmp/visual
+          cd /tmp/visual
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "$CHROME_BIN"
+          echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+      - name: Capture live K-MAMA
+        env:
+          BASE_URL: https://emmakwon.pages.dev
+        run: |
+          mkdir -p k-mama-visual
+          cat > /tmp/visual/capture.mjs <<'EOF'
+          import { createRequire } from 'node:module';
+          const require = createRequire(import.meta.url);
+          const { chromium } = require('/tmp/visual/node_modules/playwright-core');
+          const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROME_BIN, args: ['--no-sandbox','--disable-dev-shm-usage'] });
+          const cases = [['desktop',1440,1000],['intermediate',820,1180],['mobile',390,844]];
+          try {
+            for (const [name,width,height] of cases) {
+              const context = await browser.newContext({ viewport: { width, height } });
+              const page = await context.newPage();
+              const response = await page.goto(`${process.env.BASE_URL}/k-mama/`, { waitUntil: 'networkidle', timeout: 30000 });
+              if (!response || response.status() !== 200) throw new Error(`${name}: HTTP ${response?.status()}`);
+              const m = await page.evaluate(() => ({
+                title: document.title,
+                h1: document.querySelector('h1')?.textContent?.trim() || '',
+                scrollWidth: document.documentElement.scrollWidth,
+                innerWidth: window.innerWidth,
+                ids: ['world','music','life'].map(id => [id, !!document.getElementById(id)]),
+                youtubeLinks: [...document.querySelectorAll('a[href="https://www.youtube.com/@kmama_studio"]')].length,
+              }));
+              if (m.scrollWidth > m.innerWidth + 2) throw new Error(`${name}: horizontal overflow ${m.scrollWidth} > ${m.innerWidth}`);
+              if (!m.ids.every(([,ok]) => ok)) throw new Error(`${name}: missing section id`);
+              if (m.youtubeLinks < 2) throw new Error(`${name}: expected K-MAMA YouTube links`);
+              console.log(name, JSON.stringify(m));
+              await page.screenshot({ path: `k-mama-visual/k-mama-${name}.png`, fullPage: true });
+              await context.close();
+            }
+          } finally { await browser.close(); }
+          EOF
+          node /tmp/visual/capture.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: k-mama-visual-${{ github.sha }}
+          path: k-mama-visual/
+          retention-days: 3
