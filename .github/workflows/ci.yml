@@ -57,3 +57,57 @@ jobs:
 
       - name: Verify static export
         run: npm run check:site
+
+      - name: Probe live K-MAMA release
+        run: |
+          node <<'EOF'
+          const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+          const base = 'https://emmakwon.pages.dev';
+          const requiredKmama = [
+            'K-MAMA ENGLISH',
+            'I learn it. I get stuck. Then I work out why.',
+            'START HERE',
+            'REAL LIFE ENGLISH',
+            '/archive/emma/studio-candid.jpg',
+          ];
+          const forbiddenKmama = [
+            "Made for children. Never talked down to.",
+            'STORIES & PLAY',
+            'luxury-fashion-cover-en.png',
+          ];
+          const requiredHome = ['ENGLISH LEARNING', 'Learning English in Brisbane, one confusing point at a time.'];
+          const forbiddenHome = ["CHILDREN'S WORLD", 'Made for children. Never talked down to.'];
+
+          async function read(path) {
+            const response = await fetch(`${base}${path}`, {
+              headers: { 'user-agent': 'EmmaKwon-KMama-Release-QA/1.0' },
+              cache: 'no-store',
+            });
+            return { status: response.status, text: await response.text() };
+          }
+
+          for (let attempt = 1; attempt <= 18; attempt += 1) {
+            try {
+              const kmama = await read('/k-mama/');
+              const home = await read('/');
+              const kmamaReady = kmama.status === 200
+                && requiredKmama.every((value) => kmama.text.includes(value))
+                && forbiddenKmama.every((value) => !kmama.text.includes(value));
+              const homeReady = home.status === 200
+                && requiredHome.every((value) => home.text.includes(value))
+                && forbiddenHome.every((value) => !home.text.includes(value));
+
+              console.log(`Attempt ${attempt}: K-MAMA=${kmama.status}/${kmamaReady} HOME=${home.status}/${homeReady}`);
+              if (kmamaReady && homeReady) {
+                console.log('Live K-MAMA release content verified.');
+                process.exit(0);
+              }
+            } catch (error) {
+              console.log(`Attempt ${attempt} error: ${error instanceof Error ? error.message : String(error)}`);
+            }
+            await sleep(5000);
+          }
+
+          console.error('Live K-MAMA release content did not reach the expected production state.');
+          process.exit(1);
+          EOF
