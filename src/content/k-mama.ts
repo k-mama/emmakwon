@@ -15,7 +15,7 @@ export const kMamaWorld = {
 export const kMamaMusic = {
   eyebrow: "START HERE",
   headline: "I did or I’ve done?",
-  body: "Both can become ‘했어요’ in Korean. That is exactly why Present Perfect confused me for years. The first K-MAMA English series starts with a clearer way to see the difference: finished past time, connection to now, then form.",
+  body: "Both can become the same sentence in Korean. That is exactly why Present Perfect confused me for years. The first K-MAMA English series starts with a clearer way to see the difference: finished past time, connection to now, then form.",
   cta: {
     label: "WATCH K-MAMA ENGLISH",
     href: "https://www.youtube.com/@kmama_studio",
