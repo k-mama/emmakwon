@@ -4,49 +4,70 @@ Status: `RELEASED`
 
 Release phase: `PUBLIC LIVE ACCEPTED — AUTHENTICATED SMOKE PENDING`
 
-The K-MAMA English alignment was intentionally released on 2026-08-23 after the repository release gate passed. The new public application content is now verified live. The previous live-verified production LKG remains the formal rollback target until the authenticated Admin/runtime smoke checks are re-run or explicitly waived by a future change-control decision.
+This file is the current release-state source of truth. Historical acceptance detail remains preserved in Git history.
 
-## Previous production LKG
+## Formal production LKG
 
 `PRODUCTION_LKG = beac618e8b7ff5d4a58f0ff567defa14b4d01dee`
 
-Previous release commit message:
+This remains the formal rollback target until the current public release completes the authenticated Admin/runtime smoke checks or the promotion rule is explicitly revised under change control.
 
-`Release production: QA20 release candidate`
+## Current K-MAMA English application lineage
 
-This remains the formal last-known-good production application state for rollback purposes until the new release completes every LKG promotion requirement.
+Original K-MAMA English application RC:
 
-Later `[CF-Pages-Skip]` commits may contain unreleased application, content, documentation, or validation-tooling changes. They do not replace the production LKG until the intentional release procedure and required acceptance are complete.
+`0dc764c19bf828c551852345b958f79ee5e0cae0`
 
-## Current released application
-
-`APPLICATION_RC = 0dc764c19bf828c551852345b958f79ee5e0cae0`
-
-Repository release-state commit immediately before the release trigger:
+Repository release-state commit before the first K-MAMA release:
 
 `8696fba0fedcecdb605392158993e52760004664`
 
-Production release trigger:
+First K-MAMA English production release trigger:
 
 `ef4943233a866095d0f5b1f94101ffb48f7e4c65`
 
-Release commit message:
+Post-release visual glyph correction application commit:
 
-`Release production: K-MAMA English alignment`
+`94260c6e37b9bbc47dd5eb5695653ee87574146e`
 
-Purpose:
+The commit carrying this release document is the intentional production trigger for that one-line glyph correction.
 
-- reframe K-MAMA from the retired children's-world positioning to the active K-MAMA English identity;
-- align the K-MAMA page, HOME room copy, primary navigation, and site metadata;
-- keep the approved bright-luxury visual system and production runtime architecture unchanged.
+## What the K-MAMA release changed
+
+The released public application:
+
+- reframed K-MAMA from the retired children's-world positioning to K-MAMA English;
+- aligned the K-MAMA page, HOME room copy, primary navigation, and metadata;
+- retained the approved bright-luxury visual system;
+- kept the runtime, Functions, D1, dependencies, and Admin API architecture unchanged.
+
+The K-MAMA page now presents:
+
+- `K-MAMA ENGLISH · LEARNING IN BRISBANE`;
+- `I learn it. I get stuck. Then I work out why.`;
+- `HOW I LEARN`;
+- `START HERE`;
+- `REAL LIFE ENGLISH`;
+- the first-series focus `I did or I’ve done?`;
+- YouTube CTAs to `https://www.youtube.com/@kmama_studio`.
+
+HOME identifies K-MAMA as `ENGLISH LEARNING` with the descriptor `Learning English in Brisbane, one confusing point at a time.`
 
 ## Repository release verification — passed
 
-GitHub Site CI run `32621996651` completed successfully on 2026-08-23.
+The main K-MAMA release was verified through GitHub Site CI run:
 
-Site CI job `97151391551` completed with conclusion `success`.
+`32621996651`
 
-Passed steps:
+Job:
+
+`97151391551`
+
+Conclusion:
+
+`success`
+
+Passed checks included:
 
 - deploy-intent policy;
 - deployment-intent policy tests;
@@ -58,13 +79,9 @@ Passed steps:
 - Next.js production build;
 - static export verification.
 
-A temporary draft QA PR was used only to expose the existing pull-request CI path. It was not merged, and its branch was reset after verification.
+## Public K-MAMA release-content verification — passed
 
-## Live K-MAMA release-content verification — passed
-
-A temporary QA-only pull request added a live HTTP content probe to the existing Site CI without changing `main`.
-
-GitHub Site CI run:
+Live public content was verified through GitHub Site CI run:
 
 `32622166271`
 
@@ -72,38 +89,39 @@ Job:
 
 `97151841816`
 
-The live probe confirmed the deployed public site contains the new K-MAMA English state, including:
+Conclusion:
+
+`success`
+
+The live probe confirmed the new K-MAMA English state and confirmed the retired public positioning was absent.
+
+Confirmed present included:
 
 - `K-MAMA ENGLISH`;
 - `I learn it. I get stuck. Then I work out why.`;
 - `START HERE`;
 - `REAL LIFE ENGLISH`;
-- `/archive/emma/studio-candid.jpg`;
-- HOME category `ENGLISH LEARNING`;
-- HOME descriptor `Learning English in Brisbane, one confusing point at a time.`
+- HOME category `ENGLISH LEARNING`.
 
-It also confirmed the retired public positioning is absent from the live HTML, including:
+Confirmed absent included:
 
 - `Made for children. Never talked down to.`;
 - `STORIES & PLAY`;
-- `CHILDREN'S WORLD`;
-- `luxury-fashion-cover-en.png` on the K-MAMA page.
+- `CHILDREN'S WORLD`.
 
-The temporary QA pull request was closed without merge, and its branch was reset to the production release commit afterward.
+## Browser-based public live acceptance — passed
 
-## Browser-based live public acceptance — passed
-
-The existing browser-based Live Acceptance Probe was re-run after the K-MAMA release against `https://emmakwon.pages.dev`.
+The browser-based Live Acceptance Probe was re-run against `https://emmakwon.pages.dev` after the K-MAMA release.
 
 GitHub Actions run:
 
 `31938302014`
 
-Latest re-run job:
+Latest accepted job:
 
 `97151949143`
 
-Result:
+Conclusion:
 
 `success`
 
@@ -111,9 +129,7 @@ Acceptance artifact:
 
 `9488685043`
 
-### Public routes
-
-HTTP 200 confirmed for:
+Public HTTP 200 was confirmed for:
 
 - `/`
 - `/sly-fairy/`
@@ -125,210 +141,228 @@ HTTP 200 confirmed for:
 
 Each checked public page rendered:
 
-- exactly one `<h1>`;
-- exactly one `<main>`;
+- exactly one H1;
+- exactly one main;
 - `lang="en"`;
-- the expected production canonical URL;
-- no horizontal overflow at the audited desktop width.
+- the expected canonical URL;
+- no audited desktop horizontal overflow.
 
-The live K-MAMA page specifically rendered:
+The live K-MAMA page rendered title:
 
-- title: `K-MAMA English — Emma Kwon`;
-- HTTP 200;
-- one H1;
-- one main;
-- `lang="en"`;
-- canonical `https://emmakwon.pages.dev/k-mama/`;
-- `scrollWidth = 1440` at a `1440` pixel viewport.
+`K-MAMA English — Emma Kwon`
 
-### Responsive home acceptance
+## Responsive HOME acceptance — passed
 
-The production homepage was rendered and measured at:
+The live HOME page was measured at:
 
-- Desktop: `1440 × 1000`
-- Intermediate/tablet: `820 × 1180`
-- Mobile: `390 × 844`
+- desktop `1440 × 1000`;
+- intermediate `820 × 1180`;
+- mobile `390 × 844`.
 
 All three passed:
 
 - no horizontal overflow;
-- exactly one H1;
+- one H1;
 - visible language globe;
 - Hero video present.
 
-Desktop Hero video geometry:
+Desktop Hero video:
 
-- left: `301.390625px`
-- width: `837.203125px`
-- height: `1000px`
-- viewport width: `1440px`
+- left `301.390625px`;
+- width `837.203125px`;
+- height `1000px`.
 
-The video center matched the exact viewport center.
+Intermediate Hero video:
 
-Intermediate Hero video geometry:
+- left `32.796875px`;
+- top `140.46875px`;
+- width `754.390625px`;
+- height `901.0625px`.
 
-- left: `32.796875px`
-- top: `140.46875px`
-- width: `754.390625px`
-- height: `901.0625px`
-- viewport width: `820px`
+Mobile Hero video:
 
-It was horizontally centered.
-
-Mobile Hero video geometry:
-
-- left: `0px`
-- width: `390px`
-- height: `465.828125px`
-- viewport width: `390px`
+- left `0px`;
+- width `390px`;
+- height `465.828125px`.
 
 The mobile Hero remains edge-to-edge and retains the intended `1080 / 1290` source aspect ratio.
 
-### SEO live files
+## K-MAMA full-page visual review — completed
 
-Production HTTP 200 confirmed for:
+A QA-only draft PR captured full-page live K-MAMA screenshots at desktop, intermediate, and mobile widths.
 
-- `/robots.txt`
-- `/sitemap.xml`
+Visual artifact:
 
-`robots.txt` disallows `/admin`, and the sitemap contains the required public room routes.
+`9488880656`
 
-## Cloudflare Access boundary — reverified live
+The review found:
 
-Unauthenticated production requests were redirected by Cloudflare Access before reaching the protected Admin/API surface:
+- the page hierarchy is clean and premium;
+- section spacing and line length are balanced;
+- mobile flow is readable without crowding;
+- CTA placement is clear;
+- no redesign is warranted.
 
-- `/admin` → HTTP 302
-- `/admin/` → HTTP 302
-- `/api/admin` → HTTP 302
-- `/api/admin/diagnostics` → HTTP 302
+The review also found one real defect: the literal Hangul word in `Both can become ‘했어요’ in Korean.` rendered as missing-glyph boxes in a browser environment without Korean fonts.
 
-The redirects still point to the configured Cloudflare Access login domain.
+## K-MAMA glyph correction — verified before release
 
-## Runtime-change comparison
+The defect was fixed with the smallest safe content change:
 
-A repository comparison from the previous `PRODUCTION_LKG` to the pre-release state found public application, Studio presentation, validation, and documentation changes, but no changes under:
+Before:
+
+`Both can become ‘했어요’ in Korean.`
+
+After:
+
+`Both can become the same sentence in Korean.`
+
+Application patch commit:
+
+`94260c6e37b9bbc47dd5eb5695653ee87574146e`
+
+The patch changes only:
+
+`src/content/k-mama.ts`
+
+Diff size:
+
+- 1 line added;
+- 1 line removed.
+
+The patch was verified before production through Site CI run:
+
+`32622979878`
+
+Job:
+
+`97153911909`
+
+Conclusion:
+
+`success`
+
+A separate branch-build visual check ran as:
+
+`32622979896`
+
+Job:
+
+`97153911785`
+
+Conclusion:
+
+`success`
+
+Visual artifact:
+
+`9488921889`
+
+That test built the patched branch, rendered K-MAMA at `1440 × 1000`, `820 × 1180`, and `390 × 844`, verified the revised sentence was present, verified the literal Hangul string was absent, checked horizontal overflow, and captured full-page screenshots. Manual visual inspection confirmed the corrected copy reads naturally at desktop and mobile sizes.
+
+## Cloudflare Access boundary — verified live
+
+Unauthenticated production requests remain blocked before the protected Admin/API surface:
+
+- `/admin` → HTTP 302;
+- `/admin/` → HTTP 302;
+- `/api/admin` → HTTP 302;
+- `/api/admin/diagnostics` → HTTP 302.
+
+`robots.txt` and `sitemap.xml` return HTTP 200, and `robots.txt` disallows `/admin`.
+
+## Protected runtime continuity
+
+Comparison from the formal previous `PRODUCTION_LKG` through the K-MAMA public release found no changes to:
 
 - `functions/**`;
-- D1 migrations/schema;
+- D1 migrations or schema;
 - package dependencies;
 - Admin API implementation.
 
-Therefore the protected runtime architecture exercised by the previous authenticated acceptance has not been modified by this release. This continuity is useful evidence, but it does not by itself satisfy the repository's strict formal rule requiring authenticated runtime/Admin smoke checks before recording a new `PRODUCTION_LKG`.
+The one-line glyph correction also changes none of those areas.
+
+Therefore the protected runtime architecture exercised by the previous authenticated acceptance is structurally unchanged. This is useful continuity evidence, but strict LKG promotion still requires a fresh authenticated smoke or an explicit change-control waiver.
 
 ## Previous authenticated runtime acceptance — passed
 
-For the previous LKG, an authenticated operator session confirmed:
+For the formal LKG, an authenticated operator session previously confirmed:
 
-### Diagnostics
+- `/api/admin/diagnostics` returned `ok: true`;
+- D1 check returned `status: "ok"`;
+- authenticated GitHub read returned `status: "ok"`;
+- Studio Admin loaded the D1-backed post inventory;
+- a harmless Save Changes operation completed without error.
 
-`/api/admin/diagnostics` returned:
+These paths have not changed, but they have not been re-run with an authenticated Cloudflare session during the current release sequence.
 
-- `ok: true`
-- D1 check: `status: "ok"`
-- authenticated GitHub read check: `status: "ok"`
+## Current promotion checklist
 
-### Studio Admin
+1. Repository release verification: `PASSED`
+2. Intentional production release: `PASSED`
+3. K-MAMA English content verified live: `PASSED`
+4. Desktop public acceptance: `PASSED`
+5. Intermediate public acceptance: `PASSED`
+6. Mobile public acceptance: `PASSED`
+7. Public routes and SEO: `PASSED`
+8. Cloudflare Access boundary: `PASSED`
+9. Full-page K-MAMA visual QA: `PASSED`
+10. Glyph correction Site CI: `PASSED`
+11. Glyph correction branch visual QA: `PASSED`
+12. Authenticated D1 diagnostics recheck: `PENDING`
+13. Authenticated GitHub read diagnostics recheck: `PENDING`
+14. Studio Admin inventory recheck: `PENDING`
+15. Harmless authenticated Admin save recheck: `PENDING`
 
-The authenticated Studio Admin loaded the D1-backed post inventory and completed a harmless **Save Changes** operation with no error.
-
-These runtime paths are unchanged by the K-MAMA release, but the authenticated checks have not been re-run in the current release session because no authenticated Cloudflare/Admin session is available through the connected tooling.
-
-## Current promotion rule
-
-The K-MAMA English release acceptance state is now:
-
-1. GitHub release verification green. `PASSED`
-2. Intentional one-build production release. `PASSED`
-3. New K-MAMA application content verified live. `PASSED`
-4. Desktop live acceptance. `PASSED`
-5. Intermediate/tablet live acceptance. `PASSED`
-6. Mobile live acceptance. `PASSED`
-7. Public route / SEO live checks. `PASSED`
-8. Cloudflare Access boundary verified live. `PASSED`
-9. Authenticated D1 diagnostics recheck. `PENDING`
-10. Authenticated GitHub read diagnostics recheck. `PENDING`
-11. Studio Admin post inventory recheck. `PENDING`
-12. Harmless authenticated Admin save recheck. `PENDING`
-
-Until items 9 through 12 are completed or the formal promotion rule is intentionally revised:
+Until items 12 through 15 are completed or formally waived:
 
 `PRODUCTION_LKG = beac618e8b7ff5d4a58f0ff567defa14b4d01dee`
 
-## Historical pre-release recovery baseline
+## QA audit note
 
-The final pre-release rendered/runtime/recovery/change-control baseline remains available as:
+During post-release QA, a temporary root file `README.tmp` was accidentally created on `main` by a connector call and immediately removed in the next `[CF-Pages-Skip]` cleanup commit. Comparison across the two commits showed zero net file differences from the pre-incident tree. No application, content, runtime, or release-document state was changed by that incident. History was preserved rather than force-pushed.
+
+## Rollback and recovery
+
+Historical pre-release recovery baseline:
 
 `cccad3549f4a3fcb7f46a6893617be091353c630`
 
-Application rollback rules are in `RELEASE_ROLLBACK.md`; Studio editorial-data recovery rules are in `STUDIO_DATA_RECOVERY.md`.
+Application rollback rules live in `RELEASE_ROLLBACK.md`.
 
-## Acceptance coverage already automated
+Studio editorial-data recovery rules live in `STUDIO_DATA_RECOVERY.md`.
 
-Release verification covers repository secret/configuration/backup invariants, production dependency advisories at High/Critical severity, Cloudflare Pages Functions TypeScript compilation, lint, Next.js production build/static export, required routes/files, internal links and anchors, asset paths, canonical/Open Graph/Twitter metadata, robots/sitemap, public Studio publishing invariants, admin noindex, approved external destinations, safe Studio external-media rendering, and public accessibility invariants including H1/main/lang/image alt/button names/new-window link safety.
+Never force-push `main` as a rollback method.
 
-QA 17 locks runtime resilience: optimistic version guards, D1 zero-row-write detection, no-change save preservation, idempotent GitHub public-content writes, bounded requests, no-store Admin API responses, and separate Cloudflare Functions typechecking.
+## Security constraints
 
-QA 18 adds incident observability: request IDs, stable Admin API error codes, safe structured logs, diagnostic references, and the protected read-only `/api/admin/diagnostics` probe.
-
-QA 19 separates public-content recovery from private-editorial recovery. Public Git JSON is not a substitute for a full D1 backup when drafts or unpublished edits matter.
-
-QA 20 places the site under change control. `CHANGE_CONTROL.md` defines the release classifications and `[CF-Pages-Skip]` remains the primary control for iterative work.
-
-## Runtime assumptions and boundaries
-
-- The Admin is intentionally single-creator.
-- Same-tab mutations are serialized by the UI and stale multi-tab edits are rejected by `updatedAt` version checks.
-- There is no global distributed Publish/Delete lock across separate tabs. Do not expand this Admin to multiple simultaneous editors without first designing and deploying an explicit D1 lock/lease migration.
-- Repeating a publish/delete that already matches public GitHub state must remain a no-op so it does not create a needless GitHub commit or Cloudflare build.
-- A browser timeout is an uncertain outcome, not proof that the server did nothing. Refresh Admin state before retrying a timed-out mutation.
-- Diagnostic logs must never include post bodies, request bodies, tokens, authorization headers, passphrases, D1 row dumps, or environment-variable values.
-- `/api/admin/diagnostics` is read-only and incident-driven. It must remain protected by Cloudflare Access and must not become an automatic polling loop.
-- `studio-posts.json` and an on-demand published seed are not substitutes for a full D1 backup when private drafts/unpublished edits matter.
-
-## Security state
-
-Verified live after the K-MAMA release:
-
-- public routes remain healthy;
-- Cloudflare Access still protects the required Admin/API paths;
-- K-MAMA English content is deployed;
-- HOME responsive geometry remains locked.
-
-Previously authenticated and structurally unchanged:
-
-- D1 production binding;
-- authenticated GitHub Contents read;
-- authenticated Studio Admin loading and save path.
-
-Repository constraints that remain mandatory:
-
-- `GITHUB_TOKEN` stays a Cloudflare Pages Secret and a fine-grained token limited to `k-mama/emmakwon` with Contents read/write only.
-- `NEXT_PUBLIC_ADMIN_PASSPHRASE` remains only a client-visible UX deterrent, never the security boundary.
-- Production D1 binding/configuration remains in Cloudflare, not in committed `wrangler.local.toml`.
+- `GITHUB_TOKEN` remains a Cloudflare Pages Secret and fine-grained token limited to `k-mama/emmakwon` with Contents read/write only.
+- `NEXT_PUBLIC_ADMIN_PASSPHRASE` is only a client-visible UX deterrent and is not the security boundary.
+- Production D1 binding/configuration remains in Cloudflare, not in committed local configuration.
 - Real D1 exports remain private and must never be committed.
+- `/api/admin/diagnostics` remains read-only, incident-driven, and protected by Cloudflare Access.
 
 ## Visual production lock targets
 
-Preserve the approved bright-luxury creative-house direction, including:
+Preserve:
 
+- the approved bright-luxury creative-house direction;
 - centered desktop Hero;
 - edge-to-edge uncropped mobile Hero;
 - visible language globe;
 - soft squircle media;
-- restrained ambient halo + glass highlight + depth shadow;
-- album covers as a single rounded object with no second backing plate;
+- restrained ambient halo, glass highlight, and depth shadow;
+- album covers as a single rounded object;
 - BORN RARE 3D book mockup outside the global glow/radius treatment;
 - no retired Emma portrait intro.
 
 ## Post-release discipline
 
-The site remains change-controlled, not in open-ended rebuild mode.
+The site is change-controlled, not in open-ended redesign mode.
 
-For any new change:
+For any future change:
 
 1. classify it using `CHANGE_CONTROL.md`;
 2. use `[CF-Pages-Skip]` for iterative work;
-3. run the QA required for that class;
-4. create another non-skip release only when a real production application change is intentionally ready.
-
-Never force-push `main` as a rollback method. Production application recovery must preserve history through a new verified rollback commit, following `RELEASE_ROLLBACK.md`. Studio data recovery is a separate decision path and must follow `STUDIO_DATA_RECOVERY.md`.
+3. run the QA required for the change class;
+4. create a non-skip production release only when a real production change is intentionally ready.
