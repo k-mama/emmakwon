@@ -4,7 +4,7 @@
 // The homepage itself is Emma's house — visitors are already inside it on
 // arrival, so there is no HOUSE/WORLDS umbrella item. Navigation goes
 // straight to Emma Kwon's creative identities, in this intentional order:
-// the most distinctive character IP first, then music, children's work,
+// the most distinctive character IP first, then music, English learning,
 // books, and finally STUDIO last (what she makes, then how she makes it).
 //
 // Submenus stay shallow and only point to sections that exist today.
@@ -45,9 +45,9 @@ export const primaryNav: NavItem[] = [
     label: "K-MAMA",
     href: "/k-mama/",
     children: [
-      { label: "THE WORLD", href: "/k-mama/#world" },
-      { label: "MUSIC & ENGLISH", href: "/k-mama/#music" },
-      { label: "STORIES & PLAY", href: "/k-mama/#stories" },
+      { label: "HOW I LEARN", href: "/k-mama/#world" },
+      { label: "START HERE", href: "/k-mama/#music" },
+      { label: "REAL LIFE ENGLISH", href: "/k-mama/#life" },
     ],
   },
   {

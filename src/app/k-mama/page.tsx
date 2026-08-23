@@ -1,12 +1,11 @@
-import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import {
   kMamaEnding,
   kMamaHero,
+  kMamaLife,
   kMamaMusic,
   kMamaPrinciples,
-  kMamaStories,
   kMamaWorld,
 } from "@/content/k-mama";
 import styles from "./page.module.css";
@@ -14,9 +13,9 @@ import paletteStyles from "@/styles/RoomPalettes.module.css";
 import rhythmStyles from "@/styles/EditorialRhythm.module.css";
 
 export const metadata = {
-  title: "K-MAMA — Emma Kwon",
+  title: "K-MAMA English — Emma Kwon",
   description:
-    "K-MAMA is Emma Kwon's children's creative world for music, stories, characters, and playful imagination.",
+    "K-MAMA English follows Emma Kwon learning English in Brisbane and turning the grammar, expressions, and real-life moments that finally click into clear Korean explanations.",
 };
 
 export default function KMamaPage() {
@@ -49,7 +48,7 @@ export default function KMamaPage() {
               </div>
             </div>
 
-            <div className={styles.principles} aria-label="K-MAMA creative principles">
+            <div className={styles.principles} aria-label="K-MAMA English learning principles">
               {kMamaPrinciples.map((principle) => (
                 <article key={principle.number} className={styles.principle}>
                   <p className={styles.principleNumber}>{principle.number}</p>
@@ -87,29 +86,15 @@ export default function KMamaPage() {
           </div>
         </section>
 
-        <section id="stories" className={styles.stories} aria-labelledby="stories-heading">
+        <section id="life" className={styles.stories} aria-labelledby="life-heading">
           <div className="container">
-            <div className={styles.storyGrid}>
-              <figure className={styles.artifactCard}>
-                <div className={styles.artifactFrame}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={kMamaStories.image}
-                    alt={kMamaStories.imageAlt}
-                    className={styles.artifactImage}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <figcaption className={styles.artifactLabel}>{kMamaStories.artifactLabel}</figcaption>
-              </figure>
-
+            <div className={styles.introGrid}>
+              <p className={styles.eyebrow}>{kMamaLife.eyebrow}</p>
               <div className={styles.storyCopy}>
-                <p className={styles.eyebrow}>{kMamaStories.eyebrow}</p>
-                <h2 id="stories-heading" className={styles.sectionTitle}>
-                  {kMamaStories.headline}
+                <h2 id="life-heading" className={styles.sectionTitle}>
+                  {kMamaLife.headline}
                 </h2>
-                <p className={styles.sectionBody}>{kMamaStories.body}</p>
+                <p className={styles.sectionBody}>{kMamaLife.body}</p>
               </div>
             </div>
           </div>
@@ -118,9 +103,14 @@ export default function KMamaPage() {
         <section className={`${styles.ending} ${rhythmStyles.ending}`}>
           <div className="container">
             <h2 className={styles.endingHeadline}>{kMamaEnding.headline}</h2>
-            <Link href={kMamaEnding.cta.href} className={styles.endingLink}>
+            <a
+              href={kMamaEnding.cta.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.endingLink}
+            >
               {kMamaEnding.cta.label} <span aria-hidden="true">→</span>
-            </Link>
+            </a>
           </div>
         </section>
       </main>

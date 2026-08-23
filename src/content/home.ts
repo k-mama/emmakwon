@@ -6,7 +6,7 @@ export const houseIndex = {
   eyebrow: "THE CREATIVE HOUSE",
   headline: "Different rooms. One roof.",
   supporting:
-    "Music, books, character worlds, and children's work — four public rooms under the same roof.",
+    "Music, books, story worlds, and English learning — four public rooms under the same roof.",
   feature: {
     eyebrow: "FEATURED WORLD",
     title: "SLY FAIRY",
@@ -26,10 +26,10 @@ export const houseIndex = {
       descriptor: "Records, scores, and the work behind the sound.",
     },
     {
-      category: "CHILDREN'S WORLD",
+      category: "ENGLISH LEARNING",
       name: "K-MAMA",
       href: "/k-mama/",
-      descriptor: "Made for children. Never talked down to.",
+      descriptor: "Learning English in Brisbane, one confusing point at a time.",
     },
     {
       category: "BOOKS & PUBLISHING",

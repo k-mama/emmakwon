@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://emmakwon.pages.dev"),
   title: "Emma Kwon",
   description:
-    "Emma Kwon — books, music, character worlds, children's creative work, and the Studio behind them.",
+    "Emma Kwon — books, music, story worlds, English learning, and the Studio behind them.",
   applicationName: "Emma Kwon",
   authors: [{ name: "Emma Kwon" }],
   creator: "Emma Kwon",

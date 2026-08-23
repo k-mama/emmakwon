@@ -1,60 +1,60 @@
 export const kMamaHero = {
-  eyebrow: "A CHILDREN'S CREATIVE WORLD BY EMMA KWON",
+  eyebrow: "K-MAMA ENGLISH · LEARNING IN BRISBANE",
   title: "K-MAMA",
-  tagline: "Made for children. Never talked down to.",
+  tagline: "I learn it. I get stuck. Then I work out why.",
   supporting:
-    "Songs to move to. Stories to repeat. Characters to meet again. Bright work with enough room left for a child's own imagination.",
+    "I am still learning English too. K-MAMA English takes the grammar and expressions I genuinely get stuck on, works through them until they make sense, and shares the clearest version in Korean.",
 };
 
 export const kMamaWorld = {
-  eyebrow: "THE WORLD",
-  headline: "Bright is not the same as loud.",
-  body: "K-MAMA makes room for color, jokes, rhythm, repetition, and the serious business of pretending. Children do not need every second filled. They need something worth coming back to.",
+  eyebrow: "HOW I LEARN",
+  headline: "Not memorised. Understood well enough to explain.",
+  body: "The goal is not to collect rules. It is to reach the point where I can answer one more question: why is this the right English here? Lessons grow from class notes, textbooks, teacher explanations, real conversations, and the mistakes that make me stop and look again.",
 };
 
 export const kMamaMusic = {
-  eyebrow: "MUSIC & ENGLISH",
-  headline: "A good children's song survives the car ride home.",
-  body: "The best ones escape the speaker. A child keeps the rhythm, changes a word, sings the wrong bit, asks for it again, and makes the song partly their own.",
+  eyebrow: "START HERE",
+  headline: "I did or I’ve done?",
+  body: "Both can become ‘했어요’ in Korean. That is exactly why Present Perfect confused me for years. The first K-MAMA English series starts with a clearer way to see the difference: finished past time, connection to now, then form.",
   cta: {
     label: "WATCH K-MAMA ENGLISH",
     href: "https://www.youtube.com/@kmama_studio",
   },
 };
 
-export const kMamaStories = {
-  eyebrow: "STORIES & PLAY",
-  headline: "A joke can become a world.",
-  body: "A strange rule, a drawing, a question at bedtime, a character who keeps doing the same ridiculous thing — K-MAMA treats those little beginnings seriously enough to follow them somewhere.",
-  image: "/archive/k-mama/luxury-fashion-cover-en.png",
-  imageAlt: "English K-MAMA coloring book cover",
-  artifactLabel: "K-MAMA / COLORING BOOK",
+export const kMamaLife = {
+  eyebrow: "REAL LIFE ENGLISH",
+  headline: "Class ends. The learning keeps going.",
+  body: "A question from school, a sentence I could not say fast enough, a phrase I hear outside class, or a mistake I keep repeating can become the next K-MAMA lesson. The archive grows from English I actually have to use in Brisbane.",
 };
 
 export const kMamaPrinciples = [
   {
     number: "01",
-    label: "BRIGHT",
-    body: "Color that wakes the room up without shouting over it.",
+    label: "REAL",
+    body: "Start with the exact place I got confused.",
   },
   {
     number: "02",
-    label: "WARM",
-    body: "Funny, kind, and never baby talk.",
+    label: "WHY",
+    body: "Do not stop at the correct answer. Explain why.",
   },
   {
     number: "03",
-    label: "CURIOUS",
-    body: "A question is allowed to stay open.",
+    label: "USABLE",
+    body: "Turn the rule into English I can recognise and say in real life.",
   },
   {
     number: "04",
-    label: "REPEATABLE",
-    body: "If a child asks for it again, that matters.",
+    label: "TOGETHER",
+    body: "I am learning too, so I explain from inside the confusion, not above it.",
   },
 ];
 
 export const kMamaEnding = {
-  headline: "KEEP WONDERING.",
-  cta: { label: "Continue to BOOKS", href: "/books/" },
+  headline: "LEARN IT WITH ME.",
+  cta: {
+    label: "WATCH ON YOUTUBE",
+    href: "https://www.youtube.com/@kmama_studio",
+  },
 };
