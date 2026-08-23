@@ -1,0 +1,65 @@
+name: QA K-MAMA Live Glyph
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live:
+    if: startsWith(github.head_ref, 'qa/k-mama-glyph-fix-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Prepare browser
+        run: |
+          mkdir -p /tmp/live-glyph
+          cd /tmp/live-glyph
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "$CHROME_BIN"
+          echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+      - name: Verify live K-MAMA glyph correction
+        env:
+          BASE_URL: https://emmakwon.pages.dev
+        run: |
+          mkdir -p live-kmama-glyph
+          cat > /tmp/live-glyph/check.mjs <<'EOF'
+          import { createRequire } from 'node:module';
+          const require = createRequire(import.meta.url);
+          const { chromium } = require('/tmp/live-glyph/node_modules/playwright-core');
+          const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROME_BIN, args: ['--no-sandbox','--disable-dev-shm-usage'] });
+          try {
+            const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+            const page = await context.newPage();
+            const response = await page.goto(`${process.env.BASE_URL}/k-mama/`, { waitUntil: 'networkidle', timeout: 30000 });
+            if (!response || response.status() !== 200) throw new Error(`HTTP ${response?.status()}`);
+            const text = await page.locator('body').innerText();
+            if (!text.includes('Both can become the same sentence in Korean.')) throw new Error('revised sentence is not live');
+            if (text.includes('했어요')) throw new Error('old Hangul sentence is still live');
+            const metrics = await page.evaluate(() => ({
+              title: document.title,
+              scrollWidth: document.documentElement.scrollWidth,
+              innerWidth: window.innerWidth,
+              youtubeLinks: [...document.querySelectorAll('a[href="https://www.youtube.com/@kmama_studio"]')].length,
+            }));
+            if (metrics.title !== 'K-MAMA English — Emma Kwon') throw new Error(`unexpected title: ${metrics.title}`);
+            if (metrics.scrollWidth > metrics.innerWidth + 2) throw new Error('mobile horizontal overflow');
+            if (metrics.youtubeLinks < 2) throw new Error('K-MAMA YouTube links missing');
+            console.log(JSON.stringify(metrics));
+            await page.screenshot({ path: 'live-kmama-glyph/k-mama-mobile-live.png', fullPage: true });
+            await context.close();
+          } finally { await browser.close(); }
+          EOF
+          node /tmp/live-glyph/check.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: live-kmama-glyph-${{ github.sha }}
+          path: live-kmama-glyph/
+          retention-days: 3
