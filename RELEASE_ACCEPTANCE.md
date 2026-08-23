@@ -14,7 +14,29 @@ Release commit message:
 
 This is the current live-verified last-known-good production application state.
 
-Later `[CF-Pages-Skip]` commits are repository-only documentation / validation-tooling changes and did not replace the deployed production application.
+Later `[CF-Pages-Skip]` commits may contain unreleased application, content, documentation, or validation-tooling changes. They do not replace the deployed production LKG until the intentional release procedure and live acceptance are complete.
+
+## Current unreleased application release candidate
+
+`APPLICATION_RC = 0dc764c19bf828c551852345b958f79ee5e0cae0`
+
+Purpose:
+
+- reframe K-MAMA from the retired children's-world positioning to the active K-MAMA English identity;
+- align the K-MAMA page, HOME room copy, primary navigation, and site metadata;
+- keep the approved bright-luxury visual system and production runtime architecture unchanged.
+
+Release state:
+
+- committed with `[CF-Pages-Skip]`;
+- not intentionally deployed to production;
+- source-level contract review completed for the changed K-MAMA/HOME/navigation/metadata files;
+- new K-MAMA anchors resolve to real page sections;
+- K-MAMA YouTube remains an approved external destination;
+- production release remains blocked until a green Site CI or equivalent `npm run verify:release` result is directly observed;
+- after release, desktop/intermediate/mobile live acceptance and the required protected-runtime checks must pass before any new `PRODUCTION_LKG` is recorded.
+
+A documentation-only `[CF-Pages-Skip]` commit may follow this application RC without changing its application tree. Do not treat repository HEAD alone as evidence that the RC is live.
 
 ## Cloudflare deployment — passed
 
