@@ -1,0 +1,63 @@
+name: QA K-MAMA Glyph Visual
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    if: startsWith(github.head_ref, 'qa/k-mama-glyph-fix-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Prepare browser
+        run: |
+          mkdir -p /tmp/visual
+          cd /tmp/visual
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "$CHROME_BIN"
+          echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+      - name: Build branch and capture K-MAMA
+        run: |
+          npm ci
+          npm run build
+          python3 -m http.server 4173 --directory out >/tmp/kmama-http.log 2>&1 &
+          echo $! >/tmp/kmama-http.pid
+          sleep 2
+          mkdir -p k-mama-glyph-visual
+          cat > /tmp/visual/capture.mjs <<'EOF'
+          import { createRequire } from 'node:module';
+          const require = createRequire(import.meta.url);
+          const { chromium } = require('/tmp/visual/node_modules/playwright-core');
+          const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROME_BIN, args: ['--no-sandbox','--disable-dev-shm-usage'] });
+          const cases = [['desktop',1440,1000],['intermediate',820,1180],['mobile',390,844]];
+          try {
+            for (const [name,width,height] of cases) {
+              const context = await browser.newContext({ viewport: { width, height } });
+              const page = await context.newPage();
+              const response = await page.goto('http://127.0.0.1:4173/k-mama/', { waitUntil: 'networkidle', timeout: 30000 });
+              if (!response || response.status() !== 200) throw new Error(`${name}: HTTP ${response?.status()}`);
+              const text = await page.locator('body').innerText();
+              if (!text.includes('Both can become the same sentence in Korean.')) throw new Error(`${name}: revised sentence missing`);
+              if (text.includes('했어요')) throw new Error(`${name}: Korean glyph text still present`);
+              const m = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, innerWidth: window.innerWidth }));
+              if (m.scrollWidth > m.innerWidth + 2) throw new Error(`${name}: horizontal overflow`);
+              await page.screenshot({ path: `k-mama-glyph-visual/k-mama-${name}.png`, fullPage: true });
+              await context.close();
+            }
+          } finally { await browser.close(); }
+          EOF
+          node /tmp/visual/capture.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: k-mama-glyph-visual-${{ github.sha }}
+          path: k-mama-glyph-visual/
+          retention-days: 3
