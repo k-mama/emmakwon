@@ -12,6 +12,9 @@ import type { ReactNode } from "react";
  * Keeping this component as a pass-through preserves the existing Admin page
  * structure while allowing a successful Cloudflare email verification to open
  * Studio Admin immediately.
+ *
+ * QA branch note: this comment exists only to exercise the full pull-request CI
+ * against the email-only Admin authentication build before production release.
  */
 export default function AdminGate({ children }: { children: ReactNode }) {
   return <>{children}</>;
