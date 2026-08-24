@@ -2,9 +2,39 @@
 
 Status: `RELEASED`
 
-Release phase: `PUBLIC LIVE ACCEPTED — AUTHENTICATED SMOKE PENDING`
+Release phase: `PUBLIC LIVE ACCEPTED — ADMIN EMAIL-ONLY AUTH RELEASE IN PROGRESS`
 
 This file is the current release-state source of truth. Older detailed acceptance records remain preserved in Git history.
+
+## Studio Admin email-only authentication release
+
+User-requested production change:
+
+- remove the redundant client-side `NEXT_PUBLIC_ADMIN_PASSPHRASE` prompt;
+- keep Cloudflare Access as the sole authentication boundary for `/admin/*` and `/api/admin/*`;
+- after successful Cloudflare email verification, open Studio Admin immediately without a second password.
+
+Application candidate:
+
+`b93833840cdcedc9a15779905ad00ec3ca44eb4b`
+
+The application change touches only `src/components/admin/AdminGate.tsx`. It removes the browser-visible passphrase comparison and leaves the existing Admin pages, D1 APIs, GitHub publishing pipeline, and Cloudflare Access boundary unchanged.
+
+A verification-only pull request exercised the full Site CI against the same application state. The PR was not merged.
+
+Verification PR:
+
+`#6`
+
+Site CI run:
+
+`32730038824`
+
+Conclusion:
+
+`success`
+
+The production release triggered by this document update must still receive live acceptance. Until that live check is complete, the formal production LKG remains unchanged.
 
 ## Formal production LKG
 
@@ -213,7 +243,7 @@ From the formal previous `PRODUCTION_LKG` through the K-MAMA releases, there hav
 - package dependencies;
 - Admin API implementation.
 
-The glyph correction is content-only and changes none of those areas.
+The current Admin authentication simplification also leaves `functions/**`, D1 schema, dependencies, and the Admin API implementation unchanged. It removes only the redundant client-side passphrase UI after Cloudflare Access.
 
 The protected runtime architecture exercised by the previous authenticated acceptance is therefore structurally unchanged. This is strong continuity evidence, but the strict LKG promotion rule still requires a fresh authenticated smoke or an explicit change-control waiver.
 
@@ -227,7 +257,7 @@ For the formal LKG, an authenticated operator session previously confirmed:
 - Studio Admin loaded the D1-backed post inventory;
 - a harmless Save Changes operation completed without error.
 
-These paths have not changed, but they have not been re-run with an authenticated Cloudflare session during the current K-MAMA release sequence.
+These runtime paths have not changed, but they must be rechecked after the current Admin authentication release is live.
 
 ## Current promotion checklist
 
@@ -244,12 +274,14 @@ These paths have not changed, but they have not been re-run with an authenticate
 11. Glyph correction branch visual QA: `PASSED`
 12. Glyph correction live verification: `PASSED`
 13. Whole-site live acceptance after glyph release: `PASSED`
-14. Authenticated D1 diagnostics recheck: `PENDING`
-15. Authenticated GitHub read diagnostics recheck: `PENDING`
-16. Studio Admin inventory recheck: `PENDING`
-17. Harmless authenticated Admin save recheck: `PENDING`
+14. Admin email-only authentication pre-release Site CI: `PASSED`
+15. Email-only Admin behavior verified live: `PENDING`
+16. Authenticated D1 diagnostics recheck: `PENDING`
+17. Authenticated GitHub read diagnostics recheck: `PENDING`
+18. Studio Admin inventory recheck: `PENDING`
+19. Harmless authenticated Admin save recheck: `PENDING`
 
-Until items 14 through 17 are completed or formally waived:
+Until the pending items are completed or formally waived:
 
 `PRODUCTION_LKG = beac618e8b7ff5d4a58f0ff567defa14b4d01dee`
 
@@ -272,7 +304,7 @@ Never force-push `main` as a rollback method.
 ## Security constraints
 
 - `GITHUB_TOKEN` remains a Cloudflare Pages Secret and a fine-grained token limited to `k-mama/emmakwon` with Contents read/write only.
-- `NEXT_PUBLIC_ADMIN_PASSPHRASE` remains only a client-visible UX deterrent, not the security boundary.
+- The client-side `NEXT_PUBLIC_ADMIN_PASSPHRASE` gate is retired. Cloudflare Access is the sole authentication boundary for `/admin/*` and `/api/admin/*`.
 - Production D1 binding/configuration remains in Cloudflare.
 - Real D1 exports remain private and must never be committed.
 - `/api/admin/diagnostics` remains read-only, incident-driven, and protected by Cloudflare Access.
