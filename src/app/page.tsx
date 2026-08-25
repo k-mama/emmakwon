@@ -9,7 +9,7 @@ import { createPageMetadata } from "@/lib/site-metadata";
 export const metadata = createPageMetadata({
   title: "Emma Kwon",
   description:
-    "Emma Kwon — books, music, character worlds, children's creative work, and the Studio behind them.",
+    "Emma Kwon — books, music, story worlds, English learning, and the Studio behind them.",
   path: "/",
   image: "/media/surf-ai-poster.webp",
   imageAlt: "Emma Kwon creative house hero image.",
