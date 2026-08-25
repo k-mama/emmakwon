@@ -2,11 +2,11 @@
 
 Status: `RELEASED`
 
-Release phase: `EMAIL-ONLY ADMIN LIVE ACCEPTED — DIAGNOSTICS/SAVE SMOKE PENDING`
+Release phase: `FULL LIVE ACCEPTED — PRODUCTION LKG PROMOTED — TECHNICAL BUILD LOCKED`
 
 This file is the current release-state source of truth. Older detailed acceptance records remain preserved in Git history.
 
-## Studio Admin email-only authentication release
+## Studio Admin email-only authentication release — fully accepted
 
 User-requested production change:
 
@@ -17,6 +17,10 @@ User-requested production change:
 Application candidate:
 
 `b93833840cdcedc9a15779905ad00ec3ca44eb4b`
+
+Production release trigger:
+
+`f4316f0c61dfb6687bb0a05daf0b1237306afbe4`
 
 The application change touches only `src/components/admin/AdminGate.tsx`. It removes the browser-visible passphrase comparison and leaves the existing Admin pages, D1 APIs, GitHub publishing pipeline, and Cloudflare Access boundary unchanged.
 
@@ -36,13 +40,23 @@ Conclusion:
 
 Live operator acceptance on 2026-08-25 confirmed that, after Cloudflare email verification, `/admin/` opened Studio Admin directly with no second passphrase prompt. The same authenticated live screen loaded the D1-backed Admin inventory, including the existing draft and published Studio posts.
 
-The remaining authenticated acceptance is limited to the protected diagnostics checks and a harmless no-change Admin save.
+The protected diagnostics endpoint was then opened in the same authenticated browser session and returned:
+
+- top-level `ok: true`;
+- D1 check `status: "ok"`;
+- GitHub read check `status: "ok"`.
+
+Finally, the published Studio post `Rebuilding EmmaKwon.com with AI` was opened without modifying any field and `Save Changes` was pressed once. The UI entered `Saving…` and returned to `Save Changes` with no error, completing the harmless authenticated Admin save smoke test.
+
+All release acceptance requirements for this change are now satisfied.
 
 ## Formal production LKG
 
-`PRODUCTION_LKG = beac618e8b7ff5d4a58f0ff567defa14b4d01dee`
+`PRODUCTION_LKG = f4316f0c61dfb6687bb0a05daf0b1237306afbe4`
 
-This remains the formal rollback target until the current release completes the authenticated Admin/runtime smoke checks or the promotion rule is intentionally revised under change control.
+Promoted: `2026-08-25`
+
+This is the live-verified production deployment commit and the default application rollback target. Later `[CF-Pages-Skip]` documentation commits record acceptance state only and do not replace the deployed production snapshot.
 
 ## Current live K-MAMA English release lineage
 
@@ -238,28 +252,29 @@ All public/live checks passed.
 
 ## Protected runtime continuity
 
-From the formal previous `PRODUCTION_LKG` through the K-MAMA releases, there have been no changes to:
+From the previous production LKG through the K-MAMA releases and the email-only Admin release, there have been no changes to:
 
 - `functions/**`;
 - D1 migrations or schema;
 - package dependencies;
 - Admin API implementation.
 
-The current Admin authentication simplification also leaves `functions/**`, D1 schema, dependencies, and the Admin API implementation unchanged. It removes only the redundant client-side passphrase UI after Cloudflare Access.
+The current Admin authentication simplification leaves those runtime systems unchanged. It removes only the redundant client-side passphrase UI after Cloudflare Access.
 
-The protected runtime architecture exercised by the previous authenticated acceptance is therefore structurally unchanged. This is strong continuity evidence, but the strict LKG promotion rule still requires a fresh authenticated smoke or an explicit change-control waiver.
+The strict authenticated promotion requirement has now been satisfied by the 2026-08-25 live operator checks.
 
-## Previous authenticated runtime acceptance — passed
+## Current authenticated runtime acceptance — passed
 
-For the formal LKG, an authenticated operator session previously confirmed:
+The current live production release has now confirmed:
 
+- Cloudflare email verification opens Studio Admin directly without a second password;
 - `/api/admin/diagnostics` returned `ok: true`;
 - D1 check returned `status: "ok"`;
 - authenticated GitHub read returned `status: "ok"`;
-- Studio Admin loaded the D1-backed post inventory;
-- a harmless Save Changes operation completed without error.
+- Studio Admin loaded the D1-backed draft and published post inventory;
+- a harmless no-change `Save Changes` operation completed without error.
 
-The Admin inventory has now been rechecked successfully after the email-only authentication release. The remaining runtime paths still need the protected diagnostics recheck and harmless save recheck.
+No Publish Now or Delete operation was required for release acceptance.
 
 ## Current promotion checklist
 
@@ -278,14 +293,14 @@ The Admin inventory has now been rechecked successfully after the email-only aut
 13. Whole-site live acceptance after glyph release: `PASSED`
 14. Admin email-only authentication pre-release Site CI: `PASSED`
 15. Email-only Admin behavior verified live: `PASSED`
-16. Authenticated D1 diagnostics recheck: `PENDING`
-17. Authenticated GitHub read diagnostics recheck: `PENDING`
+16. Authenticated D1 diagnostics recheck: `PASSED`
+17. Authenticated GitHub read diagnostics recheck: `PASSED`
 18. Studio Admin inventory recheck: `PASSED`
-19. Harmless authenticated Admin save recheck: `PENDING`
+19. Harmless authenticated Admin save recheck: `PASSED`
 
-Until the pending items are completed or formally waived:
+All promotion checks are complete.
 
-`PRODUCTION_LKG = beac618e8b7ff5d4a58f0ff567defa14b4d01dee`
+`PRODUCTION_LKG = f4316f0c61dfb6687bb0a05daf0b1237306afbe4`
 
 ## QA audit note
 
@@ -327,7 +342,7 @@ Preserve:
 
 ## Post-release discipline
 
-The site is change-controlled, not in open-ended redesign mode.
+The site is now technically locked and change-controlled, not in open-ended redesign mode.
 
 For future changes:
 
@@ -335,3 +350,5 @@ For future changes:
 2. use `[CF-Pages-Skip]` for iterative work;
 3. run the QA required for that class;
 4. create a non-skip production release only when a real production change is intentionally ready.
+
+Routine Studio publishing remains Class 0 and should use the protected Admin workflow without reopening whole-site design QA.
