@@ -10,9 +10,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Emma Kwon project operating rules
 
-## Launch freeze and change control
+## Production lock and change control
 
-- Read `CHANGE_CONTROL.md` before changing this repository after QA 20. The site is in `PRE_RELEASE_FREEZE`, not open-ended redesign mode.
+- Read `CHANGE_CONTROL.md` before changing this repository after QA 20. The site is `POST_RELEASE_LOCKED`, not open-ended redesign mode.
 - Classify work by impact before editing: Class 0 Studio editorial publishing; Class 1 low-risk content/media maintenance; Class 2 UI/layout/navigation/SEO/routes; Class 3 runtime/security/dependencies/Functions/D1/deployment architecture; Class 4 emergency recovery.
 - Do not make speculative design refinements after QA 20. Reopen approved visual systems only for an explicit user request, a concrete defect, a security/platform requirement, or a feature that genuinely needs structural change.
 - `scripts/check-deploy-intent.mjs` is a second-line policy gate for pushes to `main`. Do not weaken it to make an accidental non-skip commit pass.
@@ -33,7 +33,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - Read `RELEASE_ACCEPTANCE.md` and `RELEASE_ROLLBACK.md` before an intentional production release or rollback.
 - Treat a full Git commit SHA as the immutable recovery reference. Do not create snapshot/preview branches merely for backup while Cloudflare quota is constrained; branch creation may be observed by a Git-integrated Pages project depending on its preview configuration.
-- Distinguish `PRE_RELEASE_RC_SNAPSHOT` from `PRODUCTION_LKG`. CI can establish the former; only a completed Cloudflare deployment plus live visual acceptance can establish the latter.
+- Distinguish `PRE_RELEASE_RC_SNAPSHOT` from `PRODUCTION_LKG`. CI can establish the former; only a completed Cloudflare deployment plus live acceptance appropriate to the change can establish the latter.
 - Never force-push `main`, reset published history, or move `main` backward as a rollback shortcut.
 - Restore production through a new auditable rollback commit, run `npm run verify:release`, and only then allow one intentional non-skip Cloudflare deployment.
 - During rollback diagnosis/preparation, keep `[CF-Pages-Skip]`. The final verified rollback trigger is the only rollback commit that should omit the skip marker.
@@ -46,7 +46,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - `wrangler.local.toml` is a committed local template only. Its `database_id` must remain `REPLACE_WITH_REAL_D1_DATABASE_ID`, and it must never gain `pages_build_output_dir`.
 - Do not add a production root `wrangler.toml` unless the deployment architecture is deliberately redesigned. Production Pages bindings currently live in the Cloudflare dashboard.
 - `GITHUB_TOKEN` must remain a Cloudflare Pages Secret. Keep the token fine-grained to `k-mama/emmakwon` with Contents read/write only; do not grant Workflows permission.
-- `NEXT_PUBLIC_ADMIN_PASSPHRASE` is client-visible and is not authentication. Cloudflare Access remains the real security boundary for `/admin` and `/api/admin`.
+- The retired `NEXT_PUBLIC_ADMIN_PASSPHRASE` gate must not be reintroduced. Any `NEXT_PUBLIC_*` value is client-visible and cannot be authentication. Cloudflare Access is the sole authentication boundary for `/admin` and `/api/admin`.
 - Public Studio external-media links must be sanitized to ordinary `http:` or `https:` URLs before publishing and again before rendering. Do not permit executable/custom URL schemes.
 
 ## Studio runtime resilience
@@ -100,6 +100,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - `src/content/studio-posts.json` is public content and must contain published posts only. Draft/editorial state belongs in D1.
 - Publishing state must continue to flow through the explicit Publish Now pipeline; do not create a shortcut that writes drafts directly to public JSON.
-- Real `/admin` and `/api/admin` security is expected at Cloudflare Access. The client-side passphrase is only a UX deterrent.
-- Do not claim Cloudflare Access is configured merely because this repository documents the intended rules; dashboard state must be verified separately.
+- Real `/admin` and `/api/admin` security is Cloudflare Access. Do not add a client-side passphrase gate or treat browser-visible values as authentication.
+- Do not claim Cloudflare Access is configured merely because this repository documents the intended rules; live/dashboard state must be verified when relevant. The email-only Admin release was live-accepted on 2026-08-25, but future Access changes still require fresh verification.
 - Preserve `robots`/`sitemap`/canonical/Open Graph/Twitter metadata and the static integrity checker. Do not weaken `scripts/check-static-site.mjs` just to make CI green.
