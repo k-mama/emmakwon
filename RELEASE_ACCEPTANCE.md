@@ -2,7 +2,7 @@
 
 Status: `RELEASED`
 
-Release phase: `PUBLIC LIVE ACCEPTED — ADMIN EMAIL-ONLY AUTH RELEASE IN PROGRESS`
+Release phase: `EMAIL-ONLY ADMIN LIVE ACCEPTED — DIAGNOSTICS/SAVE SMOKE PENDING`
 
 This file is the current release-state source of truth. Older detailed acceptance records remain preserved in Git history.
 
@@ -34,7 +34,9 @@ Conclusion:
 
 `success`
 
-The production release triggered by this document update must still receive live acceptance. Until that live check is complete, the formal production LKG remains unchanged.
+Live operator acceptance on 2026-08-25 confirmed that, after Cloudflare email verification, `/admin/` opened Studio Admin directly with no second passphrase prompt. The same authenticated live screen loaded the D1-backed Admin inventory, including the existing draft and published Studio posts.
+
+The remaining authenticated acceptance is limited to the protected diagnostics checks and a harmless no-change Admin save.
 
 ## Formal production LKG
 
@@ -257,7 +259,7 @@ For the formal LKG, an authenticated operator session previously confirmed:
 - Studio Admin loaded the D1-backed post inventory;
 - a harmless Save Changes operation completed without error.
 
-These runtime paths have not changed, but they must be rechecked after the current Admin authentication release is live.
+The Admin inventory has now been rechecked successfully after the email-only authentication release. The remaining runtime paths still need the protected diagnostics recheck and harmless save recheck.
 
 ## Current promotion checklist
 
@@ -275,10 +277,10 @@ These runtime paths have not changed, but they must be rechecked after the curre
 12. Glyph correction live verification: `PASSED`
 13. Whole-site live acceptance after glyph release: `PASSED`
 14. Admin email-only authentication pre-release Site CI: `PASSED`
-15. Email-only Admin behavior verified live: `PENDING`
+15. Email-only Admin behavior verified live: `PASSED`
 16. Authenticated D1 diagnostics recheck: `PENDING`
 17. Authenticated GitHub read diagnostics recheck: `PENDING`
-18. Studio Admin inventory recheck: `PENDING`
+18. Studio Admin inventory recheck: `PASSED`
 19. Harmless authenticated Admin save recheck: `PENDING`
 
 Until the pending items are completed or formally waived:
