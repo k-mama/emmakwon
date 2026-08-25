@@ -3,9 +3,9 @@
 ## Current production last-known-good
 
 - Snapshot type: `PRODUCTION_LKG`
-- Live-verified production commit: `beac618e8b7ff5d4a58f0ff567defa14b4d01dee`
-- Promoted: 2026-08-16
-- Verification: GitHub release checks green; Cloudflare Pages deployment successful; public browser probe green at desktop/intermediate/mobile; public routes/SEO live checks green; Cloudflare Access boundary verified; authenticated `/api/admin/diagnostics` returned D1 `ok` and GitHub read `ok`; Studio Admin inventory loaded; harmless authenticated Save Changes completed without error.
+- Live-verified production commit: `f4316f0c61dfb6687bb0a05daf0b1237306afbe4`
+- Promoted: 2026-08-25
+- Verification: pre-release Site CI green; Cloudflare Pages deployment accepted live; public browser acceptance remained green; Cloudflare Access email verification opened Studio Admin directly with no second passphrase; authenticated `/api/admin/diagnostics` returned top-level `ok: true`, D1 `ok`, and GitHub read `ok`; Studio Admin inventory loaded; harmless authenticated no-change `Save Changes` completed without error.
 
 This is the default application rollback target for future production regressions.
 
@@ -13,7 +13,11 @@ The historical QA 20 pre-release baseline remains available as:
 
 `cccad3549f4a3fcb7f46a6893617be091353c630`
 
-Use the live-verified `PRODUCTION_LKG` by default unless an incident investigation proves an older historical baseline is intentionally required.
+The previous production LKG remains preserved in Git history as:
+
+`beac618e8b7ff5d4a58f0ff567defa14b4d01dee`
+
+Use the current live-verified `PRODUCTION_LKG` by default unless an incident investigation proves an older historical baseline is intentionally required.
 
 A Git rollback is **not** a D1 data rollback. Use `STUDIO_DATA_RECOVERY.md` for editorial database incidents.
 
@@ -44,7 +48,7 @@ git pull --ff-only
 git status --short
 # Stop here unless the worktree is clean.
 
-SNAPSHOT=beac618e8b7ff5d4a58f0ff567defa14b4d01dee
+SNAPSHOT=f4316f0c61dfb6687bb0a05daf0b1237306afbe4
 
 git revert --no-commit "${SNAPSHOT}..HEAD"
 
@@ -58,7 +62,7 @@ git diff --cached
 If verification is green and the staged rollback is exactly what is intended:
 
 ```bash
-git commit -m "Rollback production to verified snapshot beac618e"
+git commit -m "Rollback production to verified snapshot f4316f0"
 git push origin main
 ```
 
@@ -91,7 +95,9 @@ Do not reintroduce a committed `migrations/0002_seed_published_posts.sql`; it is
 
 ## Runtime/data-specific recovery note
 
-The current production LKG does not depend on a new D1 schema migration introduced by QA 17–20. If a future release introduces a D1 operation-lock or schema migration, its database rollback/forward plan and pre-change backup must be documented before that release replaces this LKG.
+The current production LKG does not depend on a new D1 schema migration. The email-only Admin change removed only a redundant client-side passphrase gate; Cloudflare Access remains the security boundary, and the Functions/D1/GitHub publishing runtime was unchanged and revalidated after deployment.
+
+If a future release introduces a D1 operation-lock or schema migration, its database rollback/forward plan and pre-change backup must be documented before that release replaces this LKG.
 
 During an incident, a `VERSION_CONFLICT`, missing binding, temporary GitHub read failure, or timeout can often be diagnosed without changing production code or D1. Do not roll back or restore merely because an Admin request returned an error code.
 
@@ -108,9 +114,9 @@ A future release replaces the current production LKG only after:
 
 1. intentional production deployment;
 2. Cloudflare deploy success;
-3. live public desktop/intermediate/mobile acceptance;
+3. live public desktop/intermediate/mobile acceptance when public UI is affected;
 4. live Access boundary verification when relevant;
-5. authenticated diagnostics when Functions/D1/GitHub runtime is affected;
+5. authenticated diagnostics when Functions/D1/GitHub runtime is affected or release policy requires it;
 6. harmless Admin smoke when Admin runtime is affected.
 
 Record the new LKG in a later `[CF-Pages-Skip]` documentation commit. Do not create another application deployment merely to record the promotion.
@@ -121,7 +127,7 @@ If the live site is broken but the defect is isolated and safer to patch than to
 
 If the defect is broad, uncertain, or affects navigation/content integrity, prefer application rollback to:
 
-`beac618e8b7ff5d4a58f0ff567defa14b4d01dee`
+`f4316f0c61dfb6687bb0a05daf0b1237306afbe4`
 
 unless a newer live-verified `PRODUCTION_LKG` has since replaced it.
 
