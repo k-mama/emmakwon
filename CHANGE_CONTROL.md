@@ -1,12 +1,12 @@
-# Emma Kwon Website — Launch Freeze & Change Control
+# Emma Kwon Website — Production Lock & Change Control
 
-Status: `PRE_RELEASE_FREEZE`
+Status: `POST_RELEASE_LOCKED`
 
-This document controls changes after QA 20. The site is no longer in open-ended rebuild mode. The default is to preserve the release candidate and make only deliberate, scoped changes.
+This document controls changes after QA 20 and the completed production acceptance. The site is released, live-verified, and technically locked. The default is to preserve the current `PRODUCTION_LKG` and make only deliberate, scoped changes.
 
-## 1. Freeze rule
+## 1. Production lock rule
 
-Until the current release candidate is intentionally deployed and accepted live:
+After production acceptance:
 
 - Do not make speculative design refinements.
 - Do not change approved Hero geometry, mobile composition, navigation, media glow/radius behavior, or brand-room architecture unless the user explicitly requests that change or a concrete defect is observed.
@@ -14,7 +14,7 @@ Until the current release candidate is intentionally deployed and accepted live:
 - Every iterative commit to `main` must use `[CF-Pages-Skip]`.
 - Batch related work into one milestone. Do not use a Cloudflare build merely as a preview mechanism.
 
-The approved release candidate should move forward only because of a real content need, a verified defect, a security/platform requirement, or an explicitly requested feature.
+A new application release should move forward only because of a real content need, a verified defect, a security/platform requirement, or an explicitly requested feature. Routine Studio publishing is Class 0 and does not reopen the website build.
 
 ## 2. Change classes
 
@@ -117,10 +117,10 @@ For an ordinary application release:
 2. Confirm the latest release-candidate HEAD is green in Site CI or run `npm run verify:release`.
 3. Confirm Cloudflare Pages build capacity is available.
 4. Confirm `RELEASE_ROLLBACK.md` and, when relevant, `STUDIO_DATA_RECOVERY.md` are current.
-5. Change only `RELEASE_ACCEPTANCE.md` status to `RELEASED`.
+5. Change only `RELEASE_ACCEPTANCE.md` status to `RELEASED` and record the release candidate/reason.
 6. Commit with a message beginning `Release production:` and **without** `[CF-Pages-Skip]`.
 7. Let that one commit be the intentional Cloudflare deployment trigger.
-8. Perform live visual/runtime/diagnostic acceptance before promoting the release to `PRODUCTION_LKG`.
+8. Perform the live visual/runtime/diagnostic acceptance required for the change class before promoting the release to `PRODUCTION_LKG`.
 
 If any unrelated file needs to change, stop. Return to `[CF-Pages-Skip]`, make the change, reverify, and prepare a new release trigger.
 
@@ -144,12 +144,14 @@ For routine Studio Notes, use Class 0. Do not reopen the whole website QA for no
 
 `PRE_RELEASE_RC_SNAPSHOT` means CI-verified only.
 
-`PRODUCTION_LKG` may be recorded only after:
+`PRODUCTION_LKG` may be recorded only after the acceptance appropriate to the change has passed. For a broad website release this includes:
 
 - the intended Cloudflare deployment completed;
 - desktop/intermediate/phone visual acceptance passed;
 - public navigation/content passed;
-- Cloudflare Access-protected `/api/admin/diagnostics` passed D1 and GitHub read checks;
-- Admin read/save smoke test passed.
+- Cloudflare Access-protected `/api/admin/diagnostics` passed D1 and GitHub read checks when runtime is in scope;
+- Admin read/save smoke test passed when Admin runtime is in scope.
 
 Do not call a GitHub SHA production-safe merely because CI is green.
+
+Current authoritative release and rollback state lives in `RELEASE_ACCEPTANCE.md` and `RELEASE_ROLLBACK.md`.
