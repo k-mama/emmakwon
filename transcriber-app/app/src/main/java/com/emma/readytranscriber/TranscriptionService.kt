@@ -14,6 +14,7 @@ import android.os.IBinder
 import android.provider.MediaStore
 import dev.ffmpegkit.whisper.Whisper
 import dev.ffmpegkit.whisper.WhisperConfig
+import dev.ffmpegkit.whisper.WhisperModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -137,14 +138,14 @@ class TranscriptionService : Service() {
         val summary = if (failedCount == 0) {
             "${batch.items.size}개 파일을 모두 처리했습니다."
         } else {
-            "완료 $successCount개 · 실패 $failedCount개"
+            "완료 ${successCount}개 · 실패 ${failedCount}개"
         }
         sendDone(summary)
         updateNotification("전체 완료 · $successCount/${batch.items.size}", 100)
     }
 
     private suspend fun transcribeOne(
-        model: Long,
+        model: WhisperModel,
         item: QueueItem,
         itemIndex: Int,
         totalItems: Int
