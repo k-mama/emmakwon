@@ -5,12 +5,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.IBinder
+import android.os.PowerManager
 import android.provider.MediaStore
 import dev.ffmpegkit.whisper.Whisper
 import dev.ffmpegkit.whisper.WhisperConfig
@@ -35,6 +37,7 @@ class TranscriptionService : Service() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var job: Job? = null
+    private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -42,24 +45,43 @@ class TranscriptionService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent == null || job?.isActive == true) return START_REDELIVER_INTENT
-        if (intent.action != ACTION_START_BATCH && intent.action != ACTION_START) return START_NOT_STICKY
+        if (job?.isActive == true) return START_REDELIVER_INTENT
 
-        val batch = readBatch(intent)
-        if (batch.items.isEmpty()) return START_NOT_STICKY
+        val snapshot = TranscriptionStateStore.snapshot(this)
+        val batch = when {
+            intent != null && (intent.action == ACTION_START_BATCH || intent.action == ACTION_START) ->
+                readBatch(intent, snapshot)
+            snapshot.active -> batchFromState(snapshot)
+            else -> Batch(emptyList())
+        }
 
-        TranscriptionStateStore.begin(this)
-        startForeground(NOTIFICATION_ID, notification("준비 중 · ${batch.items.size}개 파일", 0))
+        if (batch.items.isEmpty()) {
+            stopSelf(startId)
+            return START_NOT_STICKY
+        }
+
+        if (!snapshot.active) {
+            TranscriptionStateStore.begin(this)
+        }
+
+        startForeground(
+            NOTIFICATION_ID,
+            notification("백그라운드 대본 추출 준비 중 · ${batch.items.size}개 파일", snapshot.progress)
+        )
+        acquireWakeLock()
+
         job = scope.launch {
-            runCatching {
+            try {
                 transcribeBatch(batch)
-            }.onFailure { error ->
+            } catch (error: Throwable) {
                 val message = friendlyError(error)
                 sendError(message)
                 updateNotification("문제가 발생했습니다", 0)
+            } finally {
+                releaseWakeLock()
+                stopForeground(STOP_FOREGROUND_DETACH)
+                stopSelf(startId)
             }
-            stopForeground(STOP_FOREGROUND_DETACH)
-            stopSelf(startId)
         }
         return START_REDELIVER_INTENT
     }
@@ -68,7 +90,9 @@ class TranscriptionService : Service() {
         val uri: Uri,
         val originalName: String,
         val durationMs: Long,
-        val outputName: String
+        val outputName: String,
+        val state: String = TranscriptionStateStore.STATE_QUEUED,
+        val completedThroughMs: Long = 0L
     )
 
     private data class Batch(val items: List<QueueItem>)
@@ -78,7 +102,8 @@ class TranscriptionService : Service() {
         val location: String
     )
 
-    private fun readBatch(intent: Intent): Batch {
+    private fun readBatch(intent: Intent, snapshot: TranscriptionStateStore.Snapshot): Batch {
+        val stateByOutput = snapshot.queue.associateBy { it.outputName }
         val uriStrings = intent.getStringArrayListExtra(EXTRA_URIS)
         if (!uriStrings.isNullOrEmpty()) {
             val names = intent.getStringArrayListExtra(EXTRA_NAMES).orEmpty()
@@ -86,45 +111,104 @@ class TranscriptionService : Service() {
             val outputNames = intent.getStringArrayListExtra(EXTRA_OUTPUT_NAMES).orEmpty()
             return Batch(
                 uriStrings.mapIndexed { index, uriString ->
+                    val outputName = outputNames.getOrNull(index)
+                        ?: "T${(index + 1).toString().padStart(3, '0')}.txt"
+                    val persisted = stateByOutput[outputName]
                     QueueItem(
                         uri = Uri.parse(uriString),
-                        originalName = names.getOrNull(index) ?: "video_${index + 1}",
-                        durationMs = durations.getOrNull(index) ?: -1L,
-                        outputName = outputNames.getOrNull(index) ?: "T${(index + 1).toString().padStart(3, '0')}.txt"
+                        originalName = names.getOrNull(index) ?: persisted?.originalName ?: "video_${index + 1}",
+                        durationMs = durations.getOrNull(index) ?: persisted?.durationMs ?: -1L,
+                        outputName = outputName,
+                        state = persisted?.state ?: TranscriptionStateStore.STATE_QUEUED,
+                        completedThroughMs = persisted?.completedThroughMs ?: 0L
                     )
                 }
             )
         }
 
-        val uri = intent.getStringExtra(EXTRA_URI) ?: return Batch(emptyList())
+        val uri = intent.getStringExtra(EXTRA_URI) ?: return batchFromState(snapshot)
         val name = intent.getStringExtra(EXTRA_NAME) ?: "video"
         val duration = intent.getLongExtra(EXTRA_DURATION, -1L)
-        return Batch(listOf(QueueItem(Uri.parse(uri), name, duration, "T001.txt")))
+        val outputName = "T001.txt"
+        val persisted = stateByOutput[outputName]
+        return Batch(
+            listOf(
+                QueueItem(
+                    Uri.parse(uri),
+                    name,
+                    duration,
+                    outputName,
+                    persisted?.state ?: TranscriptionStateStore.STATE_QUEUED,
+                    persisted?.completedThroughMs ?: 0L
+                )
+            )
+        )
+    }
+
+    private fun batchFromState(snapshot: TranscriptionStateStore.Snapshot): Batch {
+        return Batch(
+            snapshot.queue.map {
+                QueueItem(
+                    uri = Uri.parse(it.uri),
+                    originalName = it.originalName,
+                    durationMs = it.durationMs,
+                    outputName = it.outputName,
+                    state = it.state,
+                    completedThroughMs = it.completedThroughMs
+                )
+            }
+        )
     }
 
     private suspend fun transcribeBatch(batch: Batch) {
-        sendProgress(1, "Whisper 준비 중", "${batch.items.size}개 파일을 순서대로 처리합니다.")
+        val initialSnapshot = TranscriptionStateStore.snapshot(this)
+        var successCount = initialSnapshot.queue.count { it.state == TranscriptionStateStore.STATE_DONE }
+        var failedCount = initialSnapshot.queue.count { it.state == TranscriptionStateStore.STATE_FAILED }
+        val totalItems = batch.items.size
+
+        sendProgress(
+            initialSnapshot.progress.coerceAtLeast(1),
+            "백그라운드 음성인식 준비 중",
+            "다른 앱을 사용하거나 화면을 꺼도 계속 처리하도록 보호 중입니다."
+        )
+
         val modelFile = ensureModel()
         val model = Whisper.loadModel(this, modelFile.absolutePath)
-        var successCount = 0
-        var failedCount = 0
 
         try {
-            batch.items.forEachIndexed { index, item ->
+            batch.items.forEachIndexed { index, originalItem ->
+                val latest = TranscriptionStateStore.snapshot(this).queue
+                    .firstOrNull { it.outputName == originalItem.outputName }
+                val item = originalItem.copy(
+                    state = latest?.state ?: originalItem.state,
+                    completedThroughMs = latest?.completedThroughMs ?: originalItem.completedThroughMs
+                )
+
+                if (item.state == TranscriptionStateStore.STATE_DONE ||
+                    item.state == TranscriptionStateStore.STATE_FAILED
+                ) {
+                    return@forEachIndexed
+                }
+
                 val itemNumber = index + 1
                 TranscriptionStateStore.markProcessing(this, item.outputName)
+                val resumeText = if (item.completedThroughMs > 0L) {
+                    " · ${formatTime(item.completedThroughMs)}부터 자동 이어서 처리"
+                } else {
+                    ""
+                }
                 sendProgress(
-                    overallProgress(index, batch.items.size, 2),
-                    "$itemNumber / ${batch.items.size} 시작",
-                    "${item.originalName} → ${item.outputName}"
+                    overallProgress(index, totalItems, itemProgressFromTime(item.completedThroughMs, item.durationMs)),
+                    "$itemNumber / $totalItems 대본 추출 중",
+                    "${item.originalName} → ${item.outputName}$resumeText"
                 )
                 updateNotification(
-                    "$itemNumber/${batch.items.size} · ${item.outputName} 준비 중",
-                    overallProgress(index, batch.items.size, 2)
+                    "$itemNumber/$totalItems · ${item.outputName}$resumeText",
+                    overallProgress(index, totalItems, itemProgressFromTime(item.completedThroughMs, item.durationMs))
                 )
 
                 runCatching {
-                    transcribeOne(model, item, index, batch.items.size)
+                    transcribeOne(model, item, index, totalItems)
                 }.onSuccess { saved ->
                     successCount += 1
                     sendItemDone(item, saved, true)
@@ -138,12 +222,12 @@ class TranscriptionService : Service() {
         }
 
         val summary = if (failedCount == 0) {
-            "${batch.items.size}개 파일을 모두 처리했습니다."
+            "$totalItems개 파일을 모두 처리했습니다."
         } else {
-            "완료 ${successCount}개 · 실패 ${failedCount}개"
+            "완료 $successCount개 · 실패 $failedCount개"
         }
         sendDone(summary)
-        updateNotification("전체 완료 · $successCount/${batch.items.size}", 100)
+        updateNotification("전체 완료 · $successCount/$totalItems", 100)
     }
 
     private suspend fun transcribeOne(
@@ -152,35 +236,59 @@ class TranscriptionService : Service() {
         itemIndex: Int,
         totalItems: Int
     ): String {
-        val transcriptOutput = openTranscriptOutput(item.outputName)
-        var recognizedChunks = 0
-        var processedChunks = 0
+        val latestCheckpoint = TranscriptionStateStore.snapshot(this).queue
+            .firstOrNull { it.outputName == item.outputName }
+            ?.completedThroughMs
+            ?: item.completedThroughMs
+        val resumeMs = latestCheckpoint.coerceAtLeast(0L)
+        val append = resumeMs > 0L
+        val transcriptOutput = openTranscriptOutput(item.outputName, append)
+
+        if (item.durationMs > 0L && resumeMs >= item.durationMs - 1_500L) {
+            transcriptOutput.writer.close()
+            return "저장 완료\n${transcriptOutput.location}"
+        }
+
+        var recognizedChunks = if (append) 1 else 0
+        var newChunks = 0
+        val totalChunks = if (item.durationMs > 0) {
+            ceil(item.durationMs / 300_000.0).toInt().coerceAtLeast(1)
+        } else {
+            1
+        }
+        val alreadyCompletedChunks = (resumeMs / 300_000L).toInt()
 
         sendProgress(
-            overallProgress(itemIndex, totalItems, 3),
-            "${itemIndex + 1} / $totalItems TXT 생성됨",
-            "${item.outputName} · ${transcriptOutput.location}\n완료될 때까지 인식된 대본을 이 파일에 계속 추가합니다."
+            overallProgress(itemIndex, totalItems, itemProgressFromTime(resumeMs, item.durationMs)),
+            "${itemIndex + 1} / $totalItems 백그라운드 대본 추출 중",
+            buildString {
+                append(item.outputName)
+                append(" · ")
+                append(transcriptOutput.location)
+                if (resumeMs > 0L) {
+                    append("\n자동 복구: ")
+                    append(formatTime(resumeMs))
+                    append(" 이후부터 이어서 처리합니다.")
+                } else {
+                    append("\nTXT를 먼저 만들고 5분 구간마다 즉시 저장합니다.")
+                }
+            }
         )
 
         try {
-            val totalChunks = if (item.durationMs > 0) {
-                ceil(item.durationMs / 300_000.0).toInt().coerceAtLeast(1)
-            } else {
-                1
-            }
-
             AudioChunkDecoder.process(
                 context = this,
                 uri = item.uri,
+                startMs = resumeMs,
                 onDecodeProgress = { },
                 onChunk = { chunk ->
-                    val chunkNumber = processedChunks + 1
-                    val itemProgress = (5 + (processedChunks * 90 / totalChunks)).coerceIn(5, 94)
+                    val chunkNumber = alreadyCompletedChunks + newChunks + 1
+                    val itemProgress = itemProgressFromTime(chunk.startMs, item.durationMs)
                     val batchProgress = overallProgress(itemIndex, totalItems, itemProgress)
                     sendProgress(
                         batchProgress,
                         "${itemIndex + 1} / $totalItems 대본 추출 중",
-                        "${item.outputName} · ${formatTime(chunk.startMs)} ~ ${formatTime(chunk.endMs)} · $chunkNumber / 약 $totalChunks"
+                        "${item.outputName} · ${formatTime(chunk.startMs)} ~ ${formatTime(chunk.endMs)} · $chunkNumber / 약 $totalChunks\n다른 앱을 사용해도 이 작업은 계속됩니다."
                     )
                     updateNotification(
                         "${itemIndex + 1}/$totalItems · ${item.outputName} · $chunkNumber/약 $totalChunks",
@@ -195,12 +303,14 @@ class TranscriptionService : Service() {
                         transcriptOutput.writer.flush()
                         recognizedChunks += 1
                     }
-                    processedChunks += 1
+
+                    TranscriptionStateStore.markChunkSaved(this, item.outputName, chunk.endMs)
+                    newChunks += 1
                     runCatching { chunk.file.delete() }
                 }
             )
 
-            if (processedChunks == 0) {
+            if (newChunks == 0) {
                 error("오디오를 읽었지만 처리 가능한 음성 구간을 만들지 못했습니다.")
             }
             if (recognizedChunks == 0) {
@@ -219,16 +329,25 @@ class TranscriptionService : Service() {
         }
     }
 
-    private fun openTranscriptOutput(fileName: String): TranscriptOutput {
+    private fun openTranscriptOutput(fileName: String, append: Boolean): TranscriptOutput {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val values = ContentValues().apply {
-                put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-                put(MediaStore.Downloads.MIME_TYPE, "text/plain")
-                put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/EmmaTranscriber")
+            val relativePath = Environment.DIRECTORY_DOWNLOADS + "/EmmaTranscriber/"
+            val existing = findExistingDownload(fileName, relativePath)
+            val uri = if (append) {
+                existing ?: error("이어쓰기할 기존 TXT 파일을 찾지 못했습니다: $fileName")
+            } else {
+                if (existing != null) {
+                    runCatching { contentResolver.delete(existing, null, null) }
+                }
+                val values = ContentValues().apply {
+                    put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+                    put(MediaStore.Downloads.MIME_TYPE, "text/plain")
+                    put(MediaStore.Downloads.RELATIVE_PATH, relativePath)
+                }
+                contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                    ?: error("Downloads에 TXT 파일을 만들 수 없습니다.")
             }
-            val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-                ?: error("Downloads에 TXT 파일을 만들 수 없습니다.")
-            val stream = contentResolver.openOutputStream(uri, "w")
+            val stream = contentResolver.openOutputStream(uri, if (append) "wa" else "w")
                 ?: error("TXT 파일을 열 수 없습니다.")
             return TranscriptOutput(
                 writer = BufferedWriter(OutputStreamWriter(stream, Charsets.UTF_8)),
@@ -238,10 +357,29 @@ class TranscriptionService : Service() {
 
         val dir = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "EmmaTranscriber").apply { mkdirs() }
         val file = File(dir, fileName)
+        val stream = FileOutputStream(file, append)
         return TranscriptOutput(
-            writer = file.bufferedWriter(Charsets.UTF_8),
+            writer = BufferedWriter(OutputStreamWriter(stream, Charsets.UTF_8)),
             location = file.absolutePath
         )
+    }
+
+    private fun findExistingDownload(fileName: String, relativePath: String): Uri? {
+        val collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+        val projection = arrayOf(MediaStore.MediaColumns._ID)
+        val selection = "${MediaStore.MediaColumns.DISPLAY_NAME}=? AND ${MediaStore.MediaColumns.RELATIVE_PATH}=?"
+        val args = arrayOf(fileName, relativePath)
+        return contentResolver.query(collection, projection, selection, args, null)?.use { cursor ->
+            if (!cursor.moveToFirst()) return@use null
+            val idIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+            ContentUris.withAppendedId(collection, cursor.getLong(idIndex))
+        }
+    }
+
+    private fun itemProgressFromTime(timeMs: Long, durationMs: Long): Int {
+        if (durationMs <= 0L) return if (timeMs > 0L) 50 else 3
+        return ((timeMs.coerceIn(0L, durationMs) * 95L / durationMs).toInt() + 3)
+            .coerceIn(3, 98)
     }
 
     private fun overallProgress(itemIndex: Int, totalItems: Int, itemProgress: Int): Int {
@@ -262,7 +400,7 @@ class TranscriptionService : Service() {
         connection.instanceFollowRedirects = true
         connection.connectTimeout = 30_000
         connection.readTimeout = 60_000
-        connection.setRequestProperty("User-Agent", "EmmaTranscriber/0.2.2")
+        connection.setRequestProperty("User-Agent", "EmmaTranscriber/0.3.0")
         connection.connect()
         if (connection.responseCode !in 200..299) {
             val code = connection.responseCode
@@ -303,6 +441,25 @@ class TranscriptionService : Service() {
             temp.delete()
         }
         return model
+    }
+
+    private fun acquireWakeLock() {
+        if (wakeLock?.isHeld == true) return
+        val powerManager = getSystemService(PowerManager::class.java)
+        wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            "$packageName:TranscriptionWakeLock"
+        ).apply {
+            setReferenceCounted(false)
+            acquire()
+        }
+    }
+
+    private fun releaseWakeLock() {
+        runCatching {
+            wakeLock?.takeIf { it.isHeld }?.release()
+        }
+        wakeLock = null
     }
 
     private fun sendProgress(progress: Int, status: String, detail: String) {
@@ -369,7 +526,14 @@ class TranscriptionService : Service() {
         if (Build.VERSION.SDK_INT >= 26) {
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, "대본 추출", NotificationManager.IMPORTANCE_LOW)
+                NotificationChannel(
+                    CHANNEL_ID,
+                    "대본 추출",
+                    NotificationManager.IMPORTANCE_LOW
+                ).apply {
+                    description = "긴 영상의 대본을 백그라운드에서 계속 추출합니다."
+                    setSound(null, null)
+                }
             )
         }
     }
@@ -383,10 +547,12 @@ class TranscriptionService : Service() {
         )
         return Notification.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_download)
-            .setContentTitle("Emma Transcriber")
+            .setContentTitle("Emma Transcriber · 백그라운드 실행 중")
             .setContentText(text)
             .setContentIntent(pending)
+            .setOnlyAlertOnce(true)
             .setOngoing(progress < 100)
+            .setCategory(Notification.CATEGORY_SERVICE)
             .setProgress(100, progress.coerceIn(0, 100), false)
             .build()
     }
@@ -404,9 +570,18 @@ class TranscriptionService : Service() {
         return "%02d:%02d:%02d".format(h, m, s)
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        val snapshot = TranscriptionStateStore.snapshot(this)
+        if (snapshot.active) {
+            updateNotification("다른 앱을 사용하는 동안에도 계속 처리 중", snapshot.progress)
+        }
+        super.onTaskRemoved(rootIntent)
+    }
+
     override fun onDestroy() {
-        super.onDestroy()
+        releaseWakeLock()
         scope.cancel()
+        super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
