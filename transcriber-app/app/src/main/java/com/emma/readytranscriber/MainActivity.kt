@@ -56,14 +56,15 @@ class MainActivity : AppCompatActivity() {
                     val original = intent.getStringExtra(TranscriptionService.EXTRA_ORIGINAL_NAME).orEmpty()
                     val output = intent.getStringExtra(TranscriptionService.EXTRA_OUTPUT_NAME).orEmpty()
                     val saved = intent.getStringExtra(TranscriptionService.EXTRA_OUTPUT).orEmpty()
+                    val success = intent.getBooleanExtra(TranscriptionService.EXTRA_SUCCESS, false)
                     completedLines += buildString {
-                        append("✓ ")
+                        append(if (success) "✓ " else "✕ ")
                         append(shortOriginalName(original))
                         append("  →  ")
                         append(output)
                         if (saved.isNotBlank()) {
                             append("\n   ")
-                            append(saved.substringAfter("\n", saved))
+                            append(if (success) saved.substringAfter("\n", saved) else saved)
                         }
                     }
                     outputText.text = completedLines.joinToString("\n\n")
@@ -71,12 +72,12 @@ class MainActivity : AppCompatActivity() {
 
                 TranscriptionService.ACTION_DONE -> {
                     progressBar.progress = 100
-                    statusText.text = "전체 완료"
+                    statusText.text = "전체 처리 종료"
                     detailText.text = intent.getStringExtra(TranscriptionService.EXTRA_DETAIL)
                         ?: "선택한 파일을 모두 순서대로 처리했습니다."
                     if (completedLines.isEmpty()) {
                         outputText.text = intent.getStringExtra(TranscriptionService.EXTRA_OUTPUT)
-                            ?: "TXT 파일 저장 완료"
+                            ?: "처리가 끝났습니다."
                     }
                     selectedItems.clear()
                     setBusy(false)
@@ -84,9 +85,11 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 TranscriptionService.ACTION_ERROR -> {
-                    statusText.text = "문제가 발생했습니다"
+                    progressBar.progress = 0
+                    statusText.text = "대본 추출 실패"
                     detailText.text = intent.getStringExtra(TranscriptionService.EXTRA_DETAIL)
                         ?: "알 수 없는 오류"
+                    outputText.text = "오류 내용을 그대로 캡처해서 보내주시면 됩니다. 원본 영상은 건드리지 않았습니다."
                     setBusy(false)
                     startButton.isEnabled = selectedItems.isNotEmpty()
                 }
@@ -205,7 +208,7 @@ class MainActivity : AppCompatActivity() {
         progressBar.progress = 0
         statusText.text = "순차 처리 시작"
         detailText.text = "첫 번째 파일부터 처리합니다. 원본 파일은 복사하거나 업로드하지 않습니다."
-        outputText.text = "완료되는 파일마다 저장 이름과 위치를 여기에 알려드립니다."
+        outputText.text = "TXT 파일을 먼저 만든 뒤, 인식된 대본을 5분 구간마다 계속 저장합니다."
         completedLines.clear()
         setBusy(true)
 
