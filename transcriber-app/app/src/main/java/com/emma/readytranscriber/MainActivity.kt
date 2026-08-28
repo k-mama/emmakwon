@@ -11,7 +11,9 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.provider.OpenableColumns
+import android.provider.Settings
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -72,6 +74,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         renderPersistedState()
+        ensureActiveWorkIsRunning()
     }
 
     override fun onStart() {
@@ -89,6 +92,7 @@ class MainActivity : AppCompatActivity() {
             registerReceiver(receiver, filter)
         }
         renderPersistedState()
+        ensureActiveWorkIsRunning()
     }
 
     override fun onStop() {
@@ -101,6 +105,21 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    private fun requestBackgroundProtectionIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
+        val powerManager = getSystemService(PowerManager::class.java)
+        if (powerManager.isIgnoringBatteryOptimizations(packageName)) return
+
+        runCatching {
+            startActivity(
+                Intent(
+                    Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                    Uri.parse("package:$packageName")
+                )
+            )
         }
     }
 
@@ -142,6 +161,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun startQueue() {
         requestNotificationsIfNeeded()
+        requestBackgroundProtectionIfNeeded()
+
         val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val lastNumber = selectedItems.lastOrNull()?.outputName
             ?.removePrefix("T")
@@ -174,6 +195,24 @@ class MainActivity : AppCompatActivity() {
             )
         }
         ContextCompat.startForegroundService(this, intent)
+    }
+
+    private fun ensureActiveWorkIsRunning() {
+        val snapshot = TranscriptionStateStore.snapshot(this)
+        val hasPendingWork = snapshot.queue.any {
+            it.state != TranscriptionStateStore.STATE_DONE &&
+                it.state != TranscriptionStateStore.STATE_FAILED
+        }
+        if (!snapshot.active || !hasPendingWork) return
+
+        runCatching {
+            ContextCompat.startForegroundService(
+                this,
+                Intent(this, TranscriptionService::class.java).apply {
+                    action = TranscriptionService.ACTION_START
+                }
+            )
+        }
     }
 
     private fun renderPersistedState() {
@@ -218,7 +257,7 @@ class MainActivity : AppCompatActivity() {
         selectButton.isEnabled = !snapshot.active
         startButton.isEnabled = !snapshot.active && selectedItems.isNotEmpty() && !allTerminal
         startButton.text = when {
-            snapshot.active -> "현재 순차 처리 중"
+            snapshot.active -> "현재 백그라운드 순차 처리 중"
             allTerminal -> "처리 완료"
             selectedItems.isNotEmpty() -> "선택한 ${selectedItems.size}개 순차 처리 시작"
             else -> "선택한 파일 순차 처리 시작"
@@ -248,6 +287,10 @@ class MainActivity : AppCompatActivity() {
                     if (item.sizeBytes > 0) append(formatBytes(item.sizeBytes))
                     if (item.sizeBytes > 0 && item.durationMs > 0) append(" · ")
                     if (item.durationMs > 0) append(formatDuration(item.durationMs))
+                }
+                if (item.completedThroughMs > 0L && item.state == TranscriptionStateStore.STATE_PROCESSING) {
+                    append("\n   저장 완료 구간: ")
+                    append(formatDuration(item.completedThroughMs))
                 }
                 if (index != queue.lastIndex) append("\n\n")
             }
