@@ -97,8 +97,8 @@ class TranscriptionService : Service() {
                     runCatching { chunk.file.delete() }
 
                     val p = (10 + (completedChunks * 85 / totalChunks)).coerceIn(10, 95)
-                    sendProgress(p, "대본 추출 중", "$completedChunks개 구간 완료")
-                    updateNotification("대본 추출 중 · $completedChunks개 구간 완료", p)
+                    sendProgress(p, "대본 추출 중", "${completedChunks}개 구간 완료")
+                    updateNotification("대본 추출 중 · ${completedChunks}개 구간 완료", p)
                 }
             )
         } finally {
