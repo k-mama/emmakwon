@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="영상은 휴대폰에 그대로 둡니다.\n대본만 추출해서 TXT 파일로 저장합니다."
+            android:text="영상은 휴대폰에 그대로 둡니다.\n여러 개를 골라두면 순서대로 대본을 만듭니다."
             android:textSize="16sp"
             android:textColor="#4B5563"
             android:lineSpacingExtra="3dp" />
@@ -32,7 +32,16 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="28dp"
-            android:text="영상 선택하고 대본 추출"
+            android:text="영상 검색 · 여러 개 선택"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/startButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:enabled="false"
+            android:text="선택한 파일 순차 처리 시작"
             android:textAllCaps="false" />
 
         <TextView
@@ -40,9 +49,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:padding="16dp"
+            android:background="#F8FAFC"
             android:text="아직 선택한 영상이 없습니다."
             android:textSize="15sp"
-            android:textColor="#374151" />
+            android:textColor="#374151"
+            android:lineSpacingExtra="2dp" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -68,7 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="첫 사용 때 다국어 Whisper 모델 약 142MB를 한 번만 내려받습니다. 이후 음성과 대본은 기기 안에서 처리됩니다."
+            android:text="파일 선택 화면의 검색을 이용할 수 있습니다. 첫 사용 때 Whisper 모델 약 142MB를 한 번만 내려받습니다."
             android:textSize="13sp"
             android:textColor="#6B7280"
             android:lineSpacingExtra="2dp" />
@@ -80,9 +92,10 @@
             android:layout_marginTop="28dp"
             android:padding="16dp"
             android:background="#F3F4F6"
-            android:text="완료되면 저장 위치가 여기에 표시됩니다."
+            android:text="완료될 때마다 T001.txt 같은 짧은 파일명과 저장 위치가 여기에 표시됩니다."
             android:textSize="14sp"
-            android:textColor="#374151" />
+            android:textColor="#374151"
+            android:lineSpacingExtra="2dp" />
 
     </LinearLayout>
 </ScrollView>
