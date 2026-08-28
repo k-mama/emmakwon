@@ -25,7 +25,8 @@ object TranscriptionStateStore {
         val sizeBytes: Long,
         val durationMs: Long,
         val outputName: String,
-        val state: String = STATE_QUEUED
+        val state: String = STATE_QUEUED,
+        val completedThroughMs: Long = 0L
     )
 
     data class Snapshot(
@@ -47,12 +48,14 @@ object TranscriptionStateStore {
             .putString(KEY_DETAIL, "선택한 파일을 순서대로 처리할 준비가 되었습니다.")
             .putString(KEY_COMPLETED, JSONArray().toString())
             .putLong(KEY_UPDATED_AT, System.currentTimeMillis())
-            .apply()
+            .commit()
     }
 
     fun begin(context: Context) {
         val current = snapshot(context)
-        val resetQueue = current.queue.map { it.copy(state = STATE_QUEUED) }
+        val resetQueue = current.queue.map {
+            it.copy(state = STATE_QUEUED, completedThroughMs = 0L)
+        }
         prefs(context).edit()
             .putString(KEY_QUEUE, queueToJson(resetQueue).toString())
             .putBoolean(KEY_ACTIVE, true)
@@ -61,7 +64,7 @@ object TranscriptionStateStore {
             .putString(KEY_DETAIL, "첫 번째 파일부터 처리합니다.")
             .putString(KEY_COMPLETED, JSONArray().toString())
             .putLong(KEY_UPDATED_AT, System.currentTimeMillis())
-            .apply()
+            .commit()
     }
 
     fun markProcessing(context: Context, outputName: String) {
@@ -77,7 +80,26 @@ object TranscriptionStateStore {
             .putString(KEY_QUEUE, queueToJson(updated).toString())
             .putBoolean(KEY_ACTIVE, true)
             .putLong(KEY_UPDATED_AT, System.currentTimeMillis())
-            .apply()
+            .commit()
+    }
+
+    fun markChunkSaved(context: Context, outputName: String, endMs: Long) {
+        val current = snapshot(context)
+        val updated = current.queue.map {
+            if (it.outputName == outputName) {
+                it.copy(
+                    state = STATE_PROCESSING,
+                    completedThroughMs = maxOf(it.completedThroughMs, endMs)
+                )
+            } else {
+                it
+            }
+        }
+        prefs(context).edit()
+            .putString(KEY_QUEUE, queueToJson(updated).toString())
+            .putBoolean(KEY_ACTIVE, true)
+            .putLong(KEY_UPDATED_AT, System.currentTimeMillis())
+            .commit()
     }
 
     fun saveProgress(context: Context, progress: Int, status: String, detail: String) {
@@ -99,17 +121,24 @@ object TranscriptionStateStore {
         val current = snapshot(context)
         val updatedQueue = current.queue.map {
             if (it.outputName == outputName) {
-                it.copy(state = if (success) STATE_DONE else STATE_FAILED)
+                it.copy(
+                    state = if (success) STATE_DONE else STATE_FAILED,
+                    completedThroughMs = if (success && it.durationMs > 0) it.durationMs else it.completedThroughMs
+                )
             } else {
                 it
             }
         }
-        val completed = current.completedLines.toMutableList().apply { add(completedLine) }
+        val completed = current.completedLines.toMutableList().apply {
+            if (none { it.contains("→  $outputName") || it.contains("→ $outputName") }) {
+                add(completedLine)
+            }
+        }
         prefs(context).edit()
             .putString(KEY_QUEUE, queueToJson(updatedQueue).toString())
             .putString(KEY_COMPLETED, stringsToJson(completed).toString())
             .putLong(KEY_UPDATED_AT, System.currentTimeMillis())
-            .apply()
+            .commit()
     }
 
     fun finish(context: Context, detail: String) {
@@ -119,7 +148,7 @@ object TranscriptionStateStore {
             .putString(KEY_STATUS, "전체 처리 종료")
             .putString(KEY_DETAIL, detail)
             .putLong(KEY_UPDATED_AT, System.currentTimeMillis())
-            .apply()
+            .commit()
     }
 
     fun fatal(context: Context, detail: String) {
@@ -128,7 +157,7 @@ object TranscriptionStateStore {
             .putString(KEY_STATUS, "대본 추출 실패")
             .putString(KEY_DETAIL, detail)
             .putLong(KEY_UPDATED_AT, System.currentTimeMillis())
-            .apply()
+            .commit()
     }
 
     fun snapshot(context: Context): Snapshot {
@@ -144,6 +173,9 @@ object TranscriptionStateStore {
         )
     }
 
+    fun queueForResume(context: Context): List<QueueItem> =
+        snapshot(context).queue.filter { it.state != STATE_DONE && it.state != STATE_FAILED }
+
     private fun prefs(context: Context) =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
@@ -158,6 +190,7 @@ object TranscriptionStateStore {
                     .put("durationMs", item.durationMs)
                     .put("outputName", item.outputName)
                     .put("state", item.state)
+                    .put("completedThroughMs", item.completedThroughMs)
             )
         }
         return array
@@ -177,7 +210,8 @@ object TranscriptionStateStore {
                             sizeBytes = o.optLong("sizeBytes", -1L),
                             durationMs = o.optLong("durationMs", -1L),
                             outputName = o.optString("outputName", "T${(i + 1).toString().padStart(3, '0')}.txt"),
-                            state = o.optString("state", STATE_QUEUED)
+                            state = o.optString("state", STATE_QUEUED),
+                            completedThroughMs = o.optLong("completedThroughMs", 0L)
                         )
                     )
                 }
