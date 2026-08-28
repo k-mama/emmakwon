@@ -22,8 +22,10 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
+import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
+import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.math.ceil
@@ -50,7 +52,7 @@ class TranscriptionService : Service() {
             runCatching {
                 transcribeBatch(batch)
             }.onFailure { error ->
-                val message = error.message ?: error.javaClass.simpleName
+                val message = friendlyError(error)
                 sendError(message)
                 updateNotification("문제가 발생했습니다", 0)
             }
@@ -68,6 +70,11 @@ class TranscriptionService : Service() {
     )
 
     private data class Batch(val items: List<QueueItem>)
+
+    private data class TranscriptOutput(
+        val writer: BufferedWriter,
+        val location: String
+    )
 
     private fun readBatch(intent: Intent): Batch {
         val uriStrings = intent.getStringArrayListExtra(EXTRA_URIS)
@@ -108,7 +115,10 @@ class TranscriptionService : Service() {
                     "$itemNumber / ${batch.items.size} 시작",
                     "${item.originalName} → ${item.outputName}"
                 )
-                updateNotification("$itemNumber/${batch.items.size} · ${item.outputName} 준비 중", overallProgress(index, batch.items.size, 2))
+                updateNotification(
+                    "$itemNumber/${batch.items.size} · ${item.outputName} 준비 중",
+                    overallProgress(index, batch.items.size, 2)
+                )
 
                 runCatching {
                     transcribeOne(model, item, index, batch.items.size)
@@ -117,8 +127,7 @@ class TranscriptionService : Service() {
                     sendItemDone(item, saved, true)
                 }.onFailure { error ->
                     failedCount += 1
-                    val message = error.message ?: error.javaClass.simpleName
-                    sendItemDone(item, "실패: $message", false)
+                    sendItemDone(item, "실패: ${friendlyError(error)}", false)
                 }
             }
         } finally {
@@ -140,52 +149,96 @@ class TranscriptionService : Service() {
         itemIndex: Int,
         totalItems: Int
     ): String {
-        val recovery = File(filesDir, "current_transcript.txt")
-        recovery.writeText("")
+        val transcriptOutput = openTranscriptOutput(item.outputName)
+        var recognizedChunks = 0
+        var processedChunks = 0
 
-        val totalChunks = if (item.durationMs > 0) {
-            ceil(item.durationMs / 300_000.0).toInt().coerceAtLeast(1)
-        } else {
-            1
-        }
-        var completedChunks = 0
-
-        AudioChunkDecoder.process(
-            context = this,
-            uri = item.uri,
-            onDecodeProgress = { },
-            onChunk = { chunk ->
-                val chunkNumber = completedChunks + 1
-                val itemProgress = (5 + (completedChunks * 90 / totalChunks)).coerceIn(5, 94)
-                val batchProgress = overallProgress(itemIndex, totalItems, itemProgress)
-                sendProgress(
-                    batchProgress,
-                    "${itemIndex + 1} / $totalItems 대본 추출 중",
-                    "${item.outputName} · ${formatTime(chunk.startMs)} ~ ${formatTime(chunk.endMs)} · $chunkNumber / 약 $totalChunks"
-                )
-                updateNotification(
-                    "${itemIndex + 1}/$totalItems · ${item.outputName} · $chunkNumber/약 $totalChunks",
-                    batchProgress
-                )
-
-                val result = Whisper.transcribe(model, chunk.file.absolutePath, WhisperConfig())
-                val text = result.text.trim()
-                if (text.isNotBlank()) {
-                    recovery.appendText(text)
-                    recovery.appendText("\n\n")
-                }
-                completedChunks += 1
-                runCatching { chunk.file.delete() }
-            }
-        )
-
-        val saved = saveTranscript(item.outputName, recovery.readText())
         sendProgress(
-            overallProgress(itemIndex, totalItems, 100),
-            "${itemIndex + 1} / $totalItems 완료",
-            "${item.originalName} → ${item.outputName}"
+            overallProgress(itemIndex, totalItems, 3),
+            "${itemIndex + 1} / $totalItems TXT 생성됨",
+            "${item.outputName} · ${transcriptOutput.location}\n완료될 때까지 인식된 대본을 이 파일에 계속 추가합니다."
         )
-        return saved
+
+        try {
+            val totalChunks = if (item.durationMs > 0) {
+                ceil(item.durationMs / 300_000.0).toInt().coerceAtLeast(1)
+            } else {
+                1
+            }
+
+            AudioChunkDecoder.process(
+                context = this,
+                uri = item.uri,
+                onDecodeProgress = { },
+                onChunk = { chunk ->
+                    val chunkNumber = processedChunks + 1
+                    val itemProgress = (5 + (processedChunks * 90 / totalChunks)).coerceIn(5, 94)
+                    val batchProgress = overallProgress(itemIndex, totalItems, itemProgress)
+                    sendProgress(
+                        batchProgress,
+                        "${itemIndex + 1} / $totalItems 대본 추출 중",
+                        "${item.outputName} · ${formatTime(chunk.startMs)} ~ ${formatTime(chunk.endMs)} · $chunkNumber / 약 $totalChunks"
+                    )
+                    updateNotification(
+                        "${itemIndex + 1}/$totalItems · ${item.outputName} · $chunkNumber/약 $totalChunks",
+                        batchProgress
+                    )
+
+                    val result = Whisper.transcribe(model, chunk.file.absolutePath, WhisperConfig())
+                    val text = result.text.trim()
+                    if (text.isNotBlank()) {
+                        transcriptOutput.writer.write(text)
+                        transcriptOutput.writer.write("\n\n")
+                        transcriptOutput.writer.flush()
+                        recognizedChunks += 1
+                    }
+                    processedChunks += 1
+                    runCatching { chunk.file.delete() }
+                }
+            )
+
+            if (processedChunks == 0) {
+                error("오디오를 읽었지만 처리 가능한 음성 구간을 만들지 못했습니다.")
+            }
+            if (recognizedChunks == 0) {
+                error("오디오는 읽었지만 인식된 대사가 없습니다. 영상에 실제 음성이 있는지 확인해주세요.")
+            }
+
+            sendProgress(
+                overallProgress(itemIndex, totalItems, 100),
+                "${itemIndex + 1} / $totalItems 완료",
+                "${item.originalName} → ${item.outputName}"
+            )
+            return "저장 완료\n${transcriptOutput.location}"
+        } finally {
+            runCatching { transcriptOutput.writer.flush() }
+            runCatching { transcriptOutput.writer.close() }
+        }
+    }
+
+    private fun openTranscriptOutput(fileName: String): TranscriptOutput {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val values = ContentValues().apply {
+                put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+                put(MediaStore.Downloads.MIME_TYPE, "text/plain")
+                put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/EmmaTranscriber")
+            }
+            val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                ?: error("Downloads에 TXT 파일을 만들 수 없습니다.")
+            val stream = contentResolver.openOutputStream(uri, "w")
+                ?: error("TXT 파일을 열 수 없습니다.")
+            return TranscriptOutput(
+                writer = BufferedWriter(OutputStreamWriter(stream, Charsets.UTF_8)),
+                location = "Downloads/EmmaTranscriber/$fileName"
+            )
+        }
+
+        val dir = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "EmmaTranscriber").apply { mkdirs() }
+        val file = File(dir, fileName)
+        return TranscriptOutput(
+            writer = file.bufferedWriter(Charsets.UTF_8),
+            location = file.absolutePath
+        )
     }
 
     private fun overallProgress(itemIndex: Int, totalItems: Int, itemProgress: Int): Int {
@@ -206,10 +259,12 @@ class TranscriptionService : Service() {
         connection.instanceFollowRedirects = true
         connection.connectTimeout = 30_000
         connection.readTimeout = 60_000
+        connection.setRequestProperty("User-Agent", "EmmaTranscriber/0.2.1")
         connection.connect()
         if (connection.responseCode !in 200..299) {
+            val code = connection.responseCode
             connection.disconnect()
-            error("Whisper 모델 다운로드에 실패했습니다. HTTP ${connection.responseCode}")
+            error("Whisper 모델 다운로드에 실패했습니다. HTTP $code")
         }
         val total = connection.contentLengthLong
         var copied = 0L
@@ -234,34 +289,17 @@ class TranscriptionService : Service() {
             }
         }
         connection.disconnect()
+
+        if (temp.length() < 100_000_000L) {
+            temp.delete()
+            error("Whisper 모델 파일이 완전히 내려받아지지 않았습니다. 인터넷 연결 후 다시 시도해주세요.")
+        }
+
         if (!temp.renameTo(model)) {
             temp.copyTo(model, overwrite = true)
             temp.delete()
         }
         return model
-    }
-
-    private fun saveTranscript(fileName: String, text: String): String {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val values = ContentValues().apply {
-                put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-                put(MediaStore.Downloads.MIME_TYPE, "text/plain")
-                put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/EmmaTranscriber")
-                put(MediaStore.Downloads.IS_PENDING, 1)
-            }
-            val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-                ?: error("TXT 파일 저장 위치를 만들 수 없습니다.")
-            contentResolver.openOutputStream(uri, "w")!!.bufferedWriter(Charsets.UTF_8).use { it.write(text) }
-            values.clear()
-            values.put(MediaStore.Downloads.IS_PENDING, 0)
-            contentResolver.update(uri, values, null, null)
-            return "저장 완료\nDownloads/EmmaTranscriber/$fileName"
-        }
-
-        val dir = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "EmmaTranscriber").apply { mkdirs() }
-        val file = File(dir, fileName)
-        file.writeText(text, Charsets.UTF_8)
-        return "저장 완료\n${file.absolutePath}"
     }
 
     private fun sendProgress(progress: Int, status: String, detail: String) {
@@ -296,6 +334,18 @@ class TranscriptionService : Service() {
             setPackage(packageName)
             putExtra(EXTRA_DETAIL, detail)
         })
+    }
+
+    private fun friendlyError(error: Throwable): String {
+        val raw = error.message.orEmpty()
+        return when {
+            raw.contains("dlopen", ignoreCase = true) || raw.contains("UnsatisfiedLinkError", ignoreCase = true) ->
+                "이 휴대폰의 CPU 형식에서 음성인식 엔진을 시작하지 못했습니다."
+            raw.contains("codec", ignoreCase = true) ->
+                "이 영상의 오디오 형식을 휴대폰이 해석하지 못했습니다. 다른 영상으로도 한 번 확인해주세요."
+            raw.isNotBlank() -> raw
+            else -> error.javaClass.simpleName
+        }
     }
 
     private fun createChannel() {
