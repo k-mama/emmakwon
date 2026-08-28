@@ -42,57 +42,10 @@ class MainActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent == null) return
             when (intent.action) {
-                TranscriptionService.ACTION_PROGRESS -> {
-                    val progress = intent.getIntExtra(TranscriptionService.EXTRA_PROGRESS, 0)
-                    val status = intent.getStringExtra(TranscriptionService.EXTRA_STATUS).orEmpty()
-                    val detail = intent.getStringExtra(TranscriptionService.EXTRA_DETAIL).orEmpty()
-                    progressBar.progress = progress
-                    statusText.text = status
-                    if (detail.isNotBlank()) detailText.text = detail
-                    setBusy(true)
-                }
-
-                TranscriptionService.ACTION_ITEM_DONE -> {
-                    val original = intent.getStringExtra(TranscriptionService.EXTRA_ORIGINAL_NAME).orEmpty()
-                    val output = intent.getStringExtra(TranscriptionService.EXTRA_OUTPUT_NAME).orEmpty()
-                    val saved = intent.getStringExtra(TranscriptionService.EXTRA_OUTPUT).orEmpty()
-                    val success = intent.getBooleanExtra(TranscriptionService.EXTRA_SUCCESS, false)
-                    completedLines += buildString {
-                        append(if (success) "✓ " else "✕ ")
-                        append(shortOriginalName(original))
-                        append("  →  ")
-                        append(output)
-                        if (saved.isNotBlank()) {
-                            append("\n   ")
-                            append(if (success) saved.substringAfter("\n", saved) else saved)
-                        }
-                    }
-                    outputText.text = completedLines.joinToString("\n\n")
-                }
-
-                TranscriptionService.ACTION_DONE -> {
-                    progressBar.progress = 100
-                    statusText.text = "전체 처리 종료"
-                    detailText.text = intent.getStringExtra(TranscriptionService.EXTRA_DETAIL)
-                        ?: "선택한 파일을 모두 순서대로 처리했습니다."
-                    if (completedLines.isEmpty()) {
-                        outputText.text = intent.getStringExtra(TranscriptionService.EXTRA_OUTPUT)
-                            ?: "처리가 끝났습니다."
-                    }
-                    selectedItems.clear()
-                    setBusy(false)
-                    startButton.isEnabled = false
-                }
-
-                TranscriptionService.ACTION_ERROR -> {
-                    progressBar.progress = 0
-                    statusText.text = "대본 추출 실패"
-                    detailText.text = intent.getStringExtra(TranscriptionService.EXTRA_DETAIL)
-                        ?: "알 수 없는 오류"
-                    outputText.text = "오류 내용을 그대로 캡처해서 보내주시면 됩니다. 원본 영상은 건드리지 않았습니다."
-                    setBusy(false)
-                    startButton.isEnabled = selectedItems.isNotEmpty()
-                }
+                TranscriptionService.ACTION_PROGRESS,
+                TranscriptionService.ACTION_ITEM_DONE,
+                TranscriptionService.ACTION_DONE,
+                TranscriptionService.ACTION_ERROR -> renderPersistedState()
             }
         }
     }
@@ -117,6 +70,8 @@ class MainActivity : AppCompatActivity() {
         startButton.setOnClickListener {
             if (selectedItems.isNotEmpty()) startQueue()
         }
+
+        renderPersistedState()
     }
 
     override fun onStart() {
@@ -133,6 +88,7 @@ class MainActivity : AppCompatActivity() {
             @Suppress("DEPRECATION")
             registerReceiver(receiver, filter)
         }
+        renderPersistedState()
     }
 
     override fun onStop() {
@@ -151,7 +107,6 @@ class MainActivity : AppCompatActivity() {
     private fun prepareSelection(uris: List<Uri>) {
         selectedItems.clear()
         completedLines.clear()
-        outputText.text = "아직 저장된 대본이 없습니다."
 
         val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val firstNumber = prefs.getInt(KEY_NEXT_NUMBER, 1).coerceAtLeast(1)
@@ -170,28 +125,19 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-        fileInfo.text = buildString {
-            append("${selectedItems.size}개 선택됨\n\n")
-            selectedItems.forEachIndexed { index, item ->
-                append(index + 1)
-                append(". ")
-                append(shortOriginalName(item.originalName))
-                append("\n   → ")
-                append(item.outputName)
-                if (item.sizeBytes > 0 || item.durationMs > 0) {
-                    append("   ")
-                    if (item.sizeBytes > 0) append(formatBytes(item.sizeBytes))
-                    if (item.sizeBytes > 0 && item.durationMs > 0) append(" · ")
-                    if (item.durationMs > 0) append(formatDuration(item.durationMs))
-                }
-                if (index != selectedItems.lastIndex) append("\n\n")
+        TranscriptionStateStore.saveQueue(
+            this,
+            selectedItems.map {
+                TranscriptionStateStore.QueueItem(
+                    uri = it.uri.toString(),
+                    originalName = it.originalName,
+                    sizeBytes = it.sizeBytes,
+                    durationMs = it.durationMs,
+                    outputName = it.outputName
+                )
             }
-        }
-        progressBar.progress = 0
-        statusText.text = "대기 중"
-        detailText.text = "위 순서대로 하나씩 처리합니다. 저장 파일명은 T001.txt처럼 짧게 만듭니다."
-        startButton.text = "선택한 ${selectedItems.size}개 순차 처리 시작"
-        startButton.isEnabled = selectedItems.isNotEmpty()
+        )
+        renderPersistedState()
     }
 
     private fun startQueue() {
@@ -205,12 +151,8 @@ class MainActivity : AppCompatActivity() {
             prefs.edit().putInt(KEY_NEXT_NUMBER, lastNumber + 1).apply()
         }
 
-        progressBar.progress = 0
-        statusText.text = "순차 처리 시작"
-        detailText.text = "첫 번째 파일부터 처리합니다. 원본 파일은 복사하거나 업로드하지 않습니다."
-        outputText.text = "TXT 파일을 먼저 만든 뒤, 인식된 대본을 5분 구간마다 계속 저장합니다."
-        completedLines.clear()
-        setBusy(true)
+        TranscriptionStateStore.begin(this)
+        renderPersistedState()
 
         val intent = Intent(this, TranscriptionService::class.java).apply {
             action = TranscriptionService.ACTION_START_BATCH
@@ -234,9 +176,82 @@ class MainActivity : AppCompatActivity() {
         ContextCompat.startForegroundService(this, intent)
     }
 
-    private fun setBusy(busy: Boolean) {
-        selectButton.isEnabled = !busy
-        startButton.isEnabled = !busy && selectedItems.isNotEmpty()
+    private fun renderPersistedState() {
+        val snapshot = TranscriptionStateStore.snapshot(this)
+
+        selectedItems.clear()
+        selectedItems += snapshot.queue.map {
+            SelectedItem(
+                uri = Uri.parse(it.uri),
+                originalName = it.originalName,
+                sizeBytes = it.sizeBytes,
+                durationMs = it.durationMs,
+                outputName = it.outputName
+            )
+        }
+
+        completedLines.clear()
+        completedLines += snapshot.completedLines
+
+        fileInfo.text = if (snapshot.queue.isEmpty()) {
+            "아직 선택한 영상이 없습니다."
+        } else {
+            buildQueueText(snapshot.queue)
+        }
+
+        if (snapshot.updatedAt > 0L) {
+            progressBar.progress = snapshot.progress
+            statusText.text = snapshot.status.ifBlank { "대기 중" }
+            detailText.text = snapshot.detail
+        }
+
+        outputText.text = when {
+            completedLines.isNotEmpty() -> completedLines.joinToString("\n\n")
+            snapshot.active -> "완료되는 파일마다 저장 이름과 위치를 여기에 알려드립니다."
+            else -> "아직 저장된 대본이 없습니다."
+        }
+
+        val allTerminal = snapshot.queue.isNotEmpty() && snapshot.queue.all {
+            it.state == TranscriptionStateStore.STATE_DONE ||
+                it.state == TranscriptionStateStore.STATE_FAILED
+        }
+        selectButton.isEnabled = !snapshot.active
+        startButton.isEnabled = !snapshot.active && selectedItems.isNotEmpty() && !allTerminal
+        startButton.text = when {
+            snapshot.active -> "현재 순차 처리 중"
+            allTerminal -> "처리 완료"
+            selectedItems.isNotEmpty() -> "선택한 ${selectedItems.size}개 순차 처리 시작"
+            else -> "선택한 파일 순차 처리 시작"
+        }
+    }
+
+    private fun buildQueueText(queue: List<TranscriptionStateStore.QueueItem>): String {
+        return buildString {
+            append("${queue.size}개 작업 목록")
+            append("\n\n")
+            queue.forEachIndexed { index, item ->
+                val marker = when (item.state) {
+                    TranscriptionStateStore.STATE_PROCESSING -> "▶"
+                    TranscriptionStateStore.STATE_DONE -> "✓"
+                    TranscriptionStateStore.STATE_FAILED -> "✕"
+                    else -> "○"
+                }
+                append(marker)
+                append(" ")
+                append(index + 1)
+                append(". ")
+                append(shortOriginalName(item.originalName))
+                append("\n   → ")
+                append(item.outputName)
+                if (item.sizeBytes > 0 || item.durationMs > 0) {
+                    append("   ")
+                    if (item.sizeBytes > 0) append(formatBytes(item.sizeBytes))
+                    if (item.sizeBytes > 0 && item.durationMs > 0) append(" · ")
+                    if (item.durationMs > 0) append(formatDuration(item.durationMs))
+                }
+                if (index != queue.lastIndex) append("\n\n")
+            }
+        }
     }
 
     private data class SelectedItem(
