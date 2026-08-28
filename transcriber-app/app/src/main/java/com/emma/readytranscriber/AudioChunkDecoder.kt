@@ -14,15 +14,20 @@ import java.nio.ByteOrder
 object AudioChunkDecoder {
     private const val TARGET_RATE = 16_000
     private const val CHUNK_SECONDS = 300
+    private const val CHUNK_MS = CHUNK_SECONDS * 1000L
 
     data class Chunk(val file: File, val startMs: Long, val endMs: Long)
 
     suspend fun process(
         context: Context,
         uri: Uri,
+        startMs: Long = 0L,
         onDecodeProgress: (Int) -> Unit,
         onChunk: suspend (Chunk) -> Unit
     ) = withContext(Dispatchers.IO) {
+        val requestedStartMs = startMs.coerceAtLeast(0L)
+        val requestedStartUs = requestedStartMs * 1000L
+
         val extractor = MediaExtractor()
         extractor.setDataSource(context, uri, null)
 
@@ -40,6 +45,10 @@ object AudioChunkDecoder {
         require(audioTrack >= 0 && inputFormat != null) { "이 파일에서 오디오 트랙을 찾지 못했습니다." }
 
         extractor.selectTrack(audioTrack)
+        if (requestedStartUs > 0L) {
+            extractor.seekTo(requestedStartUs, MediaExtractor.SEEK_TO_CLOSEST_SYNC)
+        }
+
         val format = inputFormat!!
         val mime = format.getString(MediaFormat.KEY_MIME) ?: error("오디오 형식을 확인할 수 없습니다.")
         val durationUs = if (format.containsKey(MediaFormat.KEY_DURATION)) format.getLong(MediaFormat.KEY_DURATION) else -1L
@@ -65,7 +74,7 @@ object AudioChunkDecoder {
         val targetChunkSamples = TARGET_RATE.toLong() * CHUNK_SECONDS
         var totalTargetSamples = 0L
         var chunkStartSample = 0L
-        var chunkIndex = 0
+        var chunkIndex = (requestedStartMs / CHUNK_MS).toInt()
         var writer = newWriter(chunkDir, chunkIndex)
 
         try {
@@ -102,17 +111,24 @@ object AudioChunkDecoder {
                         sampleRate = out.getInteger(MediaFormat.KEY_SAMPLE_RATE)
                         channels = out.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
                     }
+
                     outputIndex >= 0 -> {
                         val completed = mutableListOf<Chunk>()
+                        val shouldKeepBuffer = requestedStartUs <= 0L || info.presentationTimeUs >= requestedStartUs
                         val outputBuffer = decoder.getOutputBuffer(outputIndex)
-                        if (outputBuffer != null && info.size > 0) {
+
+                        if (shouldKeepBuffer && outputBuffer != null && info.size > 0) {
                             outputBuffer.position(info.offset)
                             outputBuffer.limit(info.offset + info.size)
                             outputBuffer.order(ByteOrder.LITTLE_ENDIAN)
 
                             val shorts = outputBuffer.asShortBuffer()
                             val frames = shorts.remaining() / channels.coerceAtLeast(1)
-                            val emitted = ShortArray(((frames.toLong() * TARGET_RATE / sampleRate) + 4).toInt().coerceAtLeast(4))
+                            val emitted = ShortArray(
+                                ((frames.toLong() * TARGET_RATE / sampleRate) + 4)
+                                    .toInt()
+                                    .coerceAtLeast(4)
+                            )
                             var emittedCount = 0
 
                             for (frame in 0 until frames) {
@@ -120,7 +136,9 @@ object AudioChunkDecoder {
                                 for (c in 0 until channels) {
                                     if (shorts.hasRemaining()) sum += shorts.get().toInt()
                                 }
-                                val mono = (sum / channels.coerceAtLeast(1)).coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort()
+                                val mono = (sum / channels.coerceAtLeast(1))
+                                    .coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt())
+                                    .toShort()
                                 phase += TARGET_RATE.toLong()
                                 while (phase >= sampleRate.toLong()) {
                                     if (emittedCount >= emitted.size) break
@@ -139,9 +157,9 @@ object AudioChunkDecoder {
 
                                 if (writer.sampleCount >= targetChunkSamples) {
                                     writer.closeAndFinalize()
-                                    val startMs = chunkStartSample * 1000L / TARGET_RATE
-                                    val endMs = totalTargetSamples * 1000L / TARGET_RATE
-                                    completed += Chunk(writer.file, startMs, endMs)
+                                    val startAbsMs = requestedStartMs + chunkStartSample * 1000L / TARGET_RATE
+                                    val endAbsMs = requestedStartMs + totalTargetSamples * 1000L / TARGET_RATE
+                                    completed += Chunk(writer.file, startAbsMs, endAbsMs)
                                     chunkStartSample = totalTargetSamples
                                     chunkIndex += 1
                                     writer = newWriter(chunkDir, chunkIndex)
@@ -161,9 +179,9 @@ object AudioChunkDecoder {
 
             if (writer.sampleCount > 0) {
                 writer.closeAndFinalize()
-                val startMs = chunkStartSample * 1000L / TARGET_RATE
-                val endMs = totalTargetSamples * 1000L / TARGET_RATE
-                onChunk(Chunk(writer.file, startMs, endMs))
+                val startAbsMs = requestedStartMs + chunkStartSample * 1000L / TARGET_RATE
+                val endAbsMs = requestedStartMs + totalTargetSamples * 1000L / TARGET_RATE
+                onChunk(Chunk(writer.file, startAbsMs, endAbsMs))
             } else {
                 runCatching { writer.file.delete() }
             }
