@@ -39,16 +39,16 @@ class TranscriptionService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action != ACTION_START || job?.isActive == true) return START_NOT_STICKY
+        if (intent == null || job?.isActive == true) return START_REDELIVER_INTENT
+        if (intent.action != ACTION_START_BATCH && intent.action != ACTION_START) return START_NOT_STICKY
 
-        val uriString = intent.getStringExtra(EXTRA_URI) ?: return START_NOT_STICKY
-        val displayName = intent.getStringExtra(EXTRA_NAME) ?: "video"
-        val durationMs = intent.getLongExtra(EXTRA_DURATION, -1L)
+        val batch = readBatch(intent)
+        if (batch.items.isEmpty()) return START_NOT_STICKY
 
-        startForeground(NOTIFICATION_ID, notification("준비 중", 0))
+        startForeground(NOTIFICATION_ID, notification("준비 중 · ${batch.items.size}개 파일", 0))
         job = scope.launch {
             runCatching {
-                transcribe(Uri.parse(uriString), displayName, durationMs)
+                transcribeBatch(batch)
             }.onFailure { error ->
                 val message = error.message ?: error.javaClass.simpleName
                 sendError(message)
@@ -57,59 +57,141 @@ class TranscriptionService : Service() {
             stopForeground(STOP_FOREGROUND_DETACH)
             stopSelf(startId)
         }
-        return START_NOT_STICKY
+        return START_REDELIVER_INTENT
     }
 
-    private suspend fun transcribe(uri: Uri, displayName: String, durationMs: Long) {
-        sendProgress(1, "Whisper 준비 중", "처음 사용이라면 모델 약 142MB를 한 번만 내려받습니다.")
-        val modelFile = ensureModel()
-        sendProgress(10, "대본 엔진 준비 완료", "영상 오디오를 작은 조각으로 읽습니다. 원본은 복사하지 않습니다.")
+    private data class QueueItem(
+        val uri: Uri,
+        val originalName: String,
+        val durationMs: Long,
+        val outputName: String
+    )
 
-        val model = Whisper.loadModel(this, modelFile.absolutePath)
-        val recovery = File(filesDir, "current_transcript.txt")
-        recovery.writeText("")
+    private data class Batch(val items: List<QueueItem>)
 
-        val totalChunks = if (durationMs > 0) ceil(durationMs / 300_000.0).toInt().coerceAtLeast(1) else 1
-        var completedChunks = 0
-
-        try {
-            AudioChunkDecoder.process(
-                context = this,
-                uri = uri,
-                onDecodeProgress = { },
-                onChunk = { chunk ->
-                    val chunkNumber = completedChunks + 1
-                    val estimatedProgress = (10 + (completedChunks * 85 / totalChunks)).coerceIn(10, 94)
-                    sendProgress(
-                        estimatedProgress,
-                        "대본 추출 중",
-                        "${formatTime(chunk.startMs)} ~ ${formatTime(chunk.endMs)} 처리 중 · 조각 $chunkNumber / 약 $totalChunks"
+    private fun readBatch(intent: Intent): Batch {
+        val uriStrings = intent.getStringArrayListExtra(EXTRA_URIS)
+        if (!uriStrings.isNullOrEmpty()) {
+            val names = intent.getStringArrayListExtra(EXTRA_NAMES).orEmpty()
+            val durations = intent.getLongArrayExtra(EXTRA_DURATIONS) ?: LongArray(uriStrings.size) { -1L }
+            val outputNames = intent.getStringArrayListExtra(EXTRA_OUTPUT_NAMES).orEmpty()
+            return Batch(
+                uriStrings.mapIndexed { index, uriString ->
+                    QueueItem(
+                        uri = Uri.parse(uriString),
+                        originalName = names.getOrNull(index) ?: "video_${index + 1}",
+                        durationMs = durations.getOrNull(index) ?: -1L,
+                        outputName = outputNames.getOrNull(index) ?: "T${(index + 1).toString().padStart(3, '0')}.txt"
                     )
-                    updateNotification("대본 추출 중 · $chunkNumber / 약 $totalChunks", estimatedProgress)
-
-                    val result = Whisper.transcribe(model, chunk.file.absolutePath, WhisperConfig())
-                    val text = result.text.trim()
-                    if (text.isNotBlank()) {
-                        recovery.appendText(text)
-                        recovery.appendText("\n\n")
-                    }
-                    completedChunks += 1
-                    runCatching { chunk.file.delete() }
-
-                    val p = (10 + (completedChunks * 85 / totalChunks)).coerceIn(10, 95)
-                    sendProgress(p, "대본 추출 중", "${completedChunks}개 구간 완료")
-                    updateNotification("대본 추출 중 · ${completedChunks}개 구간 완료", p)
                 }
             )
+        }
+
+        val uri = intent.getStringExtra(EXTRA_URI) ?: return Batch(emptyList())
+        val name = intent.getStringExtra(EXTRA_NAME) ?: "video"
+        val duration = intent.getLongExtra(EXTRA_DURATION, -1L)
+        return Batch(listOf(QueueItem(Uri.parse(uri), name, duration, "T001.txt")))
+    }
+
+    private suspend fun transcribeBatch(batch: Batch) {
+        sendProgress(1, "Whisper 준비 중", "${batch.items.size}개 파일을 순서대로 처리합니다.")
+        val modelFile = ensureModel()
+        val model = Whisper.loadModel(this, modelFile.absolutePath)
+        var successCount = 0
+        var failedCount = 0
+
+        try {
+            batch.items.forEachIndexed { index, item ->
+                val itemNumber = index + 1
+                sendProgress(
+                    overallProgress(index, batch.items.size, 2),
+                    "$itemNumber / ${batch.items.size} 시작",
+                    "${item.originalName} → ${item.outputName}"
+                )
+                updateNotification("$itemNumber/${batch.items.size} · ${item.outputName} 준비 중", overallProgress(index, batch.items.size, 2))
+
+                runCatching {
+                    transcribeOne(model, item, index, batch.items.size)
+                }.onSuccess { saved ->
+                    successCount += 1
+                    sendItemDone(item, saved, true)
+                }.onFailure { error ->
+                    failedCount += 1
+                    val message = error.message ?: error.javaClass.simpleName
+                    sendItemDone(item, "실패: $message", false)
+                }
+            }
         } finally {
             Whisper.releaseModel(model)
         }
 
-        val baseName = displayName.substringBeforeLast('.').ifBlank { "transcript" }
-        val outputName = sanitizeFileName(baseName) + "_transcript.txt"
-        val saved = saveTranscript(outputName, recovery.readText())
-        sendDone(saved)
-        updateNotification("완료 · TXT 저장됨", 100)
+        val summary = if (failedCount == 0) {
+            "${batch.items.size}개 파일을 모두 처리했습니다."
+        } else {
+            "완료 $successCount개 · 실패 $failedCount개"
+        }
+        sendDone(summary)
+        updateNotification("전체 완료 · $successCount/${batch.items.size}", 100)
+    }
+
+    private suspend fun transcribeOne(
+        model: Long,
+        item: QueueItem,
+        itemIndex: Int,
+        totalItems: Int
+    ): String {
+        val recovery = File(filesDir, "current_transcript.txt")
+        recovery.writeText("")
+
+        val totalChunks = if (item.durationMs > 0) {
+            ceil(item.durationMs / 300_000.0).toInt().coerceAtLeast(1)
+        } else {
+            1
+        }
+        var completedChunks = 0
+
+        AudioChunkDecoder.process(
+            context = this,
+            uri = item.uri,
+            onDecodeProgress = { },
+            onChunk = { chunk ->
+                val chunkNumber = completedChunks + 1
+                val itemProgress = (5 + (completedChunks * 90 / totalChunks)).coerceIn(5, 94)
+                val batchProgress = overallProgress(itemIndex, totalItems, itemProgress)
+                sendProgress(
+                    batchProgress,
+                    "${itemIndex + 1} / $totalItems 대본 추출 중",
+                    "${item.outputName} · ${formatTime(chunk.startMs)} ~ ${formatTime(chunk.endMs)} · $chunkNumber / 약 $totalChunks"
+                )
+                updateNotification(
+                    "${itemIndex + 1}/$totalItems · ${item.outputName} · $chunkNumber/약 $totalChunks",
+                    batchProgress
+                )
+
+                val result = Whisper.transcribe(model, chunk.file.absolutePath, WhisperConfig())
+                val text = result.text.trim()
+                if (text.isNotBlank()) {
+                    recovery.appendText(text)
+                    recovery.appendText("\n\n")
+                }
+                completedChunks += 1
+                runCatching { chunk.file.delete() }
+            }
+        )
+
+        val saved = saveTranscript(item.outputName, recovery.readText())
+        sendProgress(
+            overallProgress(itemIndex, totalItems, 100),
+            "${itemIndex + 1} / $totalItems 완료",
+            "${item.originalName} → ${item.outputName}"
+        )
+        return saved
+    }
+
+    private fun overallProgress(itemIndex: Int, totalItems: Int, itemProgress: Int): Int {
+        if (totalItems <= 0) return itemProgress.coerceIn(0, 100)
+        val raw = ((itemIndex * 100.0 + itemProgress.coerceIn(0, 100)) / totalItems).toInt()
+        return raw.coerceIn(0, 100)
     }
 
     private fun ensureModel(): File {
@@ -141,7 +223,11 @@ class TranscriptionService : Service() {
                     copied += read
                     if (total > 0) {
                         val p = (copied * 8 / total).toInt().coerceIn(1, 8)
-                        sendProgress(p, "Whisper 모델 다운로드 중", "첫 사용에만 필요합니다 · ${copied / 1_048_576}MB / ${total / 1_048_576}MB")
+                        sendProgress(
+                            p,
+                            "Whisper 모델 다운로드 중",
+                            "첫 사용에만 필요합니다 · ${copied / 1_048_576}MB / ${total / 1_048_576}MB"
+                        )
                         updateNotification("모델 다운로드 중", p)
                     }
                 }
@@ -187,10 +273,21 @@ class TranscriptionService : Service() {
         })
     }
 
-    private fun sendDone(output: String) {
+    private fun sendItemDone(item: QueueItem, output: String, success: Boolean) {
+        sendBroadcast(Intent(ACTION_ITEM_DONE).apply {
+            setPackage(packageName)
+            putExtra(EXTRA_ORIGINAL_NAME, item.originalName)
+            putExtra(EXTRA_OUTPUT_NAME, item.outputName)
+            putExtra(EXTRA_OUTPUT, output)
+            putExtra(EXTRA_SUCCESS, success)
+        })
+    }
+
+    private fun sendDone(detail: String) {
         sendBroadcast(Intent(ACTION_DONE).apply {
             setPackage(packageName)
-            putExtra(EXTRA_OUTPUT, output)
+            putExtra(EXTRA_DETAIL, detail)
+            putExtra(EXTRA_OUTPUT, detail)
         })
     }
 
@@ -240,9 +337,6 @@ class TranscriptionService : Service() {
         return "%02d:%02d:%02d".format(h, m, s)
     }
 
-    private fun sanitizeFileName(name: String): String =
-        name.replace(Regex("[\\\\/:*?\"<>|]"), "_").take(120)
-
     override fun onDestroy() {
         super.onDestroy()
         scope.cancel()
@@ -252,13 +346,22 @@ class TranscriptionService : Service() {
 
     companion object {
         const val ACTION_START = "com.emma.readytranscriber.START"
+        const val ACTION_START_BATCH = "com.emma.readytranscriber.START_BATCH"
         const val ACTION_PROGRESS = "com.emma.readytranscriber.PROGRESS"
+        const val ACTION_ITEM_DONE = "com.emma.readytranscriber.ITEM_DONE"
         const val ACTION_DONE = "com.emma.readytranscriber.DONE"
         const val ACTION_ERROR = "com.emma.readytranscriber.ERROR"
 
         const val EXTRA_URI = "uri"
         const val EXTRA_NAME = "name"
         const val EXTRA_DURATION = "duration"
+        const val EXTRA_URIS = "uris"
+        const val EXTRA_NAMES = "names"
+        const val EXTRA_DURATIONS = "durations"
+        const val EXTRA_OUTPUT_NAMES = "output_names"
+        const val EXTRA_ORIGINAL_NAME = "original_name"
+        const val EXTRA_OUTPUT_NAME = "output_name"
+        const val EXTRA_SUCCESS = "success"
         const val EXTRA_PROGRESS = "progress"
         const val EXTRA_STATUS = "status"
         const val EXTRA_DETAIL = "detail"
