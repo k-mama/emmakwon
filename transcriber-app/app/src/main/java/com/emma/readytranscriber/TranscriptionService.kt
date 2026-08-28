@@ -222,9 +222,9 @@ class TranscriptionService : Service() {
         }
 
         val summary = if (failedCount == 0) {
-            "$totalItems개 파일을 모두 처리했습니다."
+            "${totalItems}개 파일을 모두 처리했습니다."
         } else {
-            "완료 $successCount개 · 실패 $failedCount개"
+            "완료 ${successCount}개 · 실패 ${failedCount}개"
         }
         sendDone(summary)
         updateNotification("전체 완료 · $successCount/$totalItems", 100)
