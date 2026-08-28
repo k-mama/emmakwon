@@ -48,6 +48,7 @@ class TranscriptionService : Service() {
         val batch = readBatch(intent)
         if (batch.items.isEmpty()) return START_NOT_STICKY
 
+        TranscriptionStateStore.begin(this)
         startForeground(NOTIFICATION_ID, notification("준비 중 · ${batch.items.size}개 파일", 0))
         job = scope.launch {
             runCatching {
@@ -111,6 +112,7 @@ class TranscriptionService : Service() {
         try {
             batch.items.forEachIndexed { index, item ->
                 val itemNumber = index + 1
+                TranscriptionStateStore.markProcessing(this, item.outputName)
                 sendProgress(
                     overallProgress(index, batch.items.size, 2),
                     "$itemNumber / ${batch.items.size} 시작",
@@ -260,7 +262,7 @@ class TranscriptionService : Service() {
         connection.instanceFollowRedirects = true
         connection.connectTimeout = 30_000
         connection.readTimeout = 60_000
-        connection.setRequestProperty("User-Agent", "EmmaTranscriber/0.2.1")
+        connection.setRequestProperty("User-Agent", "EmmaTranscriber/0.2.2")
         connection.connect()
         if (connection.responseCode !in 200..299) {
             val code = connection.responseCode
@@ -304,6 +306,7 @@ class TranscriptionService : Service() {
     }
 
     private fun sendProgress(progress: Int, status: String, detail: String) {
+        TranscriptionStateStore.saveProgress(this, progress, status, detail)
         sendBroadcast(Intent(ACTION_PROGRESS).apply {
             setPackage(packageName)
             putExtra(EXTRA_PROGRESS, progress)
@@ -313,6 +316,17 @@ class TranscriptionService : Service() {
     }
 
     private fun sendItemDone(item: QueueItem, output: String, success: Boolean) {
+        val completedLine = buildString {
+            append(if (success) "✓ " else "✕ ")
+            append(item.originalName)
+            append("  →  ")
+            append(item.outputName)
+            if (output.isNotBlank()) {
+                append("\n   ")
+                append(if (success) output.substringAfter("\n", output) else output)
+            }
+        }
+        TranscriptionStateStore.markItemDone(this, item.outputName, success, completedLine)
         sendBroadcast(Intent(ACTION_ITEM_DONE).apply {
             setPackage(packageName)
             putExtra(EXTRA_ORIGINAL_NAME, item.originalName)
@@ -323,6 +337,7 @@ class TranscriptionService : Service() {
     }
 
     private fun sendDone(detail: String) {
+        TranscriptionStateStore.finish(this, detail)
         sendBroadcast(Intent(ACTION_DONE).apply {
             setPackage(packageName)
             putExtra(EXTRA_DETAIL, detail)
@@ -331,6 +346,7 @@ class TranscriptionService : Service() {
     }
 
     private fun sendError(detail: String) {
+        TranscriptionStateStore.fatal(this, detail)
         sendBroadcast(Intent(ACTION_ERROR).apply {
             setPackage(packageName)
             putExtra(EXTRA_DETAIL, detail)
