@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 @dataclass
 class Creation:
+    model_source: str
     device: str
     compute_type: str
 
@@ -44,12 +45,14 @@ class FakeRuntime:
         self.cuda = cuda
         self.fail_cuda_init = fail_cuda_init
         self.models = models or ("tiny", "large-v3", "large-v3-turbo", "turbo")
+        self.available_models_calls = 0
         self.creations: list[Creation] = []
         self.batch_sizes: list[int] = []
         self.pipeline_plan: list[object] = []
         self.standard_plan: list[object] = []
 
     def available_models(self):
+        self.available_models_calls += 1
         return self.models
 
     def cuda_device_count(self):
@@ -60,8 +63,8 @@ class FakeRuntime:
             return {"float16", "int8_float16", "float32"}
         return {"int8", "float32"}
 
-    def create_model(self, _model_name: str, *, device: str, compute_type: str, **_kwargs):
-        self.creations.append(Creation(device, compute_type))
+    def create_model(self, model_source: str, *, device: str, compute_type: str, **_kwargs):
+        self.creations.append(Creation(str(model_source), device, compute_type))
         if device == "cuda" and self.fail_cuda_init:
             raise RuntimeError("CUDA initialization failed")
         return FakeModel(self, device, compute_type)
