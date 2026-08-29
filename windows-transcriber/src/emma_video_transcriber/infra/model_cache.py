@@ -46,6 +46,28 @@ def _safe_name(name: str) -> str:
     return name.replace("/", "--").replace("\\", "--")
 
 
+class _NullProgressStream:
+    """File-like sink for tqdm in a PyInstaller windowed process.
+
+    In a console=False build Python sets sys.stdout/sys.stderr to None. tqdm defaults
+    to sys.stderr and otherwise crashes with: 'NoneType' object has no attribute
+    'write'. The real progress is surfaced through the Qt callback, so terminal
+    rendering is intentionally discarded.
+    """
+
+    def write(self, value: str) -> int:
+        return len(value)
+
+    def flush(self) -> None:
+        return None
+
+    def isatty(self) -> bool:
+        return False
+
+
+_PROGRESS_STREAM = _NullProgressStream()
+
+
 class ModelManager:
     def __init__(self, root: Path | None = None) -> None:
         self.root = root or model_cache_root()
@@ -93,6 +115,10 @@ class ModelManager:
             callback = progress
 
             class _ProgressTqdm(tqdm):
+                def __init__(self, *args, **kwargs):
+                    kwargs["file"] = _PROGRESS_STREAM
+                    super().__init__(*args, **kwargs)
+
                 def update(self, n=1):  # type: ignore[override]
                     result = super().update(n)
                     total = int(self.total or 0)
