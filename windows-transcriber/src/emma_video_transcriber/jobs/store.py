@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import uuid
+from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -17,7 +18,13 @@ def _utc_now() -> str:
 
 
 class SqliteJobStore:
-    """Durable stdlib-sqlite queue/checkpoint store compatible with JobStore."""
+    """Durable stdlib-sqlite queue/checkpoint store compatible with JobStore.
+
+    sqlite3.Connection's context manager commits/rolls back but does not close the
+    connection. Every operation therefore wraps the connection in ``closing`` as
+    well. This is especially important on Windows, where a leaked connection keeps
+    jobs.sqlite3/WAL handles open and can prevent cleanup or recovery.
+    """
 
     def __init__(self, db_path: Path) -> None:
         self.db_path = Path(db_path)
@@ -33,109 +40,112 @@ class SqliteJobStore:
         return connection
 
     def _initialize(self) -> None:
-        with self._connect() as connection:
-            connection.execute("PRAGMA journal_mode = WAL")
-            connection.execute("PRAGMA synchronous = FULL")
-            connection.executescript(
-                """
-                CREATE TABLE IF NOT EXISTS jobs (
-                    queue_seq INTEGER PRIMARY KEY AUTOINCREMENT,
-                    job_id TEXT NOT NULL UNIQUE,
-                    source_path TEXT NOT NULL,
-                    source_name TEXT NOT NULL,
-                    output_path TEXT NOT NULL UNIQUE,
-                    duration_ms INTEGER NOT NULL DEFAULT -1,
-                    current_ms INTEGER NOT NULL DEFAULT 0,
-                    status TEXT NOT NULL CHECK(status IN ('queued','processing','paused','completed','failed')),
-                    error TEXT,
-                    metadata_json TEXT NOT NULL DEFAULT '{}',
-                    created_at TEXT NOT NULL,
-                    updated_at TEXT NOT NULL,
-                    started_at TEXT,
-                    completed_at TEXT
-                );
-                CREATE INDEX IF NOT EXISTS idx_jobs_status_created
-                    ON jobs(status, created_at, queue_seq);
-                """
-            )
+        with closing(self._connect()) as connection:
+            with connection:
+                connection.execute("PRAGMA journal_mode = WAL")
+                connection.execute("PRAGMA synchronous = FULL")
+                connection.executescript(
+                    """
+                    CREATE TABLE IF NOT EXISTS jobs (
+                        queue_seq INTEGER PRIMARY KEY AUTOINCREMENT,
+                        job_id TEXT NOT NULL UNIQUE,
+                        source_path TEXT NOT NULL,
+                        source_name TEXT NOT NULL,
+                        output_path TEXT NOT NULL UNIQUE,
+                        duration_ms INTEGER NOT NULL DEFAULT -1,
+                        current_ms INTEGER NOT NULL DEFAULT 0,
+                        status TEXT NOT NULL CHECK(status IN ('queued','processing','paused','completed','failed')),
+                        error TEXT,
+                        metadata_json TEXT NOT NULL DEFAULT '{}',
+                        created_at TEXT NOT NULL,
+                        updated_at TEXT NOT NULL,
+                        started_at TEXT,
+                        completed_at TEXT
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_jobs_status_created
+                        ON jobs(status, created_at, queue_seq);
+                    """
+                )
 
     def add(self, job: JobRecord) -> None:
         self._validate(job)
         now = _utc_now()
-        with self._connect() as connection:
-            connection.execute(
-                """
-                INSERT INTO jobs (
-                    job_id, source_path, source_name, output_path,
-                    duration_ms, current_ms, status, error, metadata_json,
-                    created_at, updated_at, started_at, completed_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    job.job_id,
-                    str(job.source_path),
-                    job.source_name,
-                    str(job.output_path),
-                    job.duration_ms,
-                    job.current_ms,
-                    job.status,
-                    job.error,
-                    json.dumps(job.metadata, ensure_ascii=False, sort_keys=True),
-                    now,
-                    now,
-                    now if job.status == "processing" else None,
-                    now if job.status == "completed" else None,
-                ),
-            )
+        with closing(self._connect()) as connection:
+            with connection:
+                connection.execute(
+                    """
+                    INSERT INTO jobs (
+                        job_id, source_path, source_name, output_path,
+                        duration_ms, current_ms, status, error, metadata_json,
+                        created_at, updated_at, started_at, completed_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        job.job_id,
+                        str(job.source_path),
+                        job.source_name,
+                        str(job.output_path),
+                        job.duration_ms,
+                        job.current_ms,
+                        job.status,
+                        job.error,
+                        json.dumps(job.metadata, ensure_ascii=False, sort_keys=True),
+                        now,
+                        now,
+                        now if job.status == "processing" else None,
+                        now if job.status == "completed" else None,
+                    ),
+                )
 
     def update(self, job: JobRecord) -> None:
         self._validate(job)
         now = _utc_now()
-        with self._connect() as connection:
-            row = connection.execute(
-                "SELECT started_at, completed_at FROM jobs WHERE job_id = ?", (job.job_id,)
-            ).fetchone()
-            if row is None:
-                raise KeyError(f"unknown job_id: {job.job_id}")
-            started_at = row["started_at"]
-            completed_at = row["completed_at"]
-            if job.status == "processing" and started_at is None:
-                started_at = now
-            if job.status == "completed":
-                completed_at = completed_at or now
-            elif job.status != "completed":
-                completed_at = None
-            connection.execute(
-                """
-                UPDATE jobs SET
-                    source_path = ?, source_name = ?, output_path = ?,
-                    duration_ms = ?, current_ms = ?, status = ?, error = ?,
-                    metadata_json = ?, updated_at = ?, started_at = ?, completed_at = ?
-                WHERE job_id = ?
-                """,
-                (
-                    str(job.source_path),
-                    job.source_name,
-                    str(job.output_path),
-                    job.duration_ms,
-                    job.current_ms,
-                    job.status,
-                    job.error,
-                    json.dumps(job.metadata, ensure_ascii=False, sort_keys=True),
-                    now,
-                    started_at,
-                    completed_at,
-                    job.job_id,
-                ),
-            )
+        with closing(self._connect()) as connection:
+            with connection:
+                row = connection.execute(
+                    "SELECT started_at, completed_at FROM jobs WHERE job_id = ?", (job.job_id,)
+                ).fetchone()
+                if row is None:
+                    raise KeyError(f"unknown job_id: {job.job_id}")
+                started_at = row["started_at"]
+                completed_at = row["completed_at"]
+                if job.status == "processing" and started_at is None:
+                    started_at = now
+                if job.status == "completed":
+                    completed_at = completed_at or now
+                elif job.status != "completed":
+                    completed_at = None
+                connection.execute(
+                    """
+                    UPDATE jobs SET
+                        source_path = ?, source_name = ?, output_path = ?,
+                        duration_ms = ?, current_ms = ?, status = ?, error = ?,
+                        metadata_json = ?, updated_at = ?, started_at = ?, completed_at = ?
+                    WHERE job_id = ?
+                    """,
+                    (
+                        str(job.source_path),
+                        job.source_name,
+                        str(job.output_path),
+                        job.duration_ms,
+                        job.current_ms,
+                        job.status,
+                        job.error,
+                        json.dumps(job.metadata, ensure_ascii=False, sort_keys=True),
+                        now,
+                        started_at,
+                        completed_at,
+                        job.job_id,
+                    ),
+                )
 
     def get(self, job_id: str) -> JobRecord | None:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             row = connection.execute("SELECT * FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
         return self._row_to_job(row) if row is not None else None
 
     def list_all(self) -> list[JobRecord]:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             rows = connection.execute("SELECT * FROM jobs ORDER BY queue_seq").fetchall()
         return [self._row_to_job(row) for row in rows]
 
@@ -148,10 +158,10 @@ class SqliteJobStore:
         job_id: str | None = None,
     ) -> JobRecord:
         source_path = Path(source_path)
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             reserved = [
                 Path(row["output_path"])
-                for row in connection.execute("SELECT output_path FROM jobs")
+                for row in connection.execute("SELECT output_path FROM jobs").fetchall()
             ]
         output_path = reserve_short_output(Path(output_dir), reserved_paths=reserved)
         job = JobRecord(
@@ -170,7 +180,7 @@ class SqliteJobStore:
         return job
 
     def timestamps(self, job_id: str) -> dict[str, str | None]:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             row = connection.execute(
                 "SELECT created_at, updated_at, started_at, completed_at FROM jobs WHERE job_id = ?",
                 (job_id,),
