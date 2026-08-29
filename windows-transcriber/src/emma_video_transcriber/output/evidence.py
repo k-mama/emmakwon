@@ -9,6 +9,7 @@ from ..contracts import JobRecord, TranscriptSegment
 
 EVIDENCE_SCHEMA_VERSION = 1
 EVIDENCE_KIND = "emma-transcript-evidence"
+EVIDENCE_PRODUCER = "emma-video-transcriber"
 VAD_FILTER = "faster-whisper-vad-filter"
 
 
@@ -52,6 +53,7 @@ def _new_payload(job: JobRecord) -> dict:
     return {
         "schemaVersion": EVIDENCE_SCHEMA_VERSION,
         "kind": EVIDENCE_KIND,
+        "producer": EVIDENCE_PRODUCER,
         "status": "partial",
         "sourcePath": str(Path(job.source_path).resolve(strict=False)),
         "durationMs": int(job.duration_ms),
@@ -67,6 +69,8 @@ def _validated_payload(job: JobRecord, value: dict | None) -> dict:
         return _new_payload(job)
     if value.get("schemaVersion") != EVIDENCE_SCHEMA_VERSION or value.get("kind") != EVIDENCE_KIND:
         raise RuntimeError("transcript evidence sidecar schema does not match this application")
+    if value.get("producer") != EVIDENCE_PRODUCER:
+        raise RuntimeError("transcript evidence sidecar producer does not match this application")
     source = value.get("sourcePath")
     if not isinstance(source, str) or _source_identity(Path(source)) != _source_identity(Path(job.source_path)):
         raise RuntimeError("transcript evidence sidecar belongs to a different source file")
@@ -106,6 +110,7 @@ def reconcile_evidence(job: JobRecord) -> None:
     kept.sort(key=lambda item: (item["startMs"], item["endMs"], item["text"]))
     value.update(
         {
+            "producer": EVIDENCE_PRODUCER,
             "status": "partial",
             "sourcePath": str(Path(job.source_path).resolve(strict=False)),
             "durationMs": int(job.duration_ms),
@@ -158,6 +163,7 @@ def commit_evidence_chunk(
 
     value.update(
         {
+            "producer": EVIDENCE_PRODUCER,
             "status": "partial",
             "sourcePath": str(Path(job.source_path).resolve(strict=False)),
             "durationMs": int(job.duration_ms),
@@ -179,6 +185,7 @@ def complete_evidence(job: JobRecord) -> None:
         raise RuntimeError("transcript evidence is behind the completed media checkpoint")
     value.update(
         {
+            "producer": EVIDENCE_PRODUCER,
             "status": "completed",
             "durationMs": int(job.duration_ms),
             "committedMs": int(job.duration_ms),
