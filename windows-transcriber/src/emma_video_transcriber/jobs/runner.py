@@ -257,5 +257,9 @@ class QueueRunner:
 
     @staticmethod
     def _fsync_path(path: Path) -> None:
-        with Path(path).open("rb") as handle:
+        # CPython maps os.fsync to the Windows CRT _commit call. A read-only file
+        # descriptor can fail with EINVAL/EBADF on Windows even though it succeeds
+        # on Unix. Open the transcript read/write so this durability barrier works
+        # on both platforms. The writer has already closed its append handle here.
+        with Path(path).open("r+b") as handle:
             os.fsync(handle.fileno())
