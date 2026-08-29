@@ -19,8 +19,8 @@ Do not commit huge fixtures. Keep benchmark source files local.
 
 `tools/benchmark_transcriber.py` records actual:
 
-- engine-selected device when exposed by the implementation;
-- engine model / compute type when exposed;
+- engine-selected device from production `get_diagnostics()` when available;
+- engine model, compute type, GPU name, and fallback reason when exposed;
 - NVIDIA inventory from `nvidia-smi` when available;
 - processed input audio duration;
 - wall-clock transcription duration;
@@ -29,33 +29,51 @@ Do not commit huge fixtures. Keep benchmark source files local.
 - peak process working set where practical;
 - segment count and character count;
 - chunk count;
-- source size and source metadata unchanged check.
+- source size/mtime unchanged and SHA-256 unchanged by default;
+- Python and platform information.
 
-The tool does not invent missing device/model fields and does not substitute CI timing for target-PC timing.
+Every temporary audio chunk is deleted immediately after its transcription attempt. The tool does not invent missing device/model fields and does not substitute CI timing for target-PC timing.
 
 ## Exact target-PC steps
 
-1. Install/run the integrated portable build dependencies exactly as the packaging lane specifies.
-2. Open Command Prompt in `windows-transcriber`.
-3. Generate tiny failure fixtures: `python tools\generate_media_fixtures.py --out qa-fixtures`
-4. Run the full automated suite: `python -m unittest discover -s tests -p "test_*.py" -v`
-5. Configure the component factory used by the integrated build. The factory must return `(media_pipeline, engine)`, a dict with `media`/`engine`, or an object exposing `.media` and `.engine`.
-6. Run a real spoken-video benchmark: `python tools\benchmark_transcriber.py --factory PACKAGE.MODULE:FACTORY --source "C:\QA Media\speech 20 minutes.mp4" --json-out benchmark-20m.json`
-7. Confirm the JSON reports the intended GPU-selected device from the engine diagnostics. `nvidia_inventory` alone proves only GPU presence, not selection.
-8. Repeat with a 60+ minute source and save a second JSON.
-9. Force the engine's supported CPU mode/fallback path and rerun the short source. Record the result separately; do not compare it as a release-speed target.
-10. During a long run, use Task Manager to confirm the UI stays responsive and that disk usage does not grow as though a full-duration WAV is being created.
-11. Hash the original source before/after representative success and failure runs if the integration test harness does not already do so.
-12. Record actual results in the integration/release handoff. If any required field cannot be observed, mark it `UNKNOWN`, not PASS.
+These steps are for QA on the integrated branch, not for the non-technical end user.
+
+1. On the integration branch, make sure ENGINE, MEDIA, QUEUE, UI, PACKAGING, and this QA lane have been integrated. Do not benchmark a single worker branch.
+2. From `windows-transcriber`, build the Windows portable package:
+   `powershell -ExecutionPolicy Bypass -File .\build\build_windows.ps1`
+3. Confirm the packaging self-check succeeds and these artifacts exist:
+   `dist\EmmaVideoTranscriber\EmmaVideoTranscriber.exe` and `dist\EmmaVideoTranscriber-portable.zip`.
+4. Launch `EmmaVideoTranscriber.exe` once and allow the normal first-use model/GPU-runtime preparation to finish. Close it cleanly. This prepares the same application-owned caches used by the source benchmark.
+5. Generate tiny failure fixtures with the build environment:
+   `.\.build-venv\Scripts\python.exe tools\generate_media_fixtures.py --out qa-fixtures`
+6. Run the complete QA suite:
+   `.\.build-venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py" -v`
+   Any required integration test skip is a release HOLD, not a pass.
+7. Put a representative spoken video at a stable local path such as:
+   `C:\QA Media\speech 20 minutes.mp4`
+8. Run the real benchmark using the production media and engine classes plus packaged runtime paths:
+   `.\.build-venv\Scripts\python.exe tools\benchmark_transcriber.py --source "C:\QA Media\speech 20 minutes.mp4" --json-out benchmark-20m.json`
+9. Open `benchmark-20m.json`. Require `engine.selected_device` (or the preserved production `chosen_device`) to report `cuda` on the normal target-PC path. `nvidia_inventory` alone proves only that a GPU exists; it does not prove CTranslate2 selected it.
+10. Confirm `engine.model`, compute type, input duration, wall time, `x_realtime`, peak working set, segment count, character count, and `source_unchanged: true` are present. If source hashing was deliberately skipped for an extremely large file, run at least one representative benchmark without `--skip-source-hash` before release.
+11. Repeat the benchmark at least three times on the same 20-minute source after a warm-up run. Keep all JSON files so normal variance can be seen instead of reporting a cherry-picked number.
+12. Repeat with a 60+ minute source:
+   `.\.build-venv\Scripts\python.exe tools\benchmark_transcriber.py --source "C:\QA Media\speech 60 minutes.mp4" --json-out benchmark-60m.json`
+13. Exercise the product-supported forced CPU/fallback path and rerun the short source. Save it separately as `benchmark-20m-cpu.json`. CPU is a reliability gate, not the target speed baseline.
+14. While the 60+ minute job runs in the real GUI, minimize/restore the app, move other windows, and use other applications. The UI must continue repainting and accepting input. Task Manager must not show unbounded process-memory growth.
+15. During that long run, watch the application temp directory under `%LOCALAPPDATA%\EmmaKwon\EmmaVideoTranscriber\`. It must behave like bounded chunk storage, not like a growing full-duration WAV.
+16. Run at least one close/restart test during a long source: choose `Pause and close`, relaunch, resume, and compare the final TXT against an uninterrupted run for missing or duplicated committed text.
+17. Record actual measurements and PASS/FAIL results in the integration/release handoff. Any field that cannot be observed is `UNKNOWN`, not PASS.
 
 ## Performance release criteria
 
 - GPU is actually selected on the target RTX machine for the normal path.
 - CPU fallback completes a representative short transcription without corrupting output/checkpoints.
 - No unbounded memory growth is observed over a 60+ minute run.
-- Temporary audio stays bounded to the configured chunk strategy.
+- Temporary audio stays bounded to the configured chunk strategy and is promptly cleaned.
+- Source bytes remain unchanged in representative success and failure runs.
+- UI remains responsive during real long-running transcription and safe close/resume works.
 - Throughput numbers are reported as measurements only. V0.1 has no fabricated minimum x-realtime claim until target measurements establish a baseline.
-- Any regression threshold should be set only after at least three repeat target-PC runs establish normal variance.
+- Any regression threshold is set only after at least three repeat target-PC runs establish normal variance.
 
 ## Long-video correctness strategy
 
