@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import os
 import subprocess
+from pathlib import Path
 from typing import Any, Sequence
 
 from .errors import EngineDependencyError
@@ -46,7 +48,7 @@ class FasterWhisperRuntime:
 
     def create_model(
         self,
-        model_name: str,
+        model_source: str | Path,
         *,
         device: str,
         compute_type: str,
@@ -57,7 +59,7 @@ class FasterWhisperRuntime:
         if model_class is None:
             raise EngineDependencyError("faster-whisper does not expose WhisperModel.")
         return model_class(
-            model_name,
+            os.fspath(model_source),
             device=device,
             device_index=device_index,
             compute_type=compute_type,
