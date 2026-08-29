@@ -37,6 +37,16 @@ def _show_fatal(message: str) -> None:
 def _self_check() -> int:
     state = configure_runtime_environment()
     paths = runtime_paths()
+
+    # faster-whisper's vad_filter=True loads this bundled ONNX asset at runtime.
+    # PyInstaller does not include package data merely because submodules are
+    # collected, so make the packaged self-check fail closed if the asset is absent.
+    from faster_whisper.utils import get_assets_path
+
+    vad_asset = Path(get_assets_path()) / "silero_vad_v6.onnx"
+    if not vad_asset.is_file():
+        raise RuntimeError(f"Packaged Whisper VAD asset is missing: {vad_asset}")
+
     result = {
         "ffmpeg": str(state.ffmpeg.ffmpeg),
         "ffprobe": str(state.ffmpeg.ffprobe),
@@ -45,6 +55,7 @@ def _self_check() -> int:
         "app_data": str(paths.app_data),
         "models": str(paths.models),
         "temp": str(paths.temp),
+        "vad_asset": str(vad_asset),
     }
     if sys.stdout is not None:
         print(json.dumps(result, ensure_ascii=False))
