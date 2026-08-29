@@ -35,6 +35,7 @@ class EvidenceSidecarTests(unittest.TestCase):
             job = self.make_job(Path(directory))
             reconcile_evidence(job)
             value = self.load(job)
+            self.assertEqual(value["producer"], "emma-video-transcriber")
             self.assertEqual(value["status"], "partial")
             self.assertEqual(value["committedMs"], 0)
             self.assertEqual(value["segments"], [])
@@ -59,6 +60,7 @@ class EvidenceSidecarTests(unittest.TestCase):
             )
             complete_evidence(job)
             value = self.load(job)
+            self.assertEqual(value["producer"], "emma-video-transcriber")
             self.assertEqual(value["status"], "completed")
             self.assertEqual(value["committedMs"], 10_000)
             self.assertEqual([item["text"] for item in value["segments"]], ["hello", "world"])
@@ -120,6 +122,17 @@ class EvidenceSidecarTests(unittest.TestCase):
                     5_000,
                     [TranscriptSegment(start_ms=4_500, end_ms=5_500, text="escaped")],
                 )
+
+    def test_existing_sidecar_from_another_producer_is_refused(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            job = self.make_job(Path(directory))
+            reconcile_evidence(job)
+            path = evidence_path(job.output_path)
+            value = self.load(job)
+            value["producer"] = "other-transcriber"
+            path.write_text(json.dumps(value), encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "producer"):
+                reconcile_evidence(job)
 
 
 if __name__ == "__main__":
