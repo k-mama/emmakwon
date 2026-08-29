@@ -20,7 +20,7 @@ class LoadedModel:
 
 def load_model(
     runtime: Any,
-    model_name: str,
+    model_source: str | Path,
     *,
     device: str,
     compute_type: str,
@@ -28,7 +28,7 @@ def load_model(
     cpu_threads: int,
 ) -> LoadedModel:
     model = runtime.create_model(
-        model_name,
+        model_source,
         device=device,
         compute_type=compute_type,
         device_index=device_index if device == "cuda" else 0,
