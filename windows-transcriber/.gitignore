@@ -1,0 +1,7 @@
+.build-venv/
+dist/
+runtime/ffmpeg/
+build/.cache/
+build/pyinstaller-work/
+**/__pycache__/
+*.py[cod]

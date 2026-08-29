@@ -1,0 +1,68 @@
+name: Windows Transcriber Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - parallel/win-transcriber-packaging
+    paths:
+      - "windows-transcriber/**"
+      - ".github/workflows/windows-transcriber-build.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  package-windows-x64:
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            windows-transcriber/requirements/runtime.txt
+            windows-transcriber/requirements/build.txt
+
+      - name: Install packaging dependencies
+        working-directory: windows-transcriber
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/build.txt
+
+      - name: Provision pinned FFmpeg
+        working-directory: windows-transcriber
+        run: python build/provision_ffmpeg.py
+
+      - name: Compile packaging sources
+        working-directory: windows-transcriber
+        run: python -m compileall -q src/emma_video_transcriber/infra build/entrypoint.py build/provision_ffmpeg.py
+
+      - name: Build portable application
+        working-directory: windows-transcriber
+        shell: pwsh
+        run: |
+          python -m PyInstaller --noconfirm --clean --distpath dist --workpath build/pyinstaller-work build/EmmaVideoTranscriber.spec
+          & .\dist\EmmaVideoTranscriber\EmmaVideoTranscriber.exe --self-check
+          if ($LASTEXITCODE -ne 0) { throw "Packaged runtime self-check failed" }
+          Compress-Archive -Path .\dist\EmmaVideoTranscriber\* -DestinationPath .\dist\EmmaVideoTranscriber-portable.zip -CompressionLevel Optimal
+
+      - name: Record CUDA scope
+        shell: pwsh
+        run: |
+          Write-Host "Packaging PASS does not imply CUDA execution PASS."
+          Write-Host "GitHub-hosted runner has no target RTX validation role."
+
+      - name: Upload portable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: EmmaVideoTranscriber-windows-x64
+          path: windows-transcriber/dist/EmmaVideoTranscriber-portable.zip
+          if-no-files-found: error
+          retention-days: 14
