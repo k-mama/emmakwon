@@ -24,9 +24,11 @@ def main() -> int:
     no_audio = args.out / "no audio.mp4"
     corrupt = args.out / "corrupted source.mp4"
     common = ["-hide_banner", "-loglevel", "error", "-y"]
-    run([ffmpeg, *common, "-f", "lavfi", "-i", f"color=c=black:s=320x180:d={args.seconds}", "-f", "lavfi", "-i", f"sine=frequency=440:sample_rate=16000:duration={args.seconds}", "-shortest", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", str(normal)])
+    # Keep fixture generation compatible with the LGPL FFmpeg build shipped by
+    # the app. libx264 is GPL-only and is intentionally not a packaging dependency.
+    run([ffmpeg, *common, "-f", "lavfi", "-i", f"color=c=black:s=320x180:d={args.seconds}", "-f", "lavfi", "-i", f"sine=frequency=440:sample_rate=16000:duration={args.seconds}", "-shortest", "-c:v", "mpeg4", "-q:v", "5", "-pix_fmt", "yuv420p", "-c:a", "aac", str(normal)])
     shutil.copy2(normal, unicode_path)
-    run([ffmpeg, *common, "-f", "lavfi", "-i", f"color=c=black:s=320x180:d={args.seconds}", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(no_audio)])
+    run([ffmpeg, *common, "-f", "lavfi", "-i", f"color=c=black:s=320x180:d={args.seconds}", "-c:v", "mpeg4", "-q:v", "5", "-pix_fmt", "yuv420p", str(no_audio)])
     corrupt.write_bytes(b"not a media container\n")
     print(normal)
     print(unicode_path)
