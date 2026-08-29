@@ -52,10 +52,13 @@ class MediaPipelineAdversarialTests(unittest.TestCase):
 
     def make_av(self, name: str = "한글 긴 영상 (final)! #1.mp4") -> Path:
         path = self.root / name
+        # The shipping FFmpeg is an LGPL build, so QA fixtures must not depend on
+        # GPL-only libx264. Native MPEG-4 is sufficient for exercising probing,
+        # Unicode paths and audio extraction.
         self.run_ffmpeg(
             "-f", "lavfi", "-i", "color=c=black:s=160x90:d=2.4",
             "-f", "lavfi", "-i", "sine=frequency=440:sample_rate=16000:duration=2.4",
-            "-shortest", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac",
+            "-shortest", "-c:v", "mpeg4", "-q:v", "5", "-pix_fmt", "yuv420p", "-c:a", "aac",
             str(path),
         )
         return path
@@ -64,7 +67,7 @@ class MediaPipelineAdversarialTests(unittest.TestCase):
         path = self.root / "no audio (1).mp4"
         self.run_ffmpeg(
             "-f", "lavfi", "-i", "color=c=black:s=160x90:d=1.0",
-            "-c:v", "libx264", "-pix_fmt", "yuv420p", str(path),
+            "-c:v", "mpeg4", "-q:v", "5", "-pix_fmt", "yuv420p", str(path),
         )
         return path
 
