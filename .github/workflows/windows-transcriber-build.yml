@@ -55,6 +55,8 @@ jobs:
         working-directory: windows-transcriber
         run: |
           $env:PYTHONPATH = (Resolve-Path .\src).Path
+          $ffmpegBin = (Resolve-Path .\runtime\ffmpeg\bin).Path
+          $env:PATH = "$ffmpegBin;$env:PATH"
           python -m unittest discover -s src/emma_video_transcriber/engine/_tests -p "test_*.py" -v
           python -m unittest discover -s src/emma_video_transcriber/media/tests -p "test_*.py" -v
           python -m unittest discover -s tests -p "test_*.py" -v
