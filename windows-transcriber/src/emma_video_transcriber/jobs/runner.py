@@ -14,6 +14,12 @@ from ..contracts import (
     TranscriptWriter,
     TranscriptionEngine,
 )
+from ..output.evidence import (
+    commit_evidence_chunk,
+    complete_evidence,
+    evidence_path,
+    reconcile_evidence,
+)
 from ..output.journal import AppendJournal, clear_journal, recover_output, write_journal
 
 
@@ -68,11 +74,13 @@ class QueueRunner:
         self._stop_requested.set()
 
     def recover_interrupted(self) -> list[JobRecord]:
-        """Make stale processing jobs resumable and repair any pending TXT append."""
+        """Make stale processing jobs resumable and repair pending TXT/evidence appends."""
         recovered: list[JobRecord] = []
         for job in self.store.list_all():
             try:
                 action = recover_output(job.output_path, committed_ms=job.current_ms, job_id=job.job_id)
+                if job.current_ms > 0 or evidence_path(job.output_path).is_file():
+                    reconcile_evidence(job)
             except Exception as exc:
                 job.status = "failed"
                 job.error = f"recovery failed: {exc}"
@@ -112,6 +120,8 @@ class QueueRunner:
         if job.status != "failed":
             raise ValueError("only failed jobs can be retried")
         recover_output(job.output_path, committed_ms=job.current_ms, job_id=job.job_id)
+        if job.current_ms > 0 or evidence_path(job.output_path).is_file():
+            reconcile_evidence(job)
         job.status = "paused" if job.current_ms > 0 else "queued"
         job.error = None
         self.store.update(job)
@@ -132,6 +142,7 @@ class QueueRunner:
             if info.duration_ms <= 0:
                 raise RuntimeError(f"invalid media duration: {info.duration_ms}")
             job.duration_ms = info.duration_ms
+            reconcile_evidence(job)
             job.status = "processing"
             job.error = None
             self.store.update(job)
@@ -165,6 +176,7 @@ class QueueRunner:
                     f"media pipeline ended at {job.current_ms} ms before duration {job.duration_ms} ms"
                 )
             job.current_ms = job.duration_ms
+            complete_evidence(job)
             job.status = "completed"
             job.error = None
             self.store.update(job)
@@ -201,6 +213,7 @@ class QueueRunner:
         )
         self.writer.append_segments(output, segments)
         self._fsync_path(output)
+        commit_evidence_chunk(job, start_ms, end_ms, segments)
         job.current_ms = end_ms
         self.store.update(job)
         clear_journal(output)
