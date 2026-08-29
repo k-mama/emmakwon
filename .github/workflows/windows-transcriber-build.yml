@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - parallel/win-transcriber-packaging
+      - parallel/win-transcriber-integration
     paths:
       - "windows-transcriber/**"
       - ".github/workflows/windows-transcriber-build.yml"
@@ -15,7 +16,7 @@ permissions:
 jobs:
   package-windows-x64:
     runs-on: windows-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
@@ -40,9 +41,23 @@ jobs:
         working-directory: windows-transcriber
         run: python build/provision_ffmpeg.py
 
-      - name: Compile packaging sources
+      - name: Compile integrated sources
         working-directory: windows-transcriber
-        run: python -m compileall -q src/emma_video_transcriber/infra build/entrypoint.py build/provision_ffmpeg.py
+        run: python -m compileall -q src/emma_video_transcriber build/entrypoint.py build/provision_ffmpeg.py
+
+      - name: Import integrated application
+        working-directory: windows-transcriber
+        run: |
+          $env:PYTHONPATH = (Resolve-Path .\src).Path
+          python -c "from emma_video_transcriber.app import ApplicationController, TranscriptionWorker, main; print('INTEGRATED_APP_IMPORT_PASS')"
+
+      - name: Run component and adversarial tests
+        working-directory: windows-transcriber
+        run: |
+          $env:PYTHONPATH = (Resolve-Path .\src).Path
+          python -m unittest discover -s src/emma_video_transcriber/engine/_tests -p "test_*.py" -v
+          python -m unittest discover -s src/emma_video_transcriber/media/tests -p "test_*.py" -v
+          python -m unittest discover -s tests -p "test_*.py" -v
 
       - name: Build portable application
         working-directory: windows-transcriber
