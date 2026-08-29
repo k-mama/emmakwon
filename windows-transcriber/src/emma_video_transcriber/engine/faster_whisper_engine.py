@@ -32,14 +32,18 @@ class FasterWhisperTranscriptionEngine:
     def __init__(
         self,
         *,
+        model_path: Path | None = None,
         device_index: int = 0,
         cpu_threads: int | None = None,
         _runtime: Any | None = None,
     ) -> None:
         self._device_index = device_index
         self._cpu_threads = cpu_threads or default_cpu_threads()
+        self._model_path = self._validate_model_path(model_path)
         self._runtime = _runtime or FasterWhisperRuntime()
-        self._model_name: str | None = None
+        self._model_name: str | None = (
+            str(self._model_path) if self._model_path is not None else None
+        )
         self._loaded: LoadedModel | None = None
         self._gpu_supported_types: set[str] = set()
         self._gpu_name: str | None = None
@@ -100,6 +104,27 @@ class FasterWhisperTranscriptionEngine:
             model=self._model_name,
             fallback_reason=self._fallback_reason,
         )
+
+    @staticmethod
+    def _validate_model_path(model_path: Path | None) -> Path | None:
+        if model_path is None:
+            return None
+        path = Path(model_path)
+        try:
+            if not path.exists():
+                raise ModelInitializationError(
+                    f"Explicit Whisper model path does not exist: {path}"
+                )
+            if not path.is_dir():
+                raise ModelInitializationError(
+                    f"Explicit Whisper model path is not a directory: {path}"
+                )
+        except OSError as exc:
+            raise ModelInitializationError(
+                f"Unable to access explicit Whisper model path '{path}': {short_error(exc)}",
+                cause=exc,
+            ) from exc
+        return path
 
     def _prepare_plan(self) -> None:
         if self._model_name is None:
@@ -172,9 +197,13 @@ class FasterWhisperTranscriptionEngine:
             self._planned_compute_type = cpu_compute
             self._loaded = self._load_model("cpu", cpu_compute)
         except Exception as exc:
+            source = (
+                f"explicit model directory '{self._model_name}'"
+                if self._model_path is not None
+                else "local Whisper model"
+            )
             raise ModelInitializationError(
-                "Unable to initialize the local Whisper model on GPU or CPU: "
-                f"{short_error(exc)}",
+                f"Unable to initialize {source} on GPU or CPU: {short_error(exc)}",
                 cause=exc,
             ) from exc
 
