@@ -2,11 +2,26 @@ from __future__ import annotations
 
 import importlib
 import json
+import os
 import sys
 import traceback
 from pathlib import Path
 
 from emma_video_transcriber.infra import configure_runtime_environment, runtime_paths
+
+_DEVNULL_STREAMS: list[object] = []
+
+
+def _ensure_standard_streams() -> None:
+    """Provide writable stdio for third-party libraries in console=False builds."""
+    if sys.stdout is None:
+        stream = open(os.devnull, "w", encoding="utf-8")
+        _DEVNULL_STREAMS.append(stream)
+        sys.stdout = stream
+    if sys.stderr is None:
+        stream = open(os.devnull, "w", encoding="utf-8")
+        _DEVNULL_STREAMS.append(stream)
+        sys.stderr = stream
 
 
 def _show_fatal(message: str) -> None:
@@ -15,7 +30,8 @@ def _show_fatal(message: str) -> None:
 
         ctypes.windll.user32.MessageBoxW(0, message, "EMMA VIDEO TRANSCRIBER", 0x10)
     except Exception:
-        print(message, file=sys.stderr)
+        if sys.stderr is not None:
+            print(message, file=sys.stderr)
 
 
 def _self_check() -> int:
@@ -30,17 +46,12 @@ def _self_check() -> int:
         "models": str(paths.models),
         "temp": str(paths.temp),
     }
-    # In a windowed PyInstaller build stdout is not visible, but returning 0 still
-    # lets CI verify the packaged runtime. Source-mode runs can read this JSON.
     if sys.stdout is not None:
         print(json.dumps(result, ensure_ascii=False))
     return 0
 
 
 def _launch_application() -> int:
-    # Integration owns the final application entrypoint. These candidates keep the
-    # packaging lane isolated while allowing the integrated package to be frozen
-    # without editing engine/media/jobs/ui files here.
     candidates = (
         ("emma_video_transcriber.app", "main"),
         ("emma_video_transcriber.__main__", "main"),
@@ -52,8 +63,6 @@ def _launch_application() -> int:
         try:
             module = importlib.import_module(module_name)
         except ModuleNotFoundError as exc:
-            # Only treat absence of the candidate itself as a miss. A missing
-            # dependency inside an existing candidate is a real packaging error.
             if exc.name == module_name or (exc.name and module_name.startswith(exc.name + ".")):
                 errors.append(f"{module_name}: not present")
                 continue
@@ -72,6 +81,7 @@ def _launch_application() -> int:
 
 
 def main() -> int:
+    _ensure_standard_streams()
     configure_runtime_environment()
     if "--self-check" in sys.argv:
         return _self_check()
