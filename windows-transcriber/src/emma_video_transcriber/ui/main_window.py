@@ -10,29 +10,27 @@ from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QMainWindow,
     QMessageBox,
     QPushButton,
     QScrollArea,
-    QSizePolicy,
-    QSpacerItem,
     QVBoxLayout,
     QWidget,
 )
 
 from .bridge import UiEventBridge
 from .models import ActiveJobSnapshot, STATUS_FAILED, STATUS_PAUSED, STATUS_QUEUED, STATUS_TRANSCRIBING, UiJob
+from .path_entry import validate_path_entry
 from .theme import APP_QSS
 from .widgets import ActiveJobPanel, QueueRow
 
 
-class MainWindow(QMainWindow):
-    """Presentation-only main window for EMMA VIDEO TRANSCRIBER.
+OUTPUT_FOLDER_DISPLAY = r"Downloads\EmmaVideoTranscriber"
 
-    All long-running work belongs outside the Qt UI thread. The integration room
-    wires a UiEventBridge to the queue/media/engine layers and publishes snapshots
-    back to this window.
-    """
+
+class MainWindow(QMainWindow):
+    """Single-purpose path-to-transcript UI; all long work stays off the Qt UI thread."""
 
     def __init__(self, bridge: UiEventBridge | None = None, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -45,14 +43,15 @@ class MainWindow(QMainWindow):
         self._allow_close_once = False
 
         self.setWindowTitle("EMMA VIDEO TRANSCRIBER")
-        self.setMinimumSize(QSize(980, 680))
-        self.resize(1160, 760)
+        self.setMinimumSize(QSize(980, 700))
+        self.resize(1180, 800)
         self.setStyleSheet(APP_QSS)
 
         self._build_ui()
         self._connect_bridge()
         self._connect_shortcuts()
         self._refresh_actions()
+        self.path_input.setFocus()
 
     def _build_ui(self) -> None:
         root = QWidget()
@@ -67,34 +66,54 @@ class MainWindow(QMainWindow):
         header.setSpacing(3)
         title = QLabel("EMMA VIDEO TRANSCRIBER")
         title.setObjectName("Title")
-        subtitle = QLabel("Long videos in. Clean TXT files out. Everything stays on this PC.")
+        subtitle = QLabel("Long videos → clean TXT, processed locally")
         subtitle.setObjectName("Subtitle")
         header.addWidget(title)
         header.addWidget(subtitle)
         page.addLayout(header)
 
-        actions = QHBoxLayout()
-        actions.setSpacing(10)
-        self.add_button = QPushButton("ADD VIDEOS")
-        self.add_button.setObjectName("Secondary")
-        self.add_button.setToolTip("Choose one or more local video files (Ctrl+O)")
-        self.add_button.clicked.connect(self._choose_videos)
-        actions.addWidget(self.add_button)
+        path_card = QFrame()
+        path_card.setObjectName("PathCard")
+        path_layout = QVBoxLayout(path_card)
+        path_layout.setContentsMargins(20, 18, 20, 16)
+        path_layout.setSpacing(8)
 
-        self.start_button = QPushButton("START TRANSCRIPTION")
-        self.start_button.setObjectName("Primary")
-        self.start_button.setToolTip("Start or resume the queue (Ctrl+Enter)")
-        self.start_button.clicked.connect(self.bridge.request_start)
-        actions.addWidget(self.start_button)
+        input_label = QLabel("VIDEO FILE PATH")
+        input_label.setObjectName("InputLabel")
+        path_layout.addWidget(input_label)
 
-        actions.addSpacerItem(QSpacerItem(12, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
+        input_row = QHBoxLayout()
+        input_row.setSpacing(8)
+        self.path_input = QLineEdit()
+        self.path_input.setObjectName("PathInput")
+        self.path_input.setPlaceholderText("Paste the full video file path here")
+        self.path_input.setClearButtonEnabled(True)
+        self.path_input.returnPressed.connect(self._submit_path)
+        self.path_input.textChanged.connect(self._clear_path_message)
+        input_row.addWidget(self.path_input, 1)
 
-        self.open_output_button = QPushButton("OPEN OUTPUT FOLDER")
-        self.open_output_button.setObjectName("Secondary")
-        self.open_output_button.setToolTip("Open the folder containing transcripts (Ctrl+Shift+O)")
-        self.open_output_button.clicked.connect(self.bridge.request_open_output_folder)
-        actions.addWidget(self.open_output_button)
-        page.addLayout(actions)
+        self.add_path_button = QPushButton("+")
+        self.add_path_button.setObjectName("AddPath")
+        self.add_path_button.setToolTip("Add this path to the queue")
+        self.add_path_button.clicked.connect(self._submit_path)
+        input_row.addWidget(self.add_path_button)
+
+        self.browse_button = QPushButton("Browse")
+        self.browse_button.setObjectName("Secondary")
+        self.browse_button.setToolTip("Choose one video and place its path in the field")
+        self.browse_button.clicked.connect(self._browse_one_video)
+        input_row.addWidget(self.browse_button)
+        path_layout.addLayout(input_row)
+
+        self.path_message = QLabel("")
+        self.path_message.setObjectName("PathMessage")
+        self.path_message.setProperty("error", False)
+        path_layout.addWidget(self.path_message)
+
+        output_hint = QLabel(f"Output: {OUTPUT_FOLDER_DISPLAY}")
+        output_hint.setObjectName("OutputHint")
+        path_layout.addWidget(output_hint)
+        page.addWidget(path_card)
 
         content = QHBoxLayout()
         content.setSpacing(18)
@@ -103,7 +122,7 @@ class MainWindow(QMainWindow):
         queue_card.setObjectName("Card")
         queue_layout = QVBoxLayout(queue_card)
         queue_layout.setContentsMargins(20, 18, 20, 18)
-        queue_layout.setSpacing(8)
+        queue_layout.setSpacing(10)
 
         queue_header = QHBoxLayout()
         queue_title = QLabel("QUEUE")
@@ -115,11 +134,11 @@ class MainWindow(QMainWindow):
         queue_header.addWidget(self.queue_count)
         queue_layout.addLayout(queue_header)
 
-        self.empty_queue = QLabel("No videos yet. Add several at once and they will run one by one.")
+        self.empty_queue = QLabel("Paste a complete video path above, then press +.")
         self.empty_queue.setObjectName("Muted")
         self.empty_queue.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.empty_queue.setWordWrap(True)
-        self.empty_queue.setMinimumHeight(160)
+        self.empty_queue.setMinimumHeight(170)
         queue_layout.addWidget(self.empty_queue)
 
         self.scroll = QScrollArea()
@@ -128,18 +147,33 @@ class MainWindow(QMainWindow):
         self.scroll_content = QWidget()
         self.scroll_layout = QVBoxLayout(self.scroll_content)
         self.scroll_layout.setContentsMargins(0, 0, 0, 0)
-        self.scroll_layout.setSpacing(0)
+        self.scroll_layout.setSpacing(9)
         self.scroll_layout.addStretch(1)
         self.scroll.setWidget(self.scroll_content)
         self.scroll.hide()
         queue_layout.addWidget(self.scroll, 1)
 
         self.active_panel = ActiveJobPanel()
-        content.addWidget(queue_card, 7)
-        content.addWidget(self.active_panel, 4)
+        content.addWidget(queue_card, 64)
+        content.addWidget(self.active_panel, 36)
         page.addLayout(content, 1)
 
-        self.footer = QLabel("Ready. Your original videos are never modified.")
+        actions = QHBoxLayout()
+        actions.setSpacing(10)
+        self.start_button = QPushButton("START TRANSCRIPTION")
+        self.start_button.setObjectName("Primary")
+        self.start_button.setToolTip("Start or resume the queue (Ctrl+Enter)")
+        self.start_button.clicked.connect(self.bridge.request_start)
+        actions.addWidget(self.start_button, 1)
+
+        self.open_output_button = QPushButton("OPEN OUTPUT FOLDER")
+        self.open_output_button.setObjectName("Secondary")
+        self.open_output_button.setToolTip("Open Downloads\\EmmaVideoTranscriber (Ctrl+Shift+O)")
+        self.open_output_button.clicked.connect(self.bridge.request_open_output_folder)
+        actions.addWidget(self.open_output_button)
+        page.addLayout(actions)
+
+        self.footer = QLabel("Ready. Your original videos are never copied or modified.")
         self.footer.setObjectName("Footer")
         page.addWidget(self.footer)
 
@@ -153,23 +187,53 @@ class MainWindow(QMainWindow):
         self.bridge.safe_close_published.connect(self._finish_safe_close)
 
     def _connect_shortcuts(self) -> None:
-        QShortcut(QKeySequence("Ctrl+O"), self, activated=self._choose_videos)
+        QShortcut(QKeySequence("Ctrl+O"), self, activated=self._browse_one_video)
         QShortcut(QKeySequence("Ctrl+Return"), self, activated=self._start_from_shortcut)
         QShortcut(QKeySequence("Ctrl+Enter"), self, activated=self._start_from_shortcut)
         QShortcut(QKeySequence("Ctrl+Shift+O"), self, activated=self.bridge.request_open_output_folder)
 
     @Slot()
-    def _choose_videos(self) -> None:
-        selected, _ = QFileDialog.getOpenFileNames(
+    def _submit_path(self) -> None:
+        result = validate_path_entry(self.path_input.text(), (job.source_path for job in self._jobs))
+        if not result.accepted or result.path is None:
+            self._set_path_message(result.message, error=True)
+            self.path_input.setFocus()
+            return
+
+        if not self.bridge.request_add_path(result.path):
+            self._set_path_message("Could not add this path. Try again.", error=True)
+            self.path_input.setFocus()
+            return
+
+        self.path_input.clear()
+        self._set_path_message("Path accepted. Waiting for the queue to update.", error=False)
+        self.path_input.setFocus()
+
+    @Slot()
+    def _browse_one_video(self) -> None:
+        selected, _ = QFileDialog.getOpenFileName(
             self,
-            "Add videos",
+            "Choose a video",
             "",
             "Videos (*.mp4 *.mkv *.mov *.avi *.m4v *.webm *.ts *.mts *.m2ts);;All files (*.*)",
         )
         if not selected:
+            self.path_input.setFocus()
             return
-        self.set_status_message(f"Adding {len(selected)} selected video{'s' if len(selected) != 1 else ''}…")
-        self.bridge.request_add_videos(Path(path) for path in selected)
+        self.path_input.setText(selected)
+        self.path_input.setFocus()
+        self.path_input.selectAll()
+
+    @Slot(str)
+    def _clear_path_message(self, _text: str) -> None:
+        if self.path_message.text():
+            self._set_path_message("", error=False)
+
+    def _set_path_message(self, message: str, *, error: bool) -> None:
+        self.path_message.setText(message)
+        self.path_message.setProperty("error", error)
+        self.path_message.style().unpolish(self.path_message)
+        self.path_message.style().polish(self.path_message)
 
     @Slot()
     def _start_from_shortcut(self) -> None:
@@ -205,7 +269,7 @@ class MainWindow(QMainWindow):
         if running:
             self.footer.setText("Transcribing in the background. You can minimize this window and keep using your PC.")
         elif not self._close_pending:
-            self.footer.setText("Ready. Your original videos are never modified.")
+            self.footer.setText("Ready. Your original videos are never copied or modified.")
 
     @Slot(str)
     def set_status_message(self, message: str) -> None:
@@ -246,10 +310,13 @@ class MainWindow(QMainWindow):
 
     def _refresh_actions(self) -> None:
         actionable = any(job.status in {STATUS_QUEUED, STATUS_PAUSED, STATUS_FAILED} for job in self._jobs)
-        self.start_button.setEnabled(bool(self._jobs) and actionable and not self._is_running and not self._close_pending)
+        can_interact = not self._close_pending
+        self.start_button.setEnabled(bool(self._jobs) and actionable and not self._is_running and can_interact)
         self.start_button.setText("TRANSCRIBING…" if self._is_running else "START TRANSCRIPTION")
-        self.add_button.setEnabled(not self._close_pending)
-        self.open_output_button.setEnabled(not self._close_pending)
+        self.path_input.setEnabled(can_interact)
+        self.add_path_button.setEnabled(can_interact)
+        self.browse_button.setEnabled(can_interact)
+        self.open_output_button.setEnabled(can_interact)
 
     def _has_active_work(self) -> bool:
         return self._is_running or any(job.status == STATUS_TRANSCRIBING for job in self._jobs)
@@ -284,7 +351,7 @@ class MainWindow(QMainWindow):
             return
         if clicked is pause_close:
             self._close_pending = True
-            self.footer.setText("Pausing safely and saving the latest checkpoint before closing…")
+            self.footer.setText("Finishing the current safe segment…")
             self._refresh_actions()
             self.bridge.request_close_action("pause_and_close")
             event.ignore()

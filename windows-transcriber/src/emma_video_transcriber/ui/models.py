@@ -41,7 +41,6 @@ class UiJob:
 
     @classmethod
     def from_record(cls, record: object) -> "UiJob":
-        """Create a UI snapshot from the shared JobRecord contract without mutating it."""
         return cls(
             job_id=str(getattr(record, "job_id")),
             source_path=Path(getattr(record, "source_path")),
@@ -90,7 +89,7 @@ class ActiveJobSnapshot:
     ) -> "ActiveJobSnapshot":
         return cls(
             job_id=job.job_id,
-            source_name=job.source_name,
+            source_name=str(job.source_path),
             output_name=job.output_path.name,
             current_ms=job.current_ms,
             duration_ms=job.duration_ms,
@@ -102,9 +101,10 @@ class ActiveJobSnapshot:
 
     @classmethod
     def from_mapping(cls, data: Mapping[str, object]) -> "ActiveJobSnapshot":
+        source = data.get("source_path", data.get("source_name", ""))
         return cls(
             job_id=str(data.get("job_id", "")),
-            source_name=str(data.get("source_name", "")),
+            source_name=str(source or ""),
             output_name=str(data.get("output_name", "")),
             current_ms=max(0, int(data.get("current_ms", 0) or 0)),
             duration_ms=int(data.get("duration_ms", -1) or -1),

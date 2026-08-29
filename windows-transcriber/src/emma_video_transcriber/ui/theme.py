@@ -4,60 +4,118 @@ from .models import STATUS_COMPLETED, STATUS_FAILED, STATUS_PAUSED, STATUS_QUEUE
 
 APP_QSS = """
 QMainWindow, QWidget#Root {
-    background: #F4F6FA;
-    color: #172033;
+    background: #F5F8FC;
+    color: #3F4B59;
     font-family: "Segoe UI";
     font-size: 14px;
 }
-QFrame#Card {
+QFrame#Card, QFrame#PathCard {
     background: #FFFFFF;
-    border: 1px solid #E4E8EF;
-    border-radius: 14px;
+    border: 1px solid #E2EAF3;
+    border-radius: 18px;
 }
-QLabel#Title { color: #121A2A; font-size: 25px; font-weight: 700; }
-QLabel#Subtitle, QLabel#Muted, QLabel#QueueMeta, QLabel#Footer { color: #70798A; }
-QLabel#SectionTitle { color: #20293A; font-size: 15px; font-weight: 650; }
-QLabel#ActiveFile { color: #172033; font-size: 17px; font-weight: 650; }
-QLabel#Percent { color: #172033; font-size: 28px; font-weight: 700; }
-QPushButton {
-    min-height: 46px;
-    padding: 0 22px;
+QLabel#Title { color: #3F4B59; font-size: 26px; font-weight: 700; }
+QLabel#Subtitle { color: #7C8997; font-size: 14px; }
+QLabel#Muted, QLabel#QueueMeta, QLabel#Footer { color: #7C8997; }
+QLabel#SectionTitle, QLabel#InputLabel { color: #3F4B59; font-size: 14px; font-weight: 650; }
+QLabel#QueuePath { color: #3F4B59; font-size: 14px; font-weight: 600; }
+QLabel#OutputName { color: #1688D4; font-weight: 650; }
+QLabel#StatusText { font-weight: 600; }
+QLabel#NumberBadge {
+    color: #1688D4;
+    background: #EAF5FF;
+    border: 1px solid #D4EAFB;
     border-radius: 10px;
+    font-weight: 700;
+    padding: 4px 7px;
+}
+QLabel#WorkingPill {
+    color: #0A84D8;
+    background: #EAF5FF;
+    border: 1px solid #D4EAFB;
+    border-radius: 10px;
+    padding: 4px 8px;
+    font-weight: 650;
+}
+QLabel#SavedName { color: #3F4B59; font-size: 22px; font-weight: 700; }
+QLabel#Percent { color: #0A84D8; font-size: 30px; font-weight: 700; }
+QLabel#Value { color: #3F4B59; font-weight: 600; }
+QLabel#FieldName { color: #9AA6B2; font-size: 12px; font-weight: 600; }
+QLabel#PathMessage { color: #7C8997; min-height: 20px; }
+QLabel#PathMessage[error="true"] { color: #B95056; }
+QLabel#OutputHint { color: #7C8997; font-size: 13px; }
+QLineEdit#PathInput {
+    min-height: 48px;
+    background: #FFFFFF;
+    color: #3F4B59;
+    border: 1px solid #E2EAF3;
+    border-radius: 13px;
+    padding: 0 14px;
+    selection-background-color: #CFE8FC;
+}
+QLineEdit#PathInput:focus { border: 1px solid #1688D4; background: #FDFEFF; }
+QPushButton {
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 12px;
     font-size: 14px;
     font-weight: 650;
 }
-QPushButton#Primary { color: white; background: #235CE8; border: 1px solid #235CE8; }
-QPushButton#Primary:hover { background: #1E52D1; }
-QPushButton#Primary:pressed { background: #1948BA; }
-QPushButton#Primary:disabled { color: #A8B3C7; background: #E8ECF4; border-color: #E8ECF4; }
-QPushButton#Secondary { color: #26334A; background: #FFFFFF; border: 1px solid #D9DEE8; }
-QPushButton#Secondary:hover { background: #F8FAFD; }
-QPushButton#Secondary:disabled { color: #A0A8B7; background: #F6F7F9; }
+QPushButton#AddPath {
+    min-width: 50px;
+    max-width: 50px;
+    min-height: 50px;
+    color: #FFFFFF;
+    background: #1688D4;
+    border: 1px solid #1688D4;
+    font-size: 24px;
+    font-weight: 500;
+}
+QPushButton#AddPath:hover { background: #0A84D8; border-color: #0A84D8; }
+QPushButton#AddPath:pressed { background: #0877C2; }
+QPushButton#AddPath:disabled { color: #FFFFFF; background: #C8D1DA; border-color: #C8D1DA; }
+QPushButton#Primary {
+    min-height: 50px;
+    color: #0A84D8;
+    background: #EAF5FF;
+    border: 1px solid #BBDDFC;
+}
+QPushButton#Primary:hover { background: #DDEFFF; border-color: #9FCFF5; }
+QPushButton#Primary:pressed { background: #CFE8FC; }
+QPushButton#Primary:disabled { color: #9AA6B2; background: #EEF3F9; border-color: #E2EAF3; }
+QPushButton#Secondary {
+    color: #3F4B59;
+    background: #FFFFFF;
+    border: 1px solid #E2EAF3;
+}
+QPushButton#Secondary:hover { background: #F2F9FF; border-color: #CFE4F5; }
+QPushButton#Secondary:pressed { background: #EAF5FF; }
+QPushButton#Secondary:disabled { color: #9AA6B2; background: #F5F8FC; border-color: #E2EAF3; }
 QProgressBar {
     min-height: 8px;
     max-height: 8px;
     border: 0;
     border-radius: 4px;
-    background: #E9EDF4;
-    text-align: center;
+    background: #EEF3F9;
 }
-QProgressBar::chunk { border-radius: 4px; background: #235CE8; }
+QProgressBar::chunk { border-radius: 4px; background: #1688D4; }
 QScrollArea { border: 0; background: transparent; }
 QScrollArea > QWidget > QWidget { background: transparent; }
-QFrame#QueueRow { background: #FFFFFF; border: 0; border-bottom: 1px solid #EDF0F5; }
-QFrame#QueueRow[active="true"] { background: #F8FAFF; }
-QLabel#StatusDot { font-size: 16px; font-weight: 700; }
-QLabel#QueueTitle { color: #1B2434; font-size: 14px; font-weight: 650; }
-QLabel#OutputName { color: #44516A; font-weight: 600; }
-QLabel#StatusText { font-weight: 600; }
-QLabel#Value { color: #26334A; font-weight: 600; }
-QLabel#FieldName { color: #7A8495; }
+QFrame#QueueRow {
+    background: #FFFFFF;
+    border: 1px solid #E8EEF5;
+    border-radius: 14px;
+}
+QFrame#QueueRow[active="true"] {
+    background: #F2F9FF;
+    border: 1px solid #BBDDFC;
+}
 """
 
 STATUS_VISUALS = {
-    STATUS_QUEUED: ("○", "#8993A4"),
-    STATUS_TRANSCRIBING: ("●", "#235CE8"),
-    STATUS_COMPLETED: ("✓", "#25845C"),
-    STATUS_FAILED: ("!", "#C2414A"),
-    STATUS_PAUSED: ("Ⅱ", "#A46A13"),
+    STATUS_QUEUED: ("Waiting", "#7C8997"),
+    STATUS_TRANSCRIBING: ("Transcribing", "#1688D4"),
+    STATUS_COMPLETED: ("Completed", "#398262"),
+    STATUS_FAILED: ("Failed", "#B95056"),
+    STATUS_PAUSED: ("Paused", "#8E7447"),
 }

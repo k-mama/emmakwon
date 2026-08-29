@@ -26,17 +26,16 @@ class UiEventBridge(QObject):
       * publish_error(str)
       * allow_safe_close()
 
-    Worker QObjects should connect their signals to the publication slots. They must
-    never call QWidget methods directly. Qt will queue cross-thread signal delivery.
+    The path-entry UI intentionally reuses add_videos_requested with a one-item tuple,
+    so the integration contract remains backwards compatible. Worker QObjects should
+    connect signals across threads and never call QWidget methods directly.
     """
 
-    # UI -> integration
     add_videos_requested = Signal(object)
     start_transcription_requested = Signal()
     open_output_folder_requested = Signal()
     close_action_requested = Signal(str)
 
-    # Integration -> UI
     jobs_published = Signal(object)
     job_published = Signal(object)
     active_published = Signal(object)
@@ -47,8 +46,7 @@ class UiEventBridge(QObject):
 
     @Slot(object)
     def publish_jobs(self, jobs: Iterable[object]) -> None:
-        snapshots = tuple(_coerce_job(job) for job in jobs)
-        self.jobs_published.emit(snapshots)
+        self.jobs_published.emit(tuple(_coerce_job(job) for job in jobs))
 
     @Slot(object)
     def publish_job(self, job: object) -> None:
@@ -81,13 +79,21 @@ class UiEventBridge(QObject):
 
     @Slot()
     def allow_safe_close(self) -> None:
-        """Integration calls this only after an active job is safely paused/checkpointed."""
         self.safe_close_published.emit()
 
-    def request_add_videos(self, paths: Iterable[Path]) -> None:
+    def request_add_path(self, path: Path) -> bool:
+        candidate = Path(path)
+        if not str(candidate):
+            return False
+        self.add_videos_requested.emit((candidate,))
+        return True
+
+    def request_add_videos(self, paths: Iterable[Path]) -> bool:
         normalized = tuple(Path(path) for path in paths)
-        if normalized:
-            self.add_videos_requested.emit(normalized)
+        if not normalized:
+            return False
+        self.add_videos_requested.emit(normalized)
+        return True
 
     def request_start(self) -> None:
         self.start_transcription_requested.emit()
