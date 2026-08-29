@@ -2,7 +2,7 @@
 from pathlib import Path
 import sys
 
-from PyInstaller.utils.hooks import collect_dynamic_libs, collect_submodules
+from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs, collect_submodules
 
 root = Path(SPECPATH).parent
 src = root / "src"
@@ -30,7 +30,8 @@ hiddenimports = sorted(
 )
 
 binaries = collect_dynamic_libs("ctranslate2")
-datas = [(str(runtime_dir / "ffmpeg"), "runtime/ffmpeg")]
+datas = collect_data_files("faster_whisper", includes=["assets/*"])
+datas += [(str(runtime_dir / "ffmpeg"), "runtime/ffmpeg")]
 
 a = Analysis(
     [str(build_dir / "entrypoint.py")],
