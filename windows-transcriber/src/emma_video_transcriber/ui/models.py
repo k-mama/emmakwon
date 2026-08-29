@@ -123,6 +123,10 @@ class ActiveJobSnapshot:
 
 def normalize_status(status: str) -> str:
     normalized = status.strip().lower()
+    # Durable queue state is called "processing" while the presentation language
+    # calls the same active state "transcribing". Keep the mapping at the UI seam.
+    if normalized == "processing":
+        return STATUS_TRANSCRIBING
     if normalized in KNOWN_STATUSES:
         return normalized
     return STATUS_QUEUED
