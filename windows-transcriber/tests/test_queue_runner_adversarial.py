@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import errno
 import sys
 import tempfile
 import unittest
@@ -79,6 +80,15 @@ class CrashOnCheckpointStore:
             self.armed = False
             raise SimulatedProcessCrash("power loss after TXT fsync before checkpoint")
         return self.inner.update(job)
+
+
+class FailingWriter:
+    def __init__(self, error_number: int, message: str):
+        self.error_number = error_number
+        self.message = message
+
+    def append_segments(self, output_path: Path, segments: list[TranscriptSegment]) -> None:
+        raise OSError(self.error_number, self.message, str(output_path))
 
 
 @unittest.skipUnless(QUEUE_AVAILABLE, "queue/output lane not integrated on this branch")
@@ -178,14 +188,50 @@ class QueueRunnerAdversarialTests(unittest.TestCase):
         self.assertEqual(loaded.current_ms, 0)
         self.assertEqual(source.read_bytes(), b"immutable-source")
 
+    def test_output_write_permission_failure_does_not_advance_checkpoint(self) -> None:
+        store = SqliteJobStore(self.db)
+        source = self.source("permission.mp4")
+        job = store.enqueue(source, self.output_dir, metadata={"chunk_ms": "1000"})
+        runner = QueueRunner(
+            FakeMedia(self.chunk_dir),
+            FakeEngine(),
+            FailingWriter(errno.EACCES, "permission denied"),
+            store,
+        )
+        runner.run()
+        loaded = store.get(job.job_id)
+        self.assertEqual(loaded.status, "failed")
+        self.assertEqual(loaded.current_ms, 0)
+        self.assertIn("permission denied", (loaded.error or "").lower())
+        self.assertEqual(source.read_bytes(), b"immutable-source")
+
+    def test_disk_full_does_not_advance_checkpoint_or_touch_source(self) -> None:
+        store = SqliteJobStore(self.db)
+        source = self.source("disk-full.mp4")
+        job = store.enqueue(source, self.output_dir, metadata={"chunk_ms": "1000"})
+        runner = QueueRunner(
+            FakeMedia(self.chunk_dir),
+            FakeEngine(),
+            FailingWriter(errno.ENOSPC, "no space left on device"),
+            store,
+        )
+        runner.run()
+        loaded = store.get(job.job_id)
+        self.assertEqual(loaded.status, "failed")
+        self.assertEqual(loaded.current_ms, 0)
+        self.assertIn("space", (loaded.error or "").lower())
+        self.assertEqual(source.read_bytes(), b"immutable-source")
+
     def test_request_stop_pauses_only_after_safe_chunk_commit(self) -> None:
         store = SqliteJobStore(self.db)
         source = self.source("stop.mp4")
         job = store.enqueue(source, self.output_dir, metadata={"chunk_ms": "1000"})
         runner = None
+
         def callback(event):
             if event.kind == "chunk_committed" and event.current_ms == 1000:
                 runner.request_stop()
+
         runner = QueueRunner(FakeMedia(self.chunk_dir), FakeEngine(), Utf8TranscriptWriter(), store, callback=callback)
         runner.run()
         loaded = store.get(job.job_id)
