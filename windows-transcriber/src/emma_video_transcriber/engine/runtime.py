@@ -63,6 +63,7 @@ class FasterWhisperRuntime:
             compute_type=compute_type,
             cpu_threads=cpu_threads,
             num_workers=1,
+            local_files_only=True,
         )
 
     def create_batched_pipeline(self, model: Any) -> Any | None:
