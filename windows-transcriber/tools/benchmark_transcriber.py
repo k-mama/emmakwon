@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+import dataclasses
+import hashlib
 import importlib
 import json
 import os
@@ -43,30 +45,50 @@ def normalize_components(value: Any):
     return media, engine
 
 
+def _diagnostic_mapping(value: Any) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return dict(value)
+    if dataclasses.is_dataclass(value):
+        return dataclasses.asdict(value)
+    if hasattr(value, "__dict__"):
+        return {
+            key: item
+            for key, item in vars(value).items()
+            if isinstance(item, (str, int, float, bool, type(None)))
+        }
+    return {}
+
+
 def engine_details(engine: Any) -> dict[str, Any]:
     details: dict[str, Any] = {}
-    for method_name in ("diagnostics", "describe"):
+    for method_name in ("get_diagnostics", "diagnostics", "describe"):
         method = getattr(engine, method_name, None)
         if callable(method):
             try:
-                value = method()
-                if isinstance(value, dict):
-                    details.update(value)
+                details.update(_diagnostic_mapping(method()))
             except Exception as exc:
                 details[f"{method_name}_error"] = repr(exc)
-    for key, candidates in {
-        "selected_device": ("device", "selected_device"),
-        "model": ("model_name", "model_id", "model"),
-        "compute_type": ("compute_type",),
-    }.items():
-        if key in details:
+
+    aliases = {
+        "selected_device": ("selected_device", "chosen_device", "device"),
+        "model": ("model", "model_name", "model_id"),
+        "compute_type": ("compute_type", "chosen_compute_type"),
+        "gpu_name": ("gpu_name",),
+        "fallback_reason": ("fallback_reason",),
+    }
+    normalized: dict[str, Any] = dict(details)
+    for canonical, candidates in aliases.items():
+        if canonical in normalized and normalized[canonical] is not None:
             continue
         for name in candidates:
+            if name in details and details[name] is not None:
+                normalized[canonical] = details[name]
+                break
             value = getattr(engine, name, None)
             if isinstance(value, (str, int, float, bool)):
-                details[key] = value
+                normalized[canonical] = value
                 break
-    return details
+    return normalized
 
 
 def nvidia_inventory() -> list[dict[str, str]]:
@@ -85,6 +107,14 @@ def nvidia_inventory() -> list[dict[str, str]]:
         if len(parts) >= 3:
             rows.append({"name": parts[0], "memory_total_mb": parts[1], "driver_version": parts[2]})
     return rows
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(8 * 1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def process_working_set_bytes() -> int | None:
@@ -116,6 +146,7 @@ def process_working_set_bytes() -> int | None:
             return None
     try:
         import resource
+
         usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         return int(usage * (1024 if platform.system() != "Darwin" else 1))
     except Exception:
@@ -148,15 +179,37 @@ class PeakMemorySampler:
             self.peak = max(self.peak, value)
 
 
+def cleanup_chunk(media: Any, chunk_path: Path, source: Path) -> None:
+    cleanup = getattr(media, "cleanup_chunk", None)
+    if callable(cleanup):
+        cleanup(chunk_path)
+        return
+    try:
+        if chunk_path.resolve() == source.resolve():
+            return
+    except OSError:
+        pass
+    chunk_path.unlink(missing_ok=True)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Measure real EMMA VIDEO TRANSCRIBER media+engine throughput on the target PC."
     )
-    parser.add_argument("--factory", required=True, help="module:function returning media+engine components")
+    parser.add_argument(
+        "--factory",
+        default="benchmark_factory:create_default_components",
+        help="module:function returning media+engine components",
+    )
     parser.add_argument("--source", required=True, type=Path, help="local spoken-video/audio input")
     parser.add_argument("--chunk-ms", type=int, default=600_000, help="bounded chunk size, default 10 minutes")
     parser.add_argument("--language", default=None)
     parser.add_argument("--json-out", type=Path, default=None)
+    parser.add_argument(
+        "--skip-source-hash",
+        action="store_true",
+        help="skip SHA-256 only when hashing an extremely large source is impractical",
+    )
     args = parser.parse_args()
 
     if args.chunk_ms <= 0:
@@ -167,6 +220,7 @@ def main() -> int:
     factory = load_factory(args.factory)
     media, engine = normalize_components(factory())
     source_stat_before = args.source.stat()
+    source_hash_before = None if args.skip_source_hash else sha256_file(args.source)
     info = media.probe(args.source)
     if not info.has_audio:
         raise SystemExit("Source has no audio; benchmark requires spoken audio")
@@ -180,16 +234,24 @@ def main() -> int:
         for chunk in media.iter_audio_chunks(args.source, start_ms=0, chunk_ms=args.chunk_ms):
             chunk_count += 1
             processed_audio_ms += max(0, chunk.end_ms - chunk.start_ms)
-            segments = engine.transcribe_chunk(chunk, language=args.language)
-            total_segments += len(segments)
-            total_characters += sum(len(segment.text) for segment in segments)
+            try:
+                segments = engine.transcribe_chunk(chunk, language=args.language)
+                total_segments += len(segments)
+                total_characters += sum(len(segment.text) for segment in segments)
+            finally:
+                cleanup_chunk(media, Path(chunk.path), args.source)
     wall_seconds = time.perf_counter() - started
 
     source_stat_after = args.source.stat()
-    source_unchanged = (
+    source_hash_after = None if args.skip_source_hash else sha256_file(args.source)
+    source_metadata_unchanged = (
         source_stat_before.st_size == source_stat_after.st_size
         and source_stat_before.st_mtime_ns == source_stat_after.st_mtime_ns
     )
+    source_hash_unchanged = (
+        None if args.skip_source_hash else source_hash_before == source_hash_after
+    )
+    source_unchanged = source_metadata_unchanged and source_hash_unchanged is not False
     input_seconds = processed_audio_ms / 1000.0
     realtime_x = (input_seconds / wall_seconds) if wall_seconds > 0 else None
     realtime_factor = (wall_seconds / input_seconds) if input_seconds > 0 else None
@@ -205,7 +267,9 @@ def main() -> int:
         "segment_count": total_segments,
         "character_count": total_characters,
         "chunk_count": chunk_count,
-        "source_metadata_unchanged": source_unchanged,
+        "source_metadata_unchanged": source_metadata_unchanged,
+        "source_hash_unchanged": source_hash_unchanged,
+        "source_unchanged": source_unchanged,
         "engine": engine_details(engine),
         "nvidia_inventory": nvidia_inventory(),
         "python": sys.version.split()[0],
