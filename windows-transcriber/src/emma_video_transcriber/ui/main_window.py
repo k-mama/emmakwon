@@ -129,9 +129,17 @@ class MainWindow(QMainWindow):
         queue_title.setObjectName("SectionTitle")
         self.queue_count = QLabel("0 videos")
         self.queue_count.setObjectName("Muted")
+        self.clear_queue_button = QPushButton("CLEAR QUEUE")
+        self.clear_queue_button.setObjectName("ClearQueue")
+        self.clear_queue_button.setToolTip(
+            "Remove every queued, paused, failed, and completed item "
+            "(the video being transcribed right now is kept)"
+        )
+        self.clear_queue_button.clicked.connect(self.bridge.request_clear_queue)
         queue_header.addWidget(queue_title)
         queue_header.addStretch(1)
         queue_header.addWidget(self.queue_count)
+        queue_header.addWidget(self.clear_queue_button)
         queue_layout.addLayout(queue_header)
 
         self.empty_queue = QLabel("Paste a complete video path above, then press +.")
@@ -293,6 +301,7 @@ class MainWindow(QMainWindow):
         self._rows.clear()
         for position, job in enumerate(self._jobs, start=1):
             row = QueueRow(job, position)
+            row.remove_requested.connect(self.bridge.request_remove_job)
             self._rows[job.job_id] = row
             self.scroll_layout.insertWidget(self.scroll_layout.count() - 1, row)
 
@@ -317,6 +326,8 @@ class MainWindow(QMainWindow):
         self.add_path_button.setEnabled(can_interact)
         self.browse_button.setEnabled(can_interact)
         self.open_output_button.setEnabled(can_interact)
+        removable = any(job.status != STATUS_TRANSCRIBING for job in self._jobs)
+        self.clear_queue_button.setEnabled(removable and can_interact)
 
     def _has_active_work(self) -> bool:
         return self._is_running or any(job.status == STATUS_TRANSCRIBING for job in self._jobs)

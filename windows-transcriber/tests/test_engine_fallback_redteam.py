@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sys
 import tempfile
 import unittest
@@ -16,6 +17,29 @@ try:
     ENGINE_AVAILABLE = True
 except ImportError:
     ENGINE_AVAILABLE = False
+
+_TEST_APPDATA_DIR: tempfile.TemporaryDirectory | None = None
+_TEST_APPDATA_ENV_PREVIOUS: str | None = None
+
+
+def setUpModule() -> None:
+    """FasterWhisperTranscriptionEngine writes best-effort diagnostics into
+    the real user's AppData by default. Tests must never do that -- redirect
+    to an isolated temp directory for the lifetime of this module's tests."""
+    global _TEST_APPDATA_DIR, _TEST_APPDATA_ENV_PREVIOUS
+    _TEST_APPDATA_DIR = tempfile.TemporaryDirectory(prefix="emma-test-appdata-")
+    _TEST_APPDATA_ENV_PREVIOUS = os.environ.get("EMMA_VIDEO_TRANSCRIBER_DATA_DIR")
+    os.environ["EMMA_VIDEO_TRANSCRIBER_DATA_DIR"] = _TEST_APPDATA_DIR.name
+
+
+def tearDownModule() -> None:
+    global _TEST_APPDATA_DIR, _TEST_APPDATA_ENV_PREVIOUS
+    if _TEST_APPDATA_ENV_PREVIOUS is None:
+        os.environ.pop("EMMA_VIDEO_TRANSCRIBER_DATA_DIR", None)
+    else:
+        os.environ["EMMA_VIDEO_TRANSCRIBER_DATA_DIR"] = _TEST_APPDATA_ENV_PREVIOUS
+    if _TEST_APPDATA_DIR is not None:
+        _TEST_APPDATA_DIR.cleanup()
 
 
 class RawSegment:

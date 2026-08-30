@@ -110,6 +110,35 @@ QFrame#QueueRow[active="true"] {
     background: #F2F9FF;
     border: 1px solid #BBDDFC;
 }
+QPushButton#RemoveRow {
+    min-height: 26px;
+    max-height: 26px;
+    min-width: 26px;
+    max-width: 26px;
+    padding: 0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #9AA6B2;
+    background: transparent;
+    border: 1px solid transparent;
+}
+QPushButton#RemoveRow:hover { color: #B95056; background: #FBEEF0; border-color: #F0D9DC; }
+QPushButton#RemoveRow:pressed { background: #F5DFE2; }
+QPushButton#RemoveRow:disabled { color: #D7DEE5; background: transparent; border-color: transparent; }
+QPushButton#ClearQueue {
+    min-height: 30px;
+    padding: 0 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 650;
+    color: #7C8997;
+    background: transparent;
+    border: 1px solid #E2EAF3;
+}
+QPushButton#ClearQueue:hover { background: #F2F9FF; border-color: #CFE4F5; color: #3F4B59; }
+QPushButton#ClearQueue:pressed { background: #EAF5FF; }
+QPushButton#ClearQueue:disabled { color: #C8D1DA; background: transparent; border-color: #EEF3F9; }
 """
 
 STATUS_VISUALS = {

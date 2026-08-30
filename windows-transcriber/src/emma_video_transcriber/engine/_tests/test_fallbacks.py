@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,6 +13,29 @@ from emma_video_transcriber.engine import (
 )
 
 from fakes import FakeRuntime
+
+_TEST_APPDATA_DIR: tempfile.TemporaryDirectory | None = None
+_TEST_APPDATA_ENV_PREVIOUS: str | None = None
+
+
+def setUpModule() -> None:
+    """FasterWhisperTranscriptionEngine writes best-effort diagnostics into
+    the real user's AppData by default. Tests must never do that -- redirect
+    to an isolated temp directory for the lifetime of this module's tests."""
+    global _TEST_APPDATA_DIR, _TEST_APPDATA_ENV_PREVIOUS
+    _TEST_APPDATA_DIR = tempfile.TemporaryDirectory(prefix="emma-test-appdata-")
+    _TEST_APPDATA_ENV_PREVIOUS = os.environ.get("EMMA_VIDEO_TRANSCRIBER_DATA_DIR")
+    os.environ["EMMA_VIDEO_TRANSCRIBER_DATA_DIR"] = _TEST_APPDATA_DIR.name
+
+
+def tearDownModule() -> None:
+    global _TEST_APPDATA_DIR, _TEST_APPDATA_ENV_PREVIOUS
+    if _TEST_APPDATA_ENV_PREVIOUS is None:
+        os.environ.pop("EMMA_VIDEO_TRANSCRIBER_DATA_DIR", None)
+    else:
+        os.environ["EMMA_VIDEO_TRANSCRIBER_DATA_DIR"] = _TEST_APPDATA_ENV_PREVIOUS
+    if _TEST_APPDATA_DIR is not None:
+        _TEST_APPDATA_DIR.cleanup()
 
 
 class FallbackTests(unittest.TestCase):
@@ -45,7 +69,7 @@ class FallbackTests(unittest.TestCase):
         engine = FasterWhisperTranscriptionEngine(_runtime=runtime)
         segments = engine.transcribe_chunk(self.chunk())
         self.assertEqual("recovered", segments[0].text)
-        self.assertEqual([8, 4], runtime.batch_sizes)
+        self.assertEqual([4, 2], runtime.batch_sizes)
         self.assertEqual(1, len(runtime.creations))
 
     def test_oom_reloads_low_memory_gpu_then_falls_back_to_cpu(self) -> None:

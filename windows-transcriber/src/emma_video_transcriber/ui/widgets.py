@@ -1,8 +1,16 @@
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Slot
+from PySide6.QtCore import Qt, Signal, Slot
 from PySide6.QtGui import QFontMetrics
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QProgressBar, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QProgressBar,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .models import (
     ActiveJobSnapshot,
@@ -39,8 +47,11 @@ class ElidedLabel(QLabel):
 
 
 class QueueRow(QFrame):
+    remove_requested = Signal(str)
+
     def __init__(self, job: UiJob, position: int, parent: QWidget | None = None) -> None:
         super().__init__(parent)
+        self.job_id = job.job_id
         self.setObjectName("QueueRow")
         self.setProperty("active", job.status == STATUS_TRANSCRIBING)
         self.setMinimumHeight(112)
@@ -97,6 +108,18 @@ class QueueRow(QFrame):
             body.addWidget(progress)
 
         root.addLayout(body, 1)
+
+        self.remove_button = QPushButton("✕")
+        self.remove_button.setObjectName("RemoveRow")
+        is_active = job.status == STATUS_TRANSCRIBING
+        self.remove_button.setEnabled(not is_active)
+        self.remove_button.setToolTip(
+            "Pause the queue first to remove the job being transcribed"
+            if is_active
+            else "Remove from the queue (does not delete the video or any saved transcript)"
+        )
+        self.remove_button.clicked.connect(lambda: self.remove_requested.emit(self.job_id))
+        root.addWidget(self.remove_button, 0, Qt.AlignmentFlag.AlignTop)
 
 
 class ActiveJobPanel(QFrame):

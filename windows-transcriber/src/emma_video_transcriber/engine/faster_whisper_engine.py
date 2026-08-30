@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from emma_video_transcriber.contracts import AudioChunk, TranscriptSegment
+from emma_video_transcriber.infra.diagnostics import record_stage
 
 from .diagnostics import EngineDiagnostics
 from .errors import ModelInitializationError, TranscriptionRuntimeError
@@ -35,6 +36,7 @@ class FasterWhisperTranscriptionEngine:
         model_path: Path | None = None,
         device_index: int = 0,
         cpu_threads: int | None = None,
+        reset_between_jobs: bool = True,
         _runtime: Any | None = None,
     ) -> None:
         self._device_index = device_index
@@ -50,6 +52,11 @@ class FasterWhisperTranscriptionEngine:
         self._planned_device: str | None = None
         self._planned_compute_type: str | None = None
         self._fallback_reason: str | None = None
+        # A job is the isolation boundary: the model/batched pipeline stay
+        # loaded for every chunk within one job, but are deliberately released
+        # (not left to accidental GC) at each job boundary so no CUDA/CTranslate2
+        # allocator state can silently accumulate across a long unattended queue.
+        self._reset_between_jobs = reset_between_jobs
 
     def transcribe_chunk(
         self,
@@ -61,12 +68,28 @@ class FasterWhisperTranscriptionEngine:
         self._ensure_loaded()
 
         assert self._loaded is not None
+        batch_sizes = self._batch_sizes_for(self._loaded)
+        record_stage(
+            "native_transcribe_before",
+            chunk_start_ms=chunk.start_ms,
+            chunk_end_ms=chunk.end_ms,
+            device=self._loaded.device,
+            compute_type=self._loaded.compute_type,
+            batch_sizes=list(batch_sizes),
+        )
         try:
             raw_segments = transcribe_loaded(
                 self._loaded,
                 chunk.path,
                 language=language,
-                batch_sizes=self._batch_sizes_for(self._loaded),
+                batch_sizes=batch_sizes,
+            )
+            record_stage(
+                "native_transcribe_after",
+                chunk_start_ms=chunk.start_ms,
+                chunk_end_ms=chunk.end_ms,
+                device=self._loaded.device,
+                compute_type=self._loaded.compute_type,
             )
         except Exception as exc:
             if self._loaded.device == "cuda" and is_cuda_oom(exc):
@@ -297,6 +320,24 @@ class FasterWhisperTranscriptionEngine:
                 f"CUDA: {short_error(original_error)}; CPU: {short_error(exc)}",
                 cause=exc,
             ) from exc
+
+    def reset_after_job(self) -> None:
+        """Deliberate job-boundary cleanup hook, called by QueueRunner.
+
+        Called after every job regardless of outcome (completed, failed, or
+        paused). When ``reset_between_jobs`` is enabled (the default) this
+        releases the loaded model/batched pipeline so the next job starts
+        from a clean, freshly loaded state instead of reusing whatever native
+        allocator state accumulated during the previous job. The next call to
+        ``transcribe_chunk`` reloads the model on demand via ``_ensure_loaded``.
+        When disabled, this still runs a deliberate ``gc.collect()`` so
+        resource release is explicit either way rather than left to whenever
+        Python's garbage collector happens to run.
+        """
+        if self._reset_between_jobs:
+            self._release_model()
+        else:
+            gc.collect()
 
     def _release_model(self) -> None:
         self._loaded = None
