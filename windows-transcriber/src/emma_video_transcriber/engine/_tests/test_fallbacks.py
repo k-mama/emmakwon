@@ -45,7 +45,7 @@ class FallbackTests(unittest.TestCase):
         engine = FasterWhisperTranscriptionEngine(_runtime=runtime)
         segments = engine.transcribe_chunk(self.chunk())
         self.assertEqual("recovered", segments[0].text)
-        self.assertEqual([8, 4], runtime.batch_sizes)
+        self.assertEqual([4, 2], runtime.batch_sizes)
         self.assertEqual(1, len(runtime.creations))
 
     def test_oom_reloads_low_memory_gpu_then_falls_back_to_cpu(self) -> None:

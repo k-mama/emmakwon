@@ -16,6 +16,8 @@ class UiEventBridge(QObject):
       * start_transcription_requested()
       * open_output_folder_requested()
       * close_action_requested(str)
+      * remove_job_requested(str)
+      * clear_queue_requested()
 
     Integration/worker -> UI publication slots:
       * publish_jobs(iterable[JobRecord | UiJob])
@@ -35,6 +37,8 @@ class UiEventBridge(QObject):
     start_transcription_requested = Signal()
     open_output_folder_requested = Signal()
     close_action_requested = Signal(str)
+    remove_job_requested = Signal(str)
+    clear_queue_requested = Signal()
 
     jobs_published = Signal(object)
     job_published = Signal(object)
@@ -103,6 +107,12 @@ class UiEventBridge(QObject):
 
     def request_close_action(self, action: str) -> None:
         self.close_action_requested.emit(action)
+
+    def request_remove_job(self, job_id: str) -> None:
+        self.remove_job_requested.emit(str(job_id))
+
+    def request_clear_queue(self) -> None:
+        self.clear_queue_requested.emit()
 
 
 def _coerce_job(job: object) -> UiJob:

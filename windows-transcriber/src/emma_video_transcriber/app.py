@@ -10,7 +10,15 @@ from PySide6.QtCore import QObject, QThread, Signal, Slot
 from PySide6.QtWidgets import QApplication
 
 from .engine import FasterWhisperTranscriptionEngine
-from .infra import ModelManager, configure_runtime_environment, ensure_gpu_runtime, runtime_paths
+from .infra import (
+    ModelManager,
+    begin_session,
+    configure_runtime_environment,
+    enable_crash_diagnostics,
+    end_session,
+    ensure_gpu_runtime,
+    runtime_paths,
+)
 from .jobs import QueueEvent, QueueRunner, SqliteJobStore
 from .media import MediaPipeline
 from .output import Utf8TranscriptWriter, recover_output
@@ -199,6 +207,8 @@ class ApplicationController(QObject):
         bridge.start_transcription_requested.connect(self.start_transcription)
         bridge.open_output_folder_requested.connect(self.open_output_folder)
         bridge.close_action_requested.connect(self.handle_close_action)
+        bridge.remove_job_requested.connect(self.remove_job)
+        bridge.clear_queue_requested.connect(self.clear_queue)
 
     def publish_initial_state(self) -> None:
         self.bridge.publish_jobs(self.store.list_all())
@@ -313,6 +323,10 @@ class ApplicationController(QObject):
             self.bridge.publish_status_message("Paused at the latest safe save point.")
             return
 
+        if event.kind == "job_skipped":
+            self.bridge.publish_jobs(self.store.list_all())
+            return
+
         if event.kind == "recovery" and event.message:
             self.bridge.publish_status_message(f"Recovered previous work: {event.message}")
             return
@@ -375,6 +389,35 @@ class ApplicationController(QObject):
             return
         # keep_running and cancel intentionally require no backend mutation.
 
+    @Slot(str)
+    def remove_job(self, job_id: str) -> None:
+        try:
+            self.store.remove(job_id)
+        except ValueError as exc:
+            self.bridge.publish_error(str(exc))
+            return
+        self.bridge.publish_jobs(self.store.list_all())
+        self.bridge.publish_status_message("Removed from the queue.")
+
+    @Slot()
+    def clear_queue(self) -> None:
+        removed = 0
+        for job in self.store.list_all():
+            if job.status == "processing":
+                continue
+            try:
+                self.store.remove(job.job_id)
+                removed += 1
+            except ValueError:
+                continue
+        self.bridge.publish_jobs(self.store.list_all())
+        if removed:
+            self.bridge.publish_status_message(
+                f"Cleared {removed} item{'s' if removed != 1 else ''} from the queue."
+            )
+        else:
+            self.bridge.publish_status_message("Nothing to clear.")
+
     @Slot()
     def open_output_folder(self) -> None:
         try:
@@ -389,6 +432,9 @@ class ApplicationController(QObject):
 
 def main() -> int:
     configure_runtime_environment()
+    enable_crash_diagnostics()
+    previous_session = begin_session()
+
     app = QApplication.instance() or QApplication([])
     app.setApplicationName("EMMA VIDEO TRANSCRIBER")
     app.setOrganizationName("EmmaKwon")
@@ -397,7 +443,16 @@ def main() -> int:
     controller = ApplicationController(bridge)
     window = MainWindow(bridge)
     controller.publish_initial_state()
+    if previous_session and previous_session.get("last_job_id"):
+        source = previous_session.get("last_source") or "a previous job"
+        stage = previous_session.get("last_stage") or "an earlier stage"
+        bridge.publish_status_message(
+            f"The previous session did not close cleanly while working on {source} "
+            f"(last recorded stage: {stage}). Already-saved text is preserved; "
+            "affected jobs are resumable from the queue."
+        )
     window.show()
+    app.aboutToQuit.connect(end_session)
 
     # Keep strong references for the lifetime of the Qt event loop.
     window._emma_controller = controller  # type: ignore[attr-defined]

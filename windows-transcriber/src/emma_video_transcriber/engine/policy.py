@@ -33,7 +33,13 @@ CPU_COMPUTE_PRIORITY: tuple[str, ...] = (
     "int8_float32",
     "float32",
 )
-GPU_BATCH_SIZES: tuple[int, ...] = (8, 4, 2)
+# Sequential unattended queues have shown cumulative CUDA memory pressure
+# building up over many jobs sharing one reused batched pipeline; starting at
+# 8 left too little headroom by the time a queue reached its sixth or so job.
+# 4 keeps most of the throughput benefit of batching while leaving more
+# headroom for that cumulative pressure. Lower-memory retry and CPU fallback
+# are unchanged.
+GPU_BATCH_SIZES: tuple[int, ...] = (4, 2, 1)
 LOW_MEMORY_BATCH_SIZES: tuple[int, ...] = (4, 2, 1)
 
 

@@ -14,6 +14,12 @@ from ..contracts import (
     TranscriptWriter,
     TranscriptionEngine,
 )
+from ..infra.diagnostics import (
+    gpu_vram_used_mb,
+    process_rss_bytes,
+    record_stage,
+    update_marker,
+)
 from ..output.journal import AppendJournal, clear_journal, recover_output, write_journal
 
 
@@ -46,6 +52,7 @@ class QueueRunner:
         callback: QueueCallback | None = None,
         default_chunk_ms: int = 600_000,
         cleanup_chunks: bool = True,
+        diagnostics_dir: Path | None = None,
     ) -> None:
         if default_chunk_ms <= 0:
             raise ValueError("default_chunk_ms must be > 0")
@@ -56,8 +63,10 @@ class QueueRunner:
         self.callback = callback
         self.default_chunk_ms = default_chunk_ms
         self.cleanup_chunks = cleanup_chunks
+        self.diagnostics_dir = diagnostics_dir
         self._pause_requested = threading.Event()
         self._stop_requested = threading.Event()
+        self._job_sequence = 0
 
     def request_pause(self) -> None:
         """Pause at the next committed chunk boundary."""
@@ -94,6 +103,7 @@ class QueueRunner:
         """Process queued jobs sequentially; optionally include paused jobs."""
         self._pause_requested.clear()
         self._stop_requested.clear()
+        self._job_sequence = 0
         self.recover_interrupted()
         candidates = self._candidates(resume_paused=resume_paused)
         self._emit("queue_status", message=f"{len(candidates)} job(s) ready")
@@ -124,6 +134,21 @@ class QueueRunner:
         return [job for job in self.store.list_all() if job.status in statuses]
 
     def _run_job(self, job: JobRecord) -> None:
+        # The candidate list in run() is a snapshot taken before this job's
+        # turn arrived. If the user removed it from the queue in the
+        # meantime, treat that as the expected outcome of the race rather
+        # than letting a stale in-memory JobRecord reach the store as an
+        # "unknown job_id" failure.
+        current = self.store.get(job.job_id)
+        if current is None:
+            self._emit_for_job(
+                "job_skipped", job, message="removed from the queue before it started"
+            )
+            return
+        job = current
+        self._job_sequence += 1
+        sequence_index = self._job_sequence
+
         try:
             recover_output(job.output_path, committed_ms=job.current_ms, job_id=job.job_id)
             info = self.media.probe(job.source_path)
@@ -135,6 +160,14 @@ class QueueRunner:
             job.status = "processing"
             job.error = None
             self.store.update(job)
+            self._diag(
+                "job_started",
+                job,
+                sequence_index=sequence_index,
+                rss_bytes=process_rss_bytes(),
+                vram_used_mb=gpu_vram_used_mb(),
+            )
+            self._update_marker_for_job(job, stage="job_started")
             self._emit_for_job("job_started", job, message=job.source_name)
 
             chunk_ms = self._chunk_ms(job)
@@ -150,13 +183,27 @@ class QueueRunner:
                         f"media pipeline returned non-contiguous chunk {chunk.start_ms}-{chunk.end_ms} "
                         f"at checkpoint {job.current_ms}"
                     )
-                segments = self.engine.transcribe_chunk(chunk, language=language)
-                self._commit_chunk(job, chunk.start_ms, chunk.end_ms, segments)
-                self._cleanup_chunk(chunk.path, source=job.source_path)
+                self._diag("chunk_start", job, start_ms=chunk.start_ms, end_ms=chunk.end_ms)
+                try:
+                    segments = self.engine.transcribe_chunk(chunk, language=language)
+                    self._commit_chunk(job, chunk.start_ms, chunk.end_ms, segments)
+                finally:
+                    # Always reclaim the bounded WAV chunk, even when the native
+                    # transcription call itself raised, so a failed/native
+                    # problem cannot leave orphaned chunk files behind.
+                    self._cleanup_chunk(chunk.path, source=job.source_path)
+                self._diag("chunk_end", job, start_ms=chunk.start_ms, end_ms=chunk.end_ms)
+                self._update_marker_for_job(job, stage="chunk_committed")
                 self._emit_progress(job)
                 if self._pause_requested.is_set() or self._stop_requested.is_set():
                     job.status = "paused"
                     self.store.update(job)
+                    self._diag(
+                        "job_paused",
+                        job,
+                        rss_bytes=process_rss_bytes(),
+                        vram_used_mb=gpu_vram_used_mb(),
+                    )
                     self._emit_for_job("job_paused", job, message="paused at safe chunk boundary")
                     return
 
@@ -169,12 +216,58 @@ class QueueRunner:
             job.error = None
             self.store.update(job)
             clear_journal(job.output_path)
+            self._diag(
+                "job_completed", job, rss_bytes=process_rss_bytes(), vram_used_mb=gpu_vram_used_mb()
+            )
             self._emit_for_job("job_completed", job, message=str(job.output_path))
         except Exception as exc:
             job.status = "failed"
             job.error = str(exc)
-            self.store.update(job)
+            try:
+                self.store.update(job)
+            except KeyError:
+                # Removed concurrently while failing; nothing durable to update.
+                pass
+            self._diag(
+                "job_failed",
+                job,
+                error=job.error,
+                rss_bytes=process_rss_bytes(),
+                vram_used_mb=gpu_vram_used_mb(),
+            )
             self._emit_for_job("job_failed", job, error=job.error)
+        finally:
+            # A job is the isolation boundary: release job-scoped engine
+            # resources deliberately on every path (completed/failed/paused)
+            # instead of relying on accidental Python GC between jobs.
+            self._reset_engine_after_job()
+
+    def _diag(self, stage: str, job: JobRecord, **fields: object) -> None:
+        payload: dict[str, object] = dict(fields)
+        payload.setdefault("job_id", job.job_id)
+        payload.setdefault("source", job.source_name)
+        record_stage(stage, self.diagnostics_dir, **payload)
+
+    def _update_marker_for_job(self, job: JobRecord, *, stage: str) -> None:
+        update_marker(
+            {
+                "last_stage": stage,
+                "last_job_id": job.job_id,
+                "last_source": job.source_name,
+                "last_committed_ms": job.current_ms,
+                "last_duration_ms": job.duration_ms,
+            },
+            self.diagnostics_dir,
+        )
+
+    def _reset_engine_after_job(self) -> None:
+        reset = getattr(self.engine, "reset_after_job", None)
+        if callable(reset):
+            try:
+                reset()
+            except Exception:
+                # Resource cleanup must never mask the job's own real outcome.
+                pass
 
     def _commit_chunk(
         self,

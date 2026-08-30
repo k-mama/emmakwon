@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from ..contracts import JobRecord
+from ..output.journal import clear_journal
 from ..output.naming import reserve_short_output
 
 STATUSES = ("queued", "processing", "paused", "completed", "failed")
@@ -148,6 +149,36 @@ class SqliteJobStore:
         with closing(self._connect()) as connection:
             rows = connection.execute("SELECT * FROM jobs ORDER BY queue_seq").fetchall()
         return [self._row_to_job(row) for row in rows]
+
+    def remove(self, job_id: str) -> None:
+        """Durably remove a queue record. Idempotent if the job is already gone.
+
+        Never deletes the source video or a transcript that already has real
+        content. An output path is only unlinked here when it is still a
+        zero-byte reservation placeholder (the same rule ``enqueue`` already
+        uses when it must roll back a failed reservation) so a removed job's
+        T-number can be reused without ever colliding with real TXT content.
+        """
+        with closing(self._connect()) as connection:
+            with connection:
+                row = connection.execute(
+                    "SELECT status, output_path FROM jobs WHERE job_id = ?", (job_id,)
+                ).fetchone()
+                if row is None:
+                    return
+                if row["status"] == "processing":
+                    raise ValueError(
+                        "cannot remove a job that is currently processing; pause it first"
+                    )
+                connection.execute("DELETE FROM jobs WHERE job_id = ?", (job_id,))
+
+        output_path = Path(row["output_path"])
+        try:
+            if output_path.exists() and output_path.stat().st_size == 0:
+                output_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+        clear_journal(output_path)
 
     def enqueue(
         self,
