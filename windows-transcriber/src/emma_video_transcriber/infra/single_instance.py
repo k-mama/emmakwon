@@ -65,12 +65,46 @@ def other_instance_pids(executable_name: str = "EmmaVideoTranscriber.exe") -> li
     return matches
 
 
+def restore_existing_window(title: str = "EMMA VIDEO TRANSCRIBER") -> bool:
+    """Bring an already-running UI window back to the foreground.
+
+    A user should never be trapped by an "already running" message when the
+    real UI merely became minimized or hidden behind other windows. This is
+    deliberately independent of worker-process detection: only a real top-level
+    window with the application title is restored.
+    """
+    if os.name != "nt":
+        return False
+    try:
+        user32 = ctypes.windll.user32  # type: ignore[attr-defined]
+        user32.FindWindowW.argtypes = [wintypes.LPCWSTR, wintypes.LPCWSTR]
+        user32.FindWindowW.restype = wintypes.HWND
+        user32.ShowWindow.argtypes = [wintypes.HWND, ctypes.c_int]
+        user32.ShowWindow.restype = wintypes.BOOL
+        user32.SetForegroundWindow.argtypes = [wintypes.HWND]
+        user32.SetForegroundWindow.restype = wintypes.BOOL
+        user32.BringWindowToTop.argtypes = [wintypes.HWND]
+        user32.BringWindowToTop.restype = wintypes.BOOL
+
+        hwnd = user32.FindWindowW(None, title)
+        if not hwnd:
+            return False
+        # SW_RESTORE restores a minimized window and also makes a normal window visible.
+        user32.ShowWindow(hwnd, 9)
+        user32.BringWindowToTop(hwnd)
+        user32.SetForegroundWindow(hwnd)
+        return True
+    except Exception:
+        return False
+
+
 def acquire_single_instance() -> tuple[bool, list[int]]:
     """Acquire an OS-owned mutex and reject any older same-name process.
 
-    The named mutex prevents two current builds. Process enumeration additionally
-    catches old builds that predate the mutex. The OS releases the mutex handle on
-    process death, so a crash cannot permanently lock the app out.
+    The named mutex prevents two current UI builds. Process enumeration additionally
+    catches old builds that predate the mutex. Current isolated transcription workers
+    are parent-bound by a Windows Job Object, so if the UI dies they are killed by the
+    OS and cannot become permanent stale blockers.
     """
     if os.name != "nt":
         return True, []
@@ -83,8 +117,6 @@ def acquire_single_instance() -> tuple[bool, list[int]]:
 
     handle = kernel32.CreateMutexW(None, False, _MUTEX_NAME)
     if not handle:
-        # Fail closed: if Windows cannot establish exclusivity, do not risk two
-        # writers touching the same SQLite queue and transcript files.
         return False, []
     if int(kernel32.GetLastError()) == _ERROR_ALREADY_EXISTS:
         kernel32.CloseHandle(handle)
@@ -99,4 +131,4 @@ def acquire_single_instance() -> tuple[bool, list[int]]:
     return True, []
 
 
-__all__ = ["acquire_single_instance", "other_instance_pids"]
+__all__ = ["acquire_single_instance", "other_instance_pids", "restore_existing_window"]
