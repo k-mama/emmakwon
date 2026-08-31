@@ -9,32 +9,13 @@ from .models import ActiveJobSnapshot, UiJob
 
 
 class UiEventBridge(QObject):
-    """Qt signal boundary between the main-thread UI and integration workers.
-
-    UI -> integration request signals:
-      * add_videos_requested(tuple[Path, ...])
-      * start_transcription_requested()
-      * open_output_folder_requested()
-      * close_action_requested(str)
-      * remove_job_requested(str)
-      * clear_queue_requested()
-
-    Integration/worker -> UI publication slots:
-      * publish_jobs(iterable[JobRecord | UiJob])
-      * publish_job(JobRecord | UiJob)
-      * publish_active(ActiveJobSnapshot | mapping | None)
-      * publish_running(bool)
-      * publish_status_message(str)
-      * publish_error(str)
-      * allow_safe_close()
-
-    The path-entry UI intentionally reuses add_videos_requested with a one-item tuple,
-    so the integration contract remains backwards compatible. Worker QObjects should
-    connect signals across threads and never call QWidget methods directly.
-    """
+    """Qt signal boundary between the main-thread UI and integration workers."""
 
     add_videos_requested = Signal(object)
     start_transcription_requested = Signal()
+    pause_transcription_requested = Signal()
+    stop_transcription_requested = Signal()
+    performance_mode_requested = Signal(str)
     open_output_folder_requested = Signal()
     close_action_requested = Signal(str)
     remove_job_requested = Signal(str)
@@ -101,6 +82,15 @@ class UiEventBridge(QObject):
 
     def request_start(self) -> None:
         self.start_transcription_requested.emit()
+
+    def request_pause(self) -> None:
+        self.pause_transcription_requested.emit()
+
+    def request_stop(self) -> None:
+        self.stop_transcription_requested.emit()
+
+    def request_performance_mode(self, mode: str) -> None:
+        self.performance_mode_requested.emit(str(mode))
 
     def request_open_output_folder(self) -> None:
         self.open_output_folder_requested.emit()

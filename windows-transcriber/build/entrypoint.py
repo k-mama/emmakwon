@@ -38,9 +38,6 @@ def _self_check() -> int:
     state = configure_runtime_environment()
     paths = runtime_paths()
 
-    # faster-whisper's vad_filter=True loads this bundled ONNX asset at runtime.
-    # PyInstaller does not include package data merely because submodules are
-    # collected, so make the packaged self-check fail closed if the asset is absent.
     from faster_whisper.utils import get_assets_path
 
     vad_asset = Path(get_assets_path()) / "silero_vad_v6.onnx"
@@ -64,6 +61,7 @@ def _self_check() -> int:
 
 def _launch_application() -> int:
     candidates = (
+        ("emma_video_transcriber.isolated_app", "main"),
         ("emma_video_transcriber.app", "main"),
         ("emma_video_transcriber.__main__", "main"),
         ("emma_video_transcriber.ui.app", "main"),
@@ -93,9 +91,24 @@ def _launch_application() -> int:
 
 def main() -> int:
     _ensure_standard_streams()
-    configure_runtime_environment()
+
     if "--self-check" in sys.argv:
         return _self_check()
+
+    # Normal UI startup configures paths/FFmpeg only. NVIDIA driver/runtime probing
+    # belongs exclusively to --job-worker so the Qt process never loads GPU-native
+    # code as a side effect of bootstrapping the application.
+    configure_runtime_environment(probe_gpu=False)
+
+    if "--worker-self-check" in sys.argv:
+        from emma_video_transcriber.worker_process import self_check as worker_self_check
+
+        return int(worker_self_check())
+    if "--job-worker" in sys.argv:
+        from emma_video_transcriber.worker_process import main as worker_main
+
+        index = sys.argv.index("--job-worker")
+        return int(worker_main(sys.argv[index + 1 :]))
     return _launch_application()
 
 

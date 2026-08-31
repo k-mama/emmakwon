@@ -1,13 +1,20 @@
 from __future__ import annotations
 
-import os
 from typing import Sequence
 
+from ..performance import (
+    PERFORMANCE_BALANCED,
+    PERFORMANCE_MODE_ENV,
+    PERFORMANCE_TURBO,
+    SUPPORTED_PERFORMANCE_MODES,
+    current_performance_mode,
+    default_cpu_threads,
+    gpu_batch_sizes,
+    normalize_performance_mode,
+)
 from .errors import ModelSelectionError
 
 
-# Candidate names are never used blindly. select_supported_model validates them against
-# faster_whisper.available_models() from the installed package first.
 MODEL_PRIORITY: tuple[str, ...] = (
     "turbo",
     "large-v3-turbo",
@@ -33,14 +40,14 @@ CPU_COMPUTE_PRIORITY: tuple[str, ...] = (
     "int8_float32",
     "float32",
 )
-# Sequential unattended queues have shown cumulative CUDA memory pressure
-# building up over many jobs sharing one reused batched pipeline; starting at
-# 8 left too little headroom by the time a queue reached its sixth or so job.
-# 4 keeps most of the throughput benefit of batching while leaving more
-# headroom for that cumulative pressure. Lower-memory retry and CPU fallback
-# are unchanged.
-GPU_BATCH_SIZES: tuple[int, ...] = (4, 2, 1)
-LOW_MEMORY_BATCH_SIZES: tuple[int, ...] = (4, 2, 1)
+
+# The child worker receives PERFORMANCE_MODE_ENV before Python starts.
+GPU_BATCH_SIZES: tuple[int, ...] = gpu_batch_sizes()
+LOW_MEMORY_BATCH_SIZES: tuple[int, ...] = (1,)
+
+
+def performance_gpu_batch_sizes(mode: str | None = None) -> tuple[int, ...]:
+    return gpu_batch_sizes(mode)
 
 
 def select_supported_model(available_models: Sequence[str]) -> str:
@@ -103,6 +110,25 @@ def short_error(exc: BaseException) -> str:
     return text[:300] or exc.__class__.__name__
 
 
-def default_cpu_threads() -> int:
-    logical = os.cpu_count() or 8
-    return min(12, max(4, logical - 2))
+__all__ = [
+    "CPU_COMPUTE_PRIORITY",
+    "GPU_BATCH_SIZES",
+    "GPU_COMPUTE_PRIORITY",
+    "GPU_LOW_MEMORY_PRIORITY",
+    "LOW_MEMORY_BATCH_SIZES",
+    "MODEL_PRIORITY",
+    "PERFORMANCE_BALANCED",
+    "PERFORMANCE_MODE_ENV",
+    "PERFORMANCE_TURBO",
+    "SUPPORTED_PERFORMANCE_MODES",
+    "current_performance_mode",
+    "default_cpu_threads",
+    "is_cuda_oom",
+    "is_cuda_runtime_failure",
+    "normalize_performance_mode",
+    "performance_gpu_batch_sizes",
+    "pick_alternate_compute_type",
+    "pick_compute_type",
+    "select_supported_model",
+    "short_error",
+]

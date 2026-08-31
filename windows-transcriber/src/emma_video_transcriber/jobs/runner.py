@@ -53,6 +53,7 @@ class QueueRunner:
         default_chunk_ms: int = 600_000,
         cleanup_chunks: bool = True,
         diagnostics_dir: Path | None = None,
+        control_file: Path | None = None,
     ) -> None:
         if default_chunk_ms <= 0:
             raise ValueError("default_chunk_ms must be > 0")
@@ -64,6 +65,7 @@ class QueueRunner:
         self.default_chunk_ms = default_chunk_ms
         self.cleanup_chunks = cleanup_chunks
         self.diagnostics_dir = diagnostics_dir
+        self.control_file = Path(control_file) if control_file is not None else None
         self._pause_requested = threading.Event()
         self._stop_requested = threading.Event()
         self._job_sequence = 0
@@ -114,6 +116,30 @@ class QueueRunner:
             if self._pause_requested.is_set() or self._stop_requested.is_set():
                 break
         self._emit("queue_completed", message="queue run finished")
+
+    def run_one(self, job_id: str, *, resume_paused: bool = True) -> None:
+        """Process exactly one durable job.
+
+        This is the process-isolation entrypoint: one OS child owns one job, so
+        any native CUDA/CTranslate2 crash cannot take down the Qt/UI process or
+        another queued job.
+        """
+        self._pause_requested.clear()
+        self._stop_requested.clear()
+        self._job_sequence = 0
+        self.recover_interrupted()
+        job = self.store.get(job_id)
+        if job is None:
+            self._emit("job_skipped", job_id=job_id, message="job no longer exists")
+            return
+        if job.status == "failed":
+            job = self.retry_failed(job_id)
+        allowed = {"queued"}
+        if resume_paused:
+            allowed.add("paused")
+        if job.status not in allowed:
+            raise ValueError(f"job {job_id} is not runnable from status {job.status}")
+        self._run_job(job)
 
     def retry_failed(self, job_id: str) -> JobRecord:
         job = self.store.get(job_id)
@@ -195,7 +221,11 @@ class QueueRunner:
                 self._diag("chunk_end", job, start_ms=chunk.start_ms, end_ms=chunk.end_ms)
                 self._update_marker_for_job(job, stage="chunk_committed")
                 self._emit_progress(job)
-                if self._pause_requested.is_set() or self._stop_requested.is_set():
+                if (
+                    self._pause_requested.is_set()
+                    or self._stop_requested.is_set()
+                    or self._external_pause_requested()
+                ):
                     job.status = "paused"
                     self.store.update(job)
                     self._diag(
@@ -336,6 +366,15 @@ class QueueRunner:
         if value <= 0:
             raise ValueError("job metadata chunk_ms must be > 0")
         return value
+
+    def _external_pause_requested(self) -> bool:
+        path = self.control_file
+        if path is None:
+            return False
+        try:
+            return path.is_file() and path.read_text(encoding="utf-8").strip().lower() == "pause"
+        except OSError:
+            return False
 
     def _cleanup_chunk(self, chunk_path: Path, *, source: Path) -> None:
         if not self.cleanup_chunks:

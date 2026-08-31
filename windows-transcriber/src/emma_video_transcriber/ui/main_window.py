@@ -6,6 +6,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt, QSize, Slot
 from PySide6.QtGui import QCloseEvent, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
+    QComboBox,
     QFileDialog,
     QFrame,
     QHBoxLayout,
@@ -43,8 +44,8 @@ class MainWindow(QMainWindow):
         self._allow_close_once = False
 
         self.setWindowTitle("EMMA VIDEO TRANSCRIBER")
-        self.setMinimumSize(QSize(980, 700))
-        self.resize(1180, 800)
+        self.setMinimumSize(QSize(860, 620))
+        self.resize(1080, 700)
         self.setStyleSheet(APP_QSS)
 
         self._build_ui()
@@ -59,11 +60,11 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(root)
 
         page = QVBoxLayout(root)
-        page.setContentsMargins(34, 28, 34, 28)
-        page.setSpacing(18)
+        page.setContentsMargins(24, 20, 24, 20)
+        page.setSpacing(12)
 
         header = QVBoxLayout()
-        header.setSpacing(3)
+        header.setSpacing(2)
         title = QLabel("EMMA VIDEO TRANSCRIBER")
         title.setObjectName("Title")
         subtitle = QLabel("Long videos → clean TXT, processed locally")
@@ -75,33 +76,27 @@ class MainWindow(QMainWindow):
         path_card = QFrame()
         path_card.setObjectName("PathCard")
         path_layout = QVBoxLayout(path_card)
-        path_layout.setContentsMargins(20, 18, 20, 16)
-        path_layout.setSpacing(8)
+        path_layout.setContentsMargins(16, 13, 16, 12)
+        path_layout.setSpacing(6)
 
         input_label = QLabel("VIDEO FILE PATH")
         input_label.setObjectName("InputLabel")
         path_layout.addWidget(input_label)
 
         input_row = QHBoxLayout()
-        input_row.setSpacing(8)
+        input_row.setSpacing(7)
         self.path_input = QLineEdit()
         self.path_input.setObjectName("PathInput")
-        self.path_input.setPlaceholderText("Paste the full video file path here")
+        self.path_input.setPlaceholderText("Paste one video path here and press Enter")
         self.path_input.setClearButtonEnabled(True)
         self.path_input.returnPressed.connect(self._submit_path)
         self.path_input.textChanged.connect(self._clear_path_message)
         input_row.addWidget(self.path_input, 1)
 
-        self.add_path_button = QPushButton("+")
-        self.add_path_button.setObjectName("AddPath")
-        self.add_path_button.setToolTip("Add this path to the queue")
-        self.add_path_button.clicked.connect(self._submit_path)
-        input_row.addWidget(self.add_path_button)
-
-        self.browse_button = QPushButton("Browse")
+        self.browse_button = QPushButton("ADD VIDEOS")
         self.browse_button.setObjectName("Secondary")
-        self.browse_button.setToolTip("Choose one video and place its path in the field")
-        self.browse_button.clicked.connect(self._browse_one_video)
+        self.browse_button.setToolTip("Choose one or many videos; they are added to the queue immediately")
+        self.browse_button.clicked.connect(self._browse_videos)
         input_row.addWidget(self.browse_button)
         path_layout.addLayout(input_row)
 
@@ -116,13 +111,13 @@ class MainWindow(QMainWindow):
         page.addWidget(path_card)
 
         content = QHBoxLayout()
-        content.setSpacing(18)
+        content.setSpacing(12)
 
         queue_card = QFrame()
         queue_card.setObjectName("Card")
         queue_layout = QVBoxLayout(queue_card)
-        queue_layout.setContentsMargins(20, 18, 20, 18)
-        queue_layout.setSpacing(10)
+        queue_layout.setContentsMargins(14, 12, 14, 12)
+        queue_layout.setSpacing(7)
 
         queue_header = QHBoxLayout()
         queue_title = QLabel("QUEUE")
@@ -142,11 +137,11 @@ class MainWindow(QMainWindow):
         queue_header.addWidget(self.clear_queue_button)
         queue_layout.addLayout(queue_header)
 
-        self.empty_queue = QLabel("Paste a complete video path above, then press +.")
+        self.empty_queue = QLabel("Choose videos above. You can select multiple files at once.")
         self.empty_queue.setObjectName("Muted")
         self.empty_queue.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.empty_queue.setWordWrap(True)
-        self.empty_queue.setMinimumHeight(170)
+        self.empty_queue.setMinimumHeight(120)
         queue_layout.addWidget(self.empty_queue)
 
         self.scroll = QScrollArea()
@@ -155,24 +150,55 @@ class MainWindow(QMainWindow):
         self.scroll_content = QWidget()
         self.scroll_layout = QVBoxLayout(self.scroll_content)
         self.scroll_layout.setContentsMargins(0, 0, 0, 0)
-        self.scroll_layout.setSpacing(9)
+        self.scroll_layout.setSpacing(6)
         self.scroll_layout.addStretch(1)
         self.scroll.setWidget(self.scroll_content)
         self.scroll.hide()
         queue_layout.addWidget(self.scroll, 1)
 
         self.active_panel = ActiveJobPanel()
-        content.addWidget(queue_card, 64)
-        content.addWidget(self.active_panel, 36)
+        content.addWidget(queue_card, 68)
+        content.addWidget(self.active_panel, 32)
         page.addLayout(content, 1)
 
         actions = QHBoxLayout()
-        actions.setSpacing(10)
+        actions.setSpacing(8)
+
+        mode_label = QLabel("MODE")
+        mode_label.setObjectName("ModeLabel")
+        actions.addWidget(mode_label)
+
+        self.mode_combo = QComboBox()
+        self.mode_combo.setObjectName("PerformanceMode")
+        self.mode_combo.addItem("BALANCED", "balanced")
+        self.mode_combo.addItem("TURBO", "turbo")
+        self.mode_combo.setToolTip(
+            "Balanced: recommended while using your PC. Turbo: maximum speed when you can spare the PC."
+        )
+        self.mode_combo.currentIndexChanged.connect(self._performance_mode_changed)
+        actions.addWidget(self.mode_combo)
+
         self.start_button = QPushButton("START TRANSCRIPTION")
         self.start_button.setObjectName("Primary")
         self.start_button.setToolTip("Start or resume the queue (Ctrl+Enter)")
         self.start_button.clicked.connect(self.bridge.request_start)
         actions.addWidget(self.start_button, 1)
+
+        self.pause_button = QPushButton("PAUSE")
+        self.pause_button.setObjectName("PauseButton")
+        self.pause_button.setToolTip(
+            "Pause after the current safe segment is saved. Press Resume later to continue."
+        )
+        self.pause_button.clicked.connect(self.bridge.request_pause)
+        actions.addWidget(self.pause_button)
+
+        self.stop_button = QPushButton("STOP")
+        self.stop_button.setObjectName("StopButton")
+        self.stop_button.setToolTip(
+            "Stop the active worker now. Already-saved transcript text and the last checkpoint are preserved."
+        )
+        self.stop_button.clicked.connect(self.bridge.request_stop)
+        actions.addWidget(self.stop_button)
 
         self.open_output_button = QPushButton("OPEN OUTPUT FOLDER")
         self.open_output_button.setObjectName("Secondary")
@@ -195,10 +221,16 @@ class MainWindow(QMainWindow):
         self.bridge.safe_close_published.connect(self._finish_safe_close)
 
     def _connect_shortcuts(self) -> None:
-        QShortcut(QKeySequence("Ctrl+O"), self, activated=self._browse_one_video)
+        QShortcut(QKeySequence("Ctrl+O"), self, activated=self._browse_videos)
         QShortcut(QKeySequence("Ctrl+Return"), self, activated=self._start_from_shortcut)
         QShortcut(QKeySequence("Ctrl+Enter"), self, activated=self._start_from_shortcut)
         QShortcut(QKeySequence("Ctrl+Shift+O"), self, activated=self.bridge.request_open_output_folder)
+
+    @Slot(int)
+    def _performance_mode_changed(self, index: int) -> None:
+        mode = self.mode_combo.itemData(index)
+        if mode:
+            self.bridge.request_performance_mode(str(mode))
 
     @Slot()
     def _submit_path(self) -> None:
@@ -218,19 +250,26 @@ class MainWindow(QMainWindow):
         self.path_input.setFocus()
 
     @Slot()
-    def _browse_one_video(self) -> None:
-        selected, _ = QFileDialog.getOpenFileName(
+    def _browse_videos(self) -> None:
+        selected, _ = QFileDialog.getOpenFileNames(
             self,
-            "Choose a video",
+            "Choose one or more videos",
             "",
             "Videos (*.mp4 *.mkv *.mov *.avi *.m4v *.webm *.ts *.mts *.m2ts);;All files (*.*)",
         )
         if not selected:
             self.path_input.setFocus()
             return
-        self.path_input.setText(selected)
+        paths = tuple(Path(item) for item in selected)
+        if not self.bridge.request_add_videos(paths):
+            self._set_path_message("Could not add the selected videos. Try again.", error=True)
+            return
+        count = len(paths)
+        self._set_path_message(
+            f"Selected {count} video{'s' if count != 1 else ''}. Adding to the queue…",
+            error=False,
+        )
         self.path_input.setFocus()
-        self.path_input.selectAll()
 
     @Slot(str)
     def _clear_path_message(self, _text: str) -> None:
@@ -275,7 +314,7 @@ class MainWindow(QMainWindow):
         self._is_running = bool(running)
         self._refresh_actions()
         if running:
-            self.footer.setText("Transcribing in the background. You can minimize this window and keep using your PC.")
+            self.footer.setText("Transcribing in the background. Pause or Stop whenever you need to.")
         elif not self._close_pending:
             self.footer.setText("Ready. Your original videos are never copied or modified.")
 
@@ -319,11 +358,19 @@ class MainWindow(QMainWindow):
 
     def _refresh_actions(self) -> None:
         actionable = any(job.status in {STATUS_QUEUED, STATUS_PAUSED, STATUS_FAILED} for job in self._jobs)
+        paused_exists = any(job.status == STATUS_PAUSED for job in self._jobs)
         can_interact = not self._close_pending
         self.start_button.setEnabled(bool(self._jobs) and actionable and not self._is_running and can_interact)
-        self.start_button.setText("TRANSCRIBING…" if self._is_running else "START TRANSCRIPTION")
+        if self._is_running:
+            self.start_button.setText("TRANSCRIBING…")
+        elif paused_exists:
+            self.start_button.setText("RESUME TRANSCRIPTION")
+        else:
+            self.start_button.setText("START TRANSCRIPTION")
+        self.pause_button.setEnabled(self._is_running and can_interact)
+        self.stop_button.setEnabled(self._is_running and can_interact)
+        self.mode_combo.setEnabled(not self._is_running and can_interact)
         self.path_input.setEnabled(can_interact)
-        self.add_path_button.setEnabled(can_interact)
         self.browse_button.setEnabled(can_interact)
         self.open_output_button.setEnabled(can_interact)
         removable = any(job.status != STATUS_TRANSCRIBING for job in self._jobs)
