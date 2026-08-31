@@ -19,6 +19,7 @@ QLabel#Subtitle { color: #7C8997; font-size: 13px; }
 QLabel#Muted, QLabel#Footer { color: #7C8997; }
 QLabel#QueueMeta { color: #7C8997; font-size: 10px; }
 QLabel#SectionTitle, QLabel#InputLabel { color: #3F4B59; font-size: 13px; font-weight: 650; }
+QLabel#ModeLabel { color: #7C8997; font-size: 10px; font-weight: 700; }
 QLabel#QueuePath { color: #3F4B59; font-size: 11px; font-weight: 600; }
 QLabel#OutputName { color: #1688D4; font-size: 10px; font-weight: 650; }
 QLabel#StatusText { font-size: 10px; font-weight: 600; }
@@ -57,6 +58,25 @@ QLineEdit#PathInput {
     selection-background-color: #CFE8FC;
 }
 QLineEdit#PathInput:focus { border: 1px solid #1688D4; background: #FDFEFF; }
+QComboBox#PerformanceMode {
+    min-height: 38px;
+    min-width: 112px;
+    padding: 0 28px 0 11px;
+    border-radius: 10px;
+    border: 1px solid #D8E4EF;
+    background: #FFFFFF;
+    color: #3F4B59;
+    font-size: 11px;
+    font-weight: 700;
+}
+QComboBox#PerformanceMode:hover { border-color: #BBDDFC; background: #F8FCFF; }
+QComboBox#PerformanceMode:disabled { color: #9AA6B2; background: #F2F5F8; }
+QComboBox#PerformanceMode QAbstractItemView {
+    background: #FFFFFF;
+    color: #3F4B59;
+    selection-background-color: #EAF5FF;
+    border: 1px solid #D8E4EF;
+}
 QPushButton {
     min-height: 40px;
     padding: 0 16px;
@@ -81,6 +101,22 @@ QPushButton#Secondary {
 QPushButton#Secondary:hover { background: #F2F9FF; border-color: #CFE4F5; }
 QPushButton#Secondary:pressed { background: #EAF5FF; }
 QPushButton#Secondary:disabled { color: #9AA6B2; background: #F5F8FC; border-color: #E2EAF3; }
+QPushButton#PauseButton {
+    color: #8E6B1F;
+    background: #FFF9E8;
+    border: 1px solid #EEDDAA;
+}
+QPushButton#PauseButton:hover { background: #FFF3CE; border-color: #E7CF86; }
+QPushButton#PauseButton:pressed { background: #FDEBB8; }
+QPushButton#PauseButton:disabled { color: #B8B0A0; background: #F6F4EF; border-color: #E9E5DB; }
+QPushButton#StopButton {
+    color: #B95056;
+    background: #FFF4F5;
+    border: 1px solid #F0D9DC;
+}
+QPushButton#StopButton:hover { background: #FBEEF0; border-color: #E8C5CA; }
+QPushButton#StopButton:pressed { background: #F5DFE2; }
+QPushButton#StopButton:disabled { color: #C9A9AC; background: #F7F3F4; border-color: #ECE4E5; }
 QProgressBar {
     min-height: 7px;
     max-height: 7px;
