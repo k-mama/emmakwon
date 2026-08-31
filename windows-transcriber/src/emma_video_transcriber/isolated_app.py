@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QThread, Slot
+from PySide6.QtCore import QObject, QThread, QTimer, Slot
 from PySide6.QtWidgets import QApplication
 
 from .infra import (
@@ -15,7 +15,11 @@ from .infra import (
     configure_windows_crash_dumps,
     enable_crash_diagnostics,
     end_session,
+    recent_windows_application_error,
+    record_stage,
+    restore_existing_window,
     runtime_paths,
+    update_marker,
 )
 from .isolated_worker import TranscriptionWorker
 from .jobs import QueueEvent, SqliteJobStore
@@ -319,22 +323,40 @@ def main() -> int:
     configure_windows_crash_dumps()
     acquired, other_pids = acquire_single_instance()
     if not acquired:
+        # If the real UI is merely minimized/hidden, a second launch now restores
+        # that window instead of trapping the user behind an "already running" box.
+        if restore_existing_window():
+            record_stage("second_launch_restored_existing_ui", other_pids=other_pids)
+            return 0
         try:
             import ctypes
 
             suffix = f"\n\nRunning process ID(s): {', '.join(map(str, other_pids))}" if other_pids else ""
             ctypes.windll.user32.MessageBoxW(
                 0,
-                "EMMA VIDEO TRANSCRIBER is already running.\n\n"
-                "Close the older window/process before starting another copy. "
-                "Two copies must never share the same queue and transcript files." + suffix,
+                "A background EMMA VIDEO TRANSCRIBER process is still running.\n\n"
+                "This usually means an older build or orphan worker is still alive. "
+                "Close that old process in Task Manager once, then start this version again. "
+                "This build prevents new workers from becoming orphaned." + suffix,
                 "EMMA VIDEO TRANSCRIBER",
                 0x30,
             )
         except Exception:
             pass
         return 2
+
     previous_session = begin_session()
+    update_marker({"ui_pid": os.getpid(), "ui_role": "main"})
+    record_stage("ui_process_start", ui_pid=os.getpid())
+    if previous_session is not None:
+        # Capture Windows' own crash record while it is still recent. This gives us
+        # a faulting module/exception code if the previous GUI process actually died.
+        windows_event = recent_windows_application_error(lookback_ms=3_600_000)
+        record_stage(
+            "previous_ui_session_unclean",
+            previous_marker=previous_session,
+            windows_application_error=windows_event,
+        )
 
     app = QApplication.instance() or QApplication([])
     app.setApplicationName("EMMA VIDEO TRANSCRIBER")
@@ -353,10 +375,20 @@ def main() -> int:
             "affected jobs are resumable from the queue."
         )
     window.show()
+    record_stage("ui_window_shown", ui_pid=os.getpid())
+
+    # A low-frequency UI heartbeat distinguishes a real GUI-process death from a
+    # window that merely became hidden/minimized. It is intentionally lightweight.
+    heartbeat = QTimer(window)
+    heartbeat.setInterval(30_000)
+    heartbeat.timeout.connect(lambda: record_stage("ui_heartbeat", ui_pid=os.getpid()))
+    heartbeat.start()
+
     app.aboutToQuit.connect(end_session)
 
     # Keep strong references for the lifetime of the Qt event loop.
     window._emma_controller = controller  # type: ignore[attr-defined]
+    window._emma_heartbeat = heartbeat  # type: ignore[attr-defined]
     return int(app.exec())
 
 
