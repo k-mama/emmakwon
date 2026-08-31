@@ -20,7 +20,7 @@ from .gpu_runtime import (
     select_compute_backend,
     validate_gpu_runtime,
 )
-from .single_instance import acquire_single_instance, other_instance_pids
+from .single_instance import acquire_single_instance, other_instance_pids, restore_existing_window
 from .model_cache import DEFAULT_MODEL, ModelDownloadState, ModelManager
 from .paths import RuntimePaths, job_temp_dir, runtime_paths
 from .runtime import RuntimeBootstrapState, configure_runtime_environment
@@ -52,6 +52,7 @@ __all__ = [
     "process_rss_bytes",
     "recent_windows_application_error",
     "record_stage",
+    "restore_existing_window",
     "runtime_paths",
     "select_compute_backend",
     "update_marker",
