@@ -6,8 +6,6 @@ from typing import Sequence
 from .errors import ModelSelectionError
 
 
-# Candidate names are never used blindly. select_supported_model validates them against
-# faster_whisper.available_models() from the installed package first.
 MODEL_PRIORITY: tuple[str, ...] = (
     "turbo",
     "large-v3-turbo",
@@ -34,16 +32,33 @@ CPU_COMPUTE_PRIORITY: tuple[str, ...] = (
     "float32",
 )
 
-# Desktop-first balanced defaults.
-#
-# This application is normally left running while the user continues using the
-# same Windows PC. A batch size of 4 produced excellent throughput on RTX 4070
-# class hardware, but it also made the whole desktop noticeably less responsive.
-# The native worker/process isolation already removed the need to chase maximum
-# throughput for reliability. Start with 2 and retain 1 as the conservative
-# retry. A future explicit Turbo mode can opt back into larger batches.
-GPU_BATCH_SIZES: tuple[int, ...] = (2, 1)
+PERFORMANCE_MODE_ENV = "EMMA_VIDEO_TRANSCRIBER_PERFORMANCE_MODE"
+PERFORMANCE_BALANCED = "balanced"
+PERFORMANCE_TURBO = "turbo"
+SUPPORTED_PERFORMANCE_MODES = {PERFORMANCE_BALANCED, PERFORMANCE_TURBO}
+
+# Kept as the conservative retry policy after OOM regardless of selected mode.
 LOW_MEMORY_BATCH_SIZES: tuple[int, ...] = (1,)
+# Backwards-compatible balanced constant for tests/importers. Runtime selection
+# should use performance_gpu_batch_sizes().
+GPU_BATCH_SIZES: tuple[int, ...] = (2, 1)
+
+
+def normalize_performance_mode(value: str | None) -> str:
+    mode = (value or PERFORMANCE_BALANCED).strip().lower()
+    return mode if mode in SUPPORTED_PERFORMANCE_MODES else PERFORMANCE_BALANCED
+
+
+def current_performance_mode() -> str:
+    return normalize_performance_mode(os.environ.get(PERFORMANCE_MODE_ENV))
+
+
+def performance_gpu_batch_sizes(mode: str | None = None) -> tuple[int, ...]:
+    """Return the GPU batch policy for the selected desktop performance mode."""
+    selected = normalize_performance_mode(mode or current_performance_mode())
+    if selected == PERFORMANCE_TURBO:
+        return (4, 2, 1)
+    return GPU_BATCH_SIZES
 
 
 def select_supported_model(available_models: Sequence[str]) -> str:
@@ -67,10 +82,7 @@ def pick_alternate_compute_type(
     priority: Sequence[str],
     current: str,
 ) -> str | None:
-    return next(
-        (item for item in priority if item in supported and item != current),
-        None,
-    )
+    return next((item for item in priority if item in supported and item != current), None)
 
 
 def is_cuda_oom(exc: BaseException) -> bool:
@@ -106,15 +118,14 @@ def short_error(exc: BaseException) -> str:
     return text[:300] or exc.__class__.__name__
 
 
-def default_cpu_threads() -> int:
-    """Keep enough CPU capacity free for normal desktop use.
+def default_cpu_threads(mode: str | None = None) -> int:
+    """Choose helper CPU parallelism without changing recognition quality.
 
-    CTranslate2's CPU helpers are useful even on the CUDA path. The previous
-    policy used up to 12 logical threads, which was appropriate for a dedicated
-    batch machine but too aggressive for an interactive Windows workstation.
-    Roughly one quarter of logical CPUs, capped at six, leaves substantial
-    scheduling headroom for browsers, editors and the OS without crippling the
-    fallback CPU path.
+    Balanced reserves substantial desktop headroom. Turbo restores the older,
+    throughput-first policy for times when the user is not actively using the PC.
     """
     logical = os.cpu_count() or 8
+    selected = normalize_performance_mode(mode or current_performance_mode())
+    if selected == PERFORMANCE_TURBO:
+        return min(12, max(4, logical - 2))
     return min(6, max(2, logical // 4))
