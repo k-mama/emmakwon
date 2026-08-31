@@ -17,6 +17,7 @@ from .infra import (
     record_stage,
     runtime_paths,
 )
+from .infra.process_lifetime import bind_child_to_parent_lifetime, release_parent_lifetime_job
 from .jobs import QueueEvent, SqliteJobStore
 
 
@@ -28,6 +29,11 @@ class TranscriptionWorker(QObject):
     writes live in a child process. If native code access-violates, Windows kills
     only that child; the Qt application survives, records the exit code, and can
     retry the same durable checkpoint on CPU.
+
+    On Windows each child is additionally assigned to a Job Object with
+    KILL_ON_JOB_CLOSE. If the UI process itself dies, Windows kills the child too
+    instead of leaving an orphan EmmaVideoTranscriber.exe that can keep writing
+    SQLite/output files or block the next launch.
     """
 
     queue_event = Signal(object)
@@ -41,6 +47,7 @@ class TranscriptionWorker(QObject):
         self._pause_requested = threading.Event()
         self._process: subprocess.Popen[bytes] | None = None
         self._control_file: Path | None = None
+        self._lifetime_job_handle: int | None = None
 
     def request_pause(self) -> None:
         self._pause_requested.set()
@@ -132,6 +139,8 @@ class TranscriptionWorker(QObject):
         finally:
             self._process = None
             self._control_file = None
+            release_parent_lifetime_job(self._lifetime_job_handle)
+            self._lifetime_job_handle = None
             self.finished.emit()
 
     def _run_isolated_job(
@@ -178,13 +187,44 @@ class TranscriptionWorker(QObject):
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
         self._process = process
-        last_current = -1
-        last_status: str | None = None
-        last_message: str | None = None
-        structured_failure = False
-        structured_error: str | None = None
-
+        lifetime_job_handle: int | None = None
         try:
+            try:
+                process_handle = int(getattr(process, "_handle"))
+                lifetime_job_handle = bind_child_to_parent_lifetime(process_handle)
+                self._lifetime_job_handle = lifetime_job_handle
+                record_stage(
+                    "isolated_worker_parent_lifetime_bound",
+                    job_id=job_id,
+                    worker_pid=process.pid,
+                    force_cpu=force_cpu,
+                )
+            except Exception as exc:
+                record_stage(
+                    "isolated_worker_parent_lifetime_bind_failed",
+                    job_id=job_id,
+                    worker_pid=process.pid,
+                    error=str(exc),
+                )
+                try:
+                    process.terminate()
+                    process.wait(timeout=5)
+                except Exception:
+                    try:
+                        process.kill()
+                    except Exception:
+                        pass
+                raise RuntimeError(
+                    "Could not establish safe worker lifetime containment. "
+                    "The transcription was not started so no orphan worker can be left behind."
+                ) from exc
+
+            last_current = -1
+            last_status: str | None = None
+            last_message: str | None = None
+            structured_failure = False
+            structured_error: str | None = None
+
             while process.poll() is None:
                 if self._pause_requested.is_set():
                     try:
@@ -229,6 +269,9 @@ class TranscriptionWorker(QObject):
         finally:
             self._process = None
             self._control_file = None
+            release_parent_lifetime_job(lifetime_job_handle)
+            if self._lifetime_job_handle == lifetime_job_handle:
+                self._lifetime_job_handle = None
             for path in (control_file, status_file):
                 try:
                     path.unlink(missing_ok=True)
