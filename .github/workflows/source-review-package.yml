@@ -1,0 +1,38 @@
+name: Package Transcriber Source Review 109f835
+
+on:
+  push:
+    branches:
+      - package/transcriber-source-review-109f835
+    paths:
+      - ".github/workflows/source-review-package.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package-source-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout snapshot
+        uses: actions/checkout@v4
+
+      - name: Create exact review ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p package/.github/workflows
+          cp -R windows-transcriber package/windows-transcriber
+          cp .github/workflows/windows-transcriber-build.yml package/.github/workflows/windows-transcriber-build.yml
+          cp REVIEW_HANDOFF.md package/REVIEW_HANDOFF.md
+          cd package
+          zip -qr ../EmmaVideoTranscriber-Source-Review-109f835.zip .
+
+      - name: Upload source review ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: EmmaVideoTranscriber-Source-Review-109f835
+          path: EmmaVideoTranscriber-Source-Review-109f835.zip
+          if-no-files-found: error
+          retention-days: 14
