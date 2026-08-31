@@ -28,7 +28,6 @@ from .ui import MainWindow, UiEventBridge
 
 
 def default_output_dir() -> Path:
-    """Return the user-visible transcript folder without touching source media."""
     home = Path(os.environ.get("USERPROFILE") or Path.home())
     output = home / "Downloads" / "EmmaVideoTranscriber"
     output.mkdir(parents=True, exist_ok=True)
@@ -40,7 +39,6 @@ def _path_identity(path: Path) -> str:
 
 
 def _recover_interrupted_jobs(store: SqliteJobStore) -> None:
-    """Repair a pending append journal and make stale processing jobs resumable."""
     for job in store.list_all():
         try:
             recover_output(job.output_path, committed_ms=job.current_ms, job_id=job.job_id)
@@ -70,12 +68,12 @@ def _format_eta(seconds: float | None) -> str | None:
 
 
 class ApplicationController(QObject):
-    """Wire UI requests to durable queue/media/engine services."""
-
     def __init__(self, bridge: UiEventBridge) -> None:
         super().__init__(bridge)
         self.bridge = bridge
-        configure_runtime_environment()
+        # Strict parent/UI isolation: only the child worker is allowed to probe
+        # NVIDIA/CUDA native runtime state.
+        configure_runtime_environment(probe_gpu=False)
         paths = runtime_paths()
         self.db_path = paths.app_data / "jobs.sqlite3"
         self.output_dir = default_output_dir()
@@ -179,7 +177,6 @@ class ApplicationController(QObject):
             if event.message:
                 self.bridge.publish_status_message(event.message)
             return
-
         if event.kind == "job_started":
             self._active_job_id = event.job_id
             self._active_started_at = time.monotonic()
@@ -187,37 +184,29 @@ class ApplicationController(QObject):
             self._last_checkpoint_text = None
             self._publish_active(event)
             return
-
         if event.kind == "chunk_committed":
             self._last_checkpoint_text = datetime.now().strftime("%H:%M:%S")
             self._publish_active(event)
             return
-
         if event.kind == "progress":
             self._publish_active(event)
             return
-
         if event.kind == "job_completed":
             name = event.output_path.name if event.output_path else "TXT"
             self.bridge.publish_status_message(f"Completed. Saved as {name}.")
             return
-
         if event.kind == "job_failed":
             self.bridge.publish_status_message(event.error or "A transcription job failed.")
             return
-
         if event.kind == "job_paused":
             self.bridge.publish_status_message("Paused at the latest safe save point.")
             return
-
         if event.kind == "job_skipped":
             self.bridge.publish_jobs(self.store.list_all())
             return
-
         if event.kind == "recovery" and event.message:
             self.bridge.publish_status_message(f"Recovered previous work: {event.message}")
             return
-
         if event.kind == "queue_completed":
             self.bridge.publish_jobs(self.store.list_all())
             self.bridge.publish_status_message("Queue finished.")
@@ -274,7 +263,6 @@ class ApplicationController(QObject):
                 self._close_after_pause = False
                 self.bridge.allow_safe_close()
             return
-        # keep_running and cancel intentionally require no backend mutation.
 
     @Slot(str)
     def remove_job(self, job_id: str) -> None:
@@ -318,13 +306,12 @@ class ApplicationController(QObject):
 
 
 def main() -> int:
-    configure_runtime_environment()
+    # The Qt parent must not probe/load NVIDIA native code. The job worker owns it.
+    configure_runtime_environment(probe_gpu=False)
     enable_crash_diagnostics()
     configure_windows_crash_dumps()
     acquired, other_pids = acquire_single_instance()
     if not acquired:
-        # If the real UI is merely minimized/hidden, a second launch now restores
-        # that window instead of trapping the user behind an "already running" box.
         if restore_existing_window():
             record_stage("second_launch_restored_existing_ui", other_pids=other_pids)
             return 0
@@ -349,8 +336,6 @@ def main() -> int:
     update_marker({"ui_pid": os.getpid(), "ui_role": "main"})
     record_stage("ui_process_start", ui_pid=os.getpid())
     if previous_session is not None:
-        # Capture Windows' own crash record while it is still recent. This gives us
-        # a faulting module/exception code if the previous GUI process actually died.
         windows_event = recent_windows_application_error(lookback_ms=3_600_000)
         record_stage(
             "previous_ui_session_unclean",
@@ -377,16 +362,12 @@ def main() -> int:
     window.show()
     record_stage("ui_window_shown", ui_pid=os.getpid())
 
-    # A low-frequency UI heartbeat distinguishes a real GUI-process death from a
-    # window that merely became hidden/minimized. It is intentionally lightweight.
     heartbeat = QTimer(window)
     heartbeat.setInterval(30_000)
     heartbeat.timeout.connect(lambda: record_stage("ui_heartbeat", ui_pid=os.getpid()))
     heartbeat.start()
 
     app.aboutToQuit.connect(end_session)
-
-    # Keep strong references for the lifetime of the Qt event loop.
     window._emma_controller = controller  # type: ignore[attr-defined]
     window._emma_heartbeat = heartbeat  # type: ignore[attr-defined]
     return int(app.exec())
