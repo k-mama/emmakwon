@@ -24,16 +24,9 @@ from .jobs import QueueEvent, SqliteJobStore
 class TranscriptionWorker(QObject):
     """Run every transcription job in a separate OS process.
 
-    QThread remains only as the non-blocking UI coordinator. CUDA, cuDNN,
-    CTranslate2, faster-whisper model loading, FFmpeg chunking and transcript
-    writes live in a child process. If native code access-violates, Windows kills
-    only that child; the Qt application survives, records the exit code, and can
-    retry the same durable checkpoint on CPU.
-
-    On Windows each child is additionally assigned to a Job Object with
-    KILL_ON_JOB_CLOSE. If the UI process itself dies, Windows kills the child too
-    instead of leaving an orphan EmmaVideoTranscriber.exe that can keep writing
-    SQLite/output files or block the next launch.
+    QThread is only a coordinator. It never probes NVIDIA/CUDA. The child process
+    owns GPU runtime setup, CTranslate2, faster-whisper, FFmpeg chunking and TXT
+    writes. On Windows each child is bound to the UI lifetime with a Job Object.
     """
 
     queue_event = Signal(object)
@@ -62,7 +55,9 @@ class TranscriptionWorker(QObject):
     @Slot()
     def run(self) -> None:
         try:
-            configure_runtime_environment()
+            # This object still lives inside the Qt parent process even though it
+            # runs on a QThread. Never load/probe GPU-native libraries here.
+            configure_runtime_environment(probe_gpu=False)
             store = SqliteJobStore(self.db_path)
             candidates = [
                 job for job in store.list_all() if job.status in {"queued", "paused", "failed"}
