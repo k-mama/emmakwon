@@ -227,13 +227,62 @@ def configure_windows_crash_dumps(logs_dir: Path | None = None) -> Path | None:
         with winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE) as key:
             winreg.SetValueEx(key, "DumpFolder", 0, winreg.REG_EXPAND_SZ, str(target_dir))
             winreg.SetValueEx(key, "DumpCount", 0, winreg.REG_DWORD, 5)
-            # 1 = minidump. Small enough for routine diagnostics while preserving
-            # exception/module/thread information needed for first-pass forensics.
             winreg.SetValueEx(key, "DumpType", 0, winreg.REG_DWORD, 1)
         record_stage("windows_crash_dumps_enabled", logs_dir, dump_folder=str(target_dir))
         return target_dir
     except Exception:
         return None
+
+
+def recent_windows_application_error(
+    executable_name: str = "EmmaVideoTranscriber.exe",
+    *,
+    lookback_ms: int = 600_000,
+) -> str | None:
+    """Return the newest Windows Application Error event for this executable.
+
+    Windows Event ID 1000 normally contains the faulting module and exception
+    code for an access violation/native crash. Querying it from the surviving
+    parent process means the product preserves concrete evidence automatically
+    instead of asking the user to hunt through Event Viewer. Best-effort only.
+    """
+    if os.name != "nt":
+        return None
+    query = (
+        "*[System[(EventID=1000) and "
+        f"TimeCreated[timediff(@SystemTime) <= {max(1, int(lookback_ms))}]]]"
+    )
+    for attempt in range(3):
+        try:
+            completed = subprocess.run(
+                [
+                    "wevtutil",
+                    "qe",
+                    "Application",
+                    f"/q:{query}",
+                    "/f:text",
+                    "/rd:true",
+                    "/c:20",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=5,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            )
+            if completed.returncode == 0:
+                blocks = [block.strip() for block in completed.stdout.split("\n\n") if block.strip()]
+                needle = executable_name.lower()
+                for block in blocks:
+                    if needle in block.lower():
+                        return " ".join(block.split())[:6000]
+        except Exception:
+            return None
+        if attempt < 2:
+            time.sleep(0.5)
+    return None
 
 
 __all__ = [
@@ -243,6 +292,7 @@ __all__ = [
     "end_session",
     "gpu_vram_used_mb",
     "process_rss_bytes",
+    "recent_windows_application_error",
     "record_stage",
     "update_marker",
 ]

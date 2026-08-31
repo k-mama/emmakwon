@@ -5,6 +5,7 @@ from .diagnostics import (
     end_session,
     gpu_vram_used_mb,
     process_rss_bytes,
+    recent_windows_application_error,
     record_stage,
     update_marker,
 )
@@ -49,6 +50,7 @@ __all__ = [
     "nvidia_driver_present",
     "other_instance_pids",
     "process_rss_bytes",
+    "recent_windows_application_error",
     "record_stage",
     "runtime_paths",
     "select_compute_backend",

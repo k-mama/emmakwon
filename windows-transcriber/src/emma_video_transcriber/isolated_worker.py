@@ -11,7 +11,12 @@ from pathlib import Path
 
 from PySide6.QtCore import QObject, Signal, Slot
 
-from .infra import configure_runtime_environment, record_stage, runtime_paths
+from .infra import (
+    configure_runtime_environment,
+    recent_windows_application_error,
+    record_stage,
+    runtime_paths,
+)
 from .jobs import QueueEvent, SqliteJobStore
 
 
@@ -71,8 +76,6 @@ class TranscriptionWorker(QObject):
 
                 result = self._run_isolated_job(store, job.job_id, force_cpu=False)
                 if result[0] != 0 and not result[1]:
-                    # No structured Python failure was written. This is the native/unhandled
-                    # crash class that previously killed the whole GUI process.
                     crash_code = self._format_exit_code(result[0])
                     latest = store.get(job.job_id)
                     if latest is not None:
@@ -82,10 +85,12 @@ class TranscriptionWorker(QObject):
                         latest.metadata["isolated_native_crash"] = crash_code
                         latest.metadata["force_cpu_retry"] = "1"
                         store.update(latest)
+                    windows_event = recent_windows_application_error()
                     record_stage(
                         "isolated_worker_native_crash",
                         job_id=job.job_id,
                         exit_code=crash_code,
+                        windows_application_error=windows_event,
                     )
                     self.status_message.emit(
                         f"The GPU/native worker crashed ({crash_code}), but the app stayed open. "
@@ -106,7 +111,6 @@ class TranscriptionWorker(QObject):
                             "Crash evidence was preserved in the app logs."
                         )
                 elif result[0] != 0 and result[1]:
-                    # Ordinary Python failure: preserve the worker's structured message.
                     latest = store.get(job.job_id)
                     if latest is not None and latest.status == "processing":
                         latest.status = "failed"
