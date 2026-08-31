@@ -33,14 +33,17 @@ CPU_COMPUTE_PRIORITY: tuple[str, ...] = (
     "int8_float32",
     "float32",
 )
-# Sequential unattended queues have shown cumulative CUDA memory pressure
-# building up over many jobs sharing one reused batched pipeline; starting at
-# 8 left too little headroom by the time a queue reached its sixth or so job.
-# 4 keeps most of the throughput benefit of batching while leaving more
-# headroom for that cumulative pressure. Lower-memory retry and CPU fallback
-# are unchanged.
-GPU_BATCH_SIZES: tuple[int, ...] = (4, 2, 1)
-LOW_MEMORY_BATCH_SIZES: tuple[int, ...] = (4, 2, 1)
+
+# Desktop-first balanced defaults.
+#
+# This application is normally left running while the user continues using the
+# same Windows PC. A batch size of 4 produced excellent throughput on RTX 4070
+# class hardware, but it also made the whole desktop noticeably less responsive.
+# The native worker/process isolation already removed the need to chase maximum
+# throughput for reliability. Start with 2 and retain 1 as the conservative
+# retry. A future explicit Turbo mode can opt back into larger batches.
+GPU_BATCH_SIZES: tuple[int, ...] = (2, 1)
+LOW_MEMORY_BATCH_SIZES: tuple[int, ...] = (1,)
 
 
 def select_supported_model(available_models: Sequence[str]) -> str:
@@ -104,5 +107,14 @@ def short_error(exc: BaseException) -> str:
 
 
 def default_cpu_threads() -> int:
+    """Keep enough CPU capacity free for normal desktop use.
+
+    CTranslate2's CPU helpers are useful even on the CUDA path. The previous
+    policy used up to 12 logical threads, which was appropriate for a dedicated
+    batch machine but too aggressive for an interactive Windows workstation.
+    Roughly one quarter of logical CPUs, capped at six, leaves substantial
+    scheduling headroom for browsers, editors and the OS without crippling the
+    fallback CPU path.
+    """
     logical = os.cpu_count() or 8
-    return min(12, max(4, logical - 2))
+    return min(6, max(2, logical // 4))
