@@ -37,12 +37,6 @@ PERFORMANCE_BALANCED = "balanced"
 PERFORMANCE_TURBO = "turbo"
 SUPPORTED_PERFORMANCE_MODES = {PERFORMANCE_BALANCED, PERFORMANCE_TURBO}
 
-# Kept as the conservative retry policy after OOM regardless of selected mode.
-LOW_MEMORY_BATCH_SIZES: tuple[int, ...] = (1,)
-# Backwards-compatible balanced constant for tests/importers. Runtime selection
-# should use performance_gpu_batch_sizes().
-GPU_BATCH_SIZES: tuple[int, ...] = (2, 1)
-
 
 def normalize_performance_mode(value: str | None) -> str:
     mode = (value or PERFORMANCE_BALANCED).strip().lower()
@@ -53,12 +47,19 @@ def current_performance_mode() -> str:
     return normalize_performance_mode(os.environ.get(PERFORMANCE_MODE_ENV))
 
 
+# The worker process receives PERFORMANCE_MODE_ENV before Python starts, so this
+# module-level value is selected independently per child worker. The Qt parent
+# never imports the inference engine on its normal UI path.
+GPU_BATCH_SIZES: tuple[int, ...] = (
+    (4, 2, 1) if current_performance_mode() == PERFORMANCE_TURBO else (2, 1)
+)
+# OOM recovery stays conservative regardless of selected performance mode.
+LOW_MEMORY_BATCH_SIZES: tuple[int, ...] = (1,)
+
+
 def performance_gpu_batch_sizes(mode: str | None = None) -> tuple[int, ...]:
-    """Return the GPU batch policy for the selected desktop performance mode."""
     selected = normalize_performance_mode(mode or current_performance_mode())
-    if selected == PERFORMANCE_TURBO:
-        return (4, 2, 1)
-    return GPU_BATCH_SIZES
+    return (4, 2, 1) if selected == PERFORMANCE_TURBO else (2, 1)
 
 
 def select_supported_model(available_models: Sequence[str]) -> str:
@@ -82,7 +83,10 @@ def pick_alternate_compute_type(
     priority: Sequence[str],
     current: str,
 ) -> str | None:
-    return next((item for item in priority if item in supported and item != current), None)
+    return next(
+        (item for item in priority if item in supported and item != current),
+        None,
+    )
 
 
 def is_cuda_oom(exc: BaseException) -> bool:
@@ -119,11 +123,7 @@ def short_error(exc: BaseException) -> str:
 
 
 def default_cpu_threads(mode: str | None = None) -> int:
-    """Choose helper CPU parallelism without changing recognition quality.
-
-    Balanced reserves substantial desktop headroom. Turbo restores the older,
-    throughput-first policy for times when the user is not actively using the PC.
-    """
+    """Choose helper CPU parallelism without changing recognition quality."""
     logical = os.cpu_count() or 8
     selected = normalize_performance_mode(mode or current_performance_mode())
     if selected == PERFORMANCE_TURBO:
