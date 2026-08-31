@@ -190,15 +190,16 @@ class TranscriptionWorker(QObject):
         lifetime_job_handle: int | None = None
         try:
             try:
-                process_handle = int(getattr(process, "_handle"))
-                lifetime_job_handle = bind_child_to_parent_lifetime(process_handle)
-                self._lifetime_job_handle = lifetime_job_handle
-                record_stage(
-                    "isolated_worker_parent_lifetime_bound",
-                    job_id=job_id,
-                    worker_pid=process.pid,
-                    force_cpu=force_cpu,
-                )
+                if os.name == "nt":
+                    process_handle = int(getattr(process, "_handle"))
+                    lifetime_job_handle = bind_child_to_parent_lifetime(process_handle)
+                    self._lifetime_job_handle = lifetime_job_handle
+                    record_stage(
+                        "isolated_worker_parent_lifetime_bound",
+                        job_id=job_id,
+                        worker_pid=process.pid,
+                        force_cpu=force_cpu,
+                    )
             except Exception as exc:
                 record_stage(
                     "isolated_worker_parent_lifetime_bind_failed",
