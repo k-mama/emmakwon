@@ -172,14 +172,27 @@ class TranscriptionWorker(QObject):
         else:
             env.pop("EMMA_VIDEO_TRANSCRIBER_FORCE_CPU", None)
 
-        record_stage("isolated_worker_spawn", job_id=job_id, force_cpu=force_cpu)
+        # The worker is compute-heavy by design, but the desktop UI and the rest
+        # of Windows should win CPU scheduling contests. GPU load is separately
+        # bounded by the balanced batch policy. BELOW_NORMAL does not change
+        # inference correctness; it only gives foreground apps scheduling headroom.
+        creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        if os.name == "nt":
+            creationflags |= getattr(subprocess, "BELOW_NORMAL_PRIORITY_CLASS", 0)
+
+        record_stage(
+            "isolated_worker_spawn",
+            job_id=job_id,
+            force_cpu=force_cpu,
+            priority="below_normal" if os.name == "nt" else "default",
+        )
         process = subprocess.Popen(
             command,
             env=env,
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            creationflags=creationflags,
         )
         self._process = process
         lifetime_job_handle: int | None = None
