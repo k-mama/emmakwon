@@ -86,22 +86,16 @@ class MainWindow(QMainWindow):
         input_row.setSpacing(8)
         self.path_input = QLineEdit()
         self.path_input.setObjectName("PathInput")
-        self.path_input.setPlaceholderText("Paste the full video file path here")
+        self.path_input.setPlaceholderText("Paste one video path here and press Enter")
         self.path_input.setClearButtonEnabled(True)
         self.path_input.returnPressed.connect(self._submit_path)
         self.path_input.textChanged.connect(self._clear_path_message)
         input_row.addWidget(self.path_input, 1)
 
-        self.add_path_button = QPushButton("+")
-        self.add_path_button.setObjectName("AddPath")
-        self.add_path_button.setToolTip("Add this path to the queue")
-        self.add_path_button.clicked.connect(self._submit_path)
-        input_row.addWidget(self.add_path_button)
-
-        self.browse_button = QPushButton("Browse")
+        self.browse_button = QPushButton("ADD VIDEOS")
         self.browse_button.setObjectName("Secondary")
-        self.browse_button.setToolTip("Choose one video and place its path in the field")
-        self.browse_button.clicked.connect(self._browse_one_video)
+        self.browse_button.setToolTip("Choose one or many videos; they are added to the queue immediately")
+        self.browse_button.clicked.connect(self._browse_videos)
         input_row.addWidget(self.browse_button)
         path_layout.addLayout(input_row)
 
@@ -142,7 +136,7 @@ class MainWindow(QMainWindow):
         queue_header.addWidget(self.clear_queue_button)
         queue_layout.addLayout(queue_header)
 
-        self.empty_queue = QLabel("Paste a complete video path above, then press +.")
+        self.empty_queue = QLabel("Choose videos above. You can select multiple files at once.")
         self.empty_queue.setObjectName("Muted")
         self.empty_queue.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.empty_queue.setWordWrap(True)
@@ -195,7 +189,7 @@ class MainWindow(QMainWindow):
         self.bridge.safe_close_published.connect(self._finish_safe_close)
 
     def _connect_shortcuts(self) -> None:
-        QShortcut(QKeySequence("Ctrl+O"), self, activated=self._browse_one_video)
+        QShortcut(QKeySequence("Ctrl+O"), self, activated=self._browse_videos)
         QShortcut(QKeySequence("Ctrl+Return"), self, activated=self._start_from_shortcut)
         QShortcut(QKeySequence("Ctrl+Enter"), self, activated=self._start_from_shortcut)
         QShortcut(QKeySequence("Ctrl+Shift+O"), self, activated=self.bridge.request_open_output_folder)
@@ -218,19 +212,26 @@ class MainWindow(QMainWindow):
         self.path_input.setFocus()
 
     @Slot()
-    def _browse_one_video(self) -> None:
-        selected, _ = QFileDialog.getOpenFileName(
+    def _browse_videos(self) -> None:
+        selected, _ = QFileDialog.getOpenFileNames(
             self,
-            "Choose a video",
+            "Choose one or more videos",
             "",
             "Videos (*.mp4 *.mkv *.mov *.avi *.m4v *.webm *.ts *.mts *.m2ts);;All files (*.*)",
         )
         if not selected:
             self.path_input.setFocus()
             return
-        self.path_input.setText(selected)
+        paths = tuple(Path(item) for item in selected)
+        if not self.bridge.request_add_videos(paths):
+            self._set_path_message("Could not add the selected videos. Try again.", error=True)
+            return
+        count = len(paths)
+        self._set_path_message(
+            f"Selected {count} video{'s' if count != 1 else ''}. Adding to the queue…",
+            error=False,
+        )
         self.path_input.setFocus()
-        self.path_input.selectAll()
 
     @Slot(str)
     def _clear_path_message(self, _text: str) -> None:
@@ -323,7 +324,6 @@ class MainWindow(QMainWindow):
         self.start_button.setEnabled(bool(self._jobs) and actionable and not self._is_running and can_interact)
         self.start_button.setText("TRANSCRIBING…" if self._is_running else "START TRANSCRIPTION")
         self.path_input.setEnabled(can_interact)
-        self.add_path_button.setEnabled(can_interact)
         self.browse_button.setEnabled(can_interact)
         self.open_output_button.setEnabled(can_interact)
         removable = any(job.status != STATUS_TRANSCRIBING for job in self._jobs)

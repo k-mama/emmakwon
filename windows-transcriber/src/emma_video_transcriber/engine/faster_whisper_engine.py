@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import gc
+import os
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -156,7 +157,13 @@ class FasterWhisperTranscriptionEngine:
         if self._planned_device is not None:
             return
 
-        if self._runtime.cuda_device_count() > self._device_index:
+        force_cpu = os.environ.get("EMMA_VIDEO_TRANSCRIBER_FORCE_CPU", "").strip().lower() in {
+            "1", "true", "yes", "on"
+        }
+        if force_cpu:
+            self._fallback_reason = "CPU mode forced after an isolated native worker crash."
+
+        if not force_cpu and self._runtime.cuda_device_count() > self._device_index:
             try:
                 self._gpu_supported_types = self._runtime.supported_compute_types(
                     "cuda", self._device_index

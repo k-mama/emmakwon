@@ -64,6 +64,7 @@ def _self_check() -> int:
 
 def _launch_application() -> int:
     candidates = (
+        ("emma_video_transcriber.isolated_app", "main"),
         ("emma_video_transcriber.app", "main"),
         ("emma_video_transcriber.__main__", "main"),
         ("emma_video_transcriber.ui.app", "main"),
@@ -96,6 +97,15 @@ def main() -> int:
     configure_runtime_environment()
     if "--self-check" in sys.argv:
         return _self_check()
+    if "--worker-self-check" in sys.argv:
+        from emma_video_transcriber.worker_process import self_check as worker_self_check
+
+        return int(worker_self_check())
+    if "--job-worker" in sys.argv:
+        from emma_video_transcriber.worker_process import main as worker_main
+
+        index = sys.argv.index("--job-worker")
+        return int(worker_main(sys.argv[index + 1 :]))
     return _launch_application()
 
 

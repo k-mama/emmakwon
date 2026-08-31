@@ -205,8 +205,40 @@ def _write_marker(path: Path, data: dict[str, Any]) -> None:
         pass
 
 
+def configure_windows_crash_dumps(logs_dir: Path | None = None) -> Path | None:
+    """Enable per-user Windows Error Reporting minidumps for this executable.
+
+    The setting is app-specific under HKCU, requires no administrator rights, and
+    gives the next native CUDA/CTranslate2/Qt crash a concrete .dmp artifact that
+    can identify the faulting module instead of leaving only a vanished process.
+    Best-effort and never raises.
+    """
+    if os.name != "nt":
+        return None
+    try:
+        import winreg
+
+        target_dir = (logs_dir or logs_root()) / "crash-dumps"
+        target_dir.mkdir(parents=True, exist_ok=True)
+        key_path = (
+            "Software\\Microsoft\\Windows\\Windows Error Reporting\\LocalDumps\\"
+            "EmmaVideoTranscriber.exe"
+        )
+        with winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE) as key:
+            winreg.SetValueEx(key, "DumpFolder", 0, winreg.REG_EXPAND_SZ, str(target_dir))
+            winreg.SetValueEx(key, "DumpCount", 0, winreg.REG_DWORD, 5)
+            # 1 = minidump. Small enough for routine diagnostics while preserving
+            # exception/module/thread information needed for first-pass forensics.
+            winreg.SetValueEx(key, "DumpType", 0, winreg.REG_DWORD, 1)
+        record_stage("windows_crash_dumps_enabled", logs_dir, dump_folder=str(target_dir))
+        return target_dir
+    except Exception:
+        return None
+
+
 __all__ = [
     "begin_session",
+    "configure_windows_crash_dumps",
     "enable_crash_diagnostics",
     "end_session",
     "gpu_vram_used_mb",
