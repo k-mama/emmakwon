@@ -54,20 +54,34 @@ class QueueRow(QFrame):
         self.job_id = job.job_id
         self.setObjectName("QueueRow")
         self.setProperty("active", job.status == STATUS_TRANSCRIBING)
-        self.setMinimumHeight(112)
+        self.setMinimumHeight(76)
 
         root = QHBoxLayout(self)
-        root.setContentsMargins(14, 13, 14, 13)
-        root.setSpacing(13)
+        root.setContentsMargins(9, 8, 10, 8)
+        root.setSpacing(7)
+
+        # Removal belongs where the eye starts reading the row. Keeping it on the
+        # left makes long filenames usable without scanning to the far right.
+        self.remove_button = QPushButton("✕")
+        self.remove_button.setObjectName("RemoveRow")
+        is_active = job.status == STATUS_TRANSCRIBING
+        self.remove_button.setEnabled(not is_active)
+        self.remove_button.setToolTip(
+            "Pause the queue first to remove the job being transcribed"
+            if is_active
+            else "Remove from the queue (does not delete the video or any saved transcript)"
+        )
+        self.remove_button.clicked.connect(lambda: self.remove_requested.emit(self.job_id))
+        root.addWidget(self.remove_button, 0, Qt.AlignmentFlag.AlignTop)
 
         number = QLabel(f"{position:02d}")
         number.setObjectName("NumberBadge")
         number.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        number.setFixedWidth(42)
+        number.setFixedWidth(34)
         root.addWidget(number, 0, Qt.AlignmentFlag.AlignTop)
 
         body = QVBoxLayout()
-        body.setSpacing(5)
+        body.setSpacing(2)
 
         path_text = str(job.source_path)
         path_label = ElidedLabel(path_text)
@@ -80,7 +94,7 @@ class QueueRow(QFrame):
         body.addWidget(output)
 
         bottom = QHBoxLayout()
-        bottom.setSpacing(12)
+        bottom.setSpacing(8)
         _, status_color = STATUS_VISUALS[job.status]
         status = QLabel(job.status_text)
         status.setObjectName("StatusText")
@@ -105,32 +119,21 @@ class QueueRow(QFrame):
             progress.setRange(0, 100)
             progress.setValue(100 if job.status == STATUS_COMPLETED else job.percent)
             progress.setTextVisible(False)
+            progress.setObjectName("QueueProgress")
             body.addWidget(progress)
 
         root.addLayout(body, 1)
-
-        self.remove_button = QPushButton("✕")
-        self.remove_button.setObjectName("RemoveRow")
-        is_active = job.status == STATUS_TRANSCRIBING
-        self.remove_button.setEnabled(not is_active)
-        self.remove_button.setToolTip(
-            "Pause the queue first to remove the job being transcribed"
-            if is_active
-            else "Remove from the queue (does not delete the video or any saved transcript)"
-        )
-        self.remove_button.clicked.connect(lambda: self.remove_requested.emit(self.job_id))
-        root.addWidget(self.remove_button, 0, Qt.AlignmentFlag.AlignTop)
 
 
 class ActiveJobPanel(QFrame):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setObjectName("Card")
-        self.setMinimumWidth(330)
+        self.setMinimumWidth(275)
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(22, 21, 22, 21)
-        root.setSpacing(10)
+        root.setContentsMargins(18, 17, 18, 17)
+        root.setSpacing(7)
 
         top = QHBoxLayout()
         heading = QLabel("CURRENT JOB")
@@ -159,6 +162,8 @@ class ActiveJobPanel(QFrame):
         progress_label.setObjectName("FieldName")
         self.percent = QLabel("0%")
         self.percent.setObjectName("Percent")
+        self.percent.setMinimumWidth(62)
+        self.percent.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         percent_line.addWidget(progress_label)
         percent_line.addStretch(1)
         percent_line.addWidget(self.percent)
