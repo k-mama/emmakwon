@@ -6,6 +6,7 @@ on:
     branches:
       - parallel/win-transcriber-packaging
       - parallel/win-transcriber-integration
+      - package/transcriber-user-build-e2a925c
     paths:
       - "windows-transcriber/**"
       - ".github/workflows/windows-transcriber-build.yml"
