@@ -76,10 +76,12 @@ def bind_child_to_parent_lifetime(process_handle: int) -> int | None:
     kernel32.AssignProcessToJobObject.restype = wintypes.BOOL
     kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
     kernel32.CloseHandle.restype = wintypes.BOOL
+    kernel32.GetLastError.argtypes = []
+    kernel32.GetLastError.restype = wintypes.DWORD
 
     job = kernel32.CreateJobObjectW(None, None)
     if not job:
-        raise ctypes.WinError()
+        raise ctypes.WinError(int(kernel32.GetLastError()))
 
     info = _JOBOBJECT_EXTENDED_LIMIT_INFORMATION()
     info.BasicLimitInformation.LimitFlags = _JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
@@ -89,12 +91,12 @@ def bind_child_to_parent_lifetime(process_handle: int) -> int | None:
         ctypes.byref(info),
         ctypes.sizeof(info),
     ):
-        error = ctypes.get_last_error()
+        error = int(kernel32.GetLastError())
         kernel32.CloseHandle(job)
         raise ctypes.WinError(error)
 
     if not kernel32.AssignProcessToJobObject(job, wintypes.HANDLE(int(process_handle))):
-        error = ctypes.get_last_error()
+        error = int(kernel32.GetLastError())
         kernel32.CloseHandle(job)
         raise ctypes.WinError(error)
 
