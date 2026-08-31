@@ -1,8 +1,17 @@
 from __future__ import annotations
 
-import os
 from typing import Sequence
 
+from ..performance import (
+    PERFORMANCE_BALANCED,
+    PERFORMANCE_MODE_ENV,
+    PERFORMANCE_TURBO,
+    SUPPORTED_PERFORMANCE_MODES,
+    current_performance_mode,
+    default_cpu_threads,
+    gpu_batch_sizes,
+    normalize_performance_mode,
+)
 from .errors import ModelSelectionError
 
 
@@ -32,34 +41,13 @@ CPU_COMPUTE_PRIORITY: tuple[str, ...] = (
     "float32",
 )
 
-PERFORMANCE_MODE_ENV = "EMMA_VIDEO_TRANSCRIBER_PERFORMANCE_MODE"
-PERFORMANCE_BALANCED = "balanced"
-PERFORMANCE_TURBO = "turbo"
-SUPPORTED_PERFORMANCE_MODES = {PERFORMANCE_BALANCED, PERFORMANCE_TURBO}
-
-
-def normalize_performance_mode(value: str | None) -> str:
-    mode = (value or PERFORMANCE_BALANCED).strip().lower()
-    return mode if mode in SUPPORTED_PERFORMANCE_MODES else PERFORMANCE_BALANCED
-
-
-def current_performance_mode() -> str:
-    return normalize_performance_mode(os.environ.get(PERFORMANCE_MODE_ENV))
-
-
-# The worker process receives PERFORMANCE_MODE_ENV before Python starts, so this
-# module-level value is selected independently per child worker. The Qt parent
-# never imports the inference engine on its normal UI path.
-GPU_BATCH_SIZES: tuple[int, ...] = (
-    (4, 2, 1) if current_performance_mode() == PERFORMANCE_TURBO else (2, 1)
-)
-# OOM recovery stays conservative regardless of selected performance mode.
+# The child worker receives PERFORMANCE_MODE_ENV before Python starts.
+GPU_BATCH_SIZES: tuple[int, ...] = gpu_batch_sizes()
 LOW_MEMORY_BATCH_SIZES: tuple[int, ...] = (1,)
 
 
 def performance_gpu_batch_sizes(mode: str | None = None) -> tuple[int, ...]:
-    selected = normalize_performance_mode(mode or current_performance_mode())
-    return (4, 2, 1) if selected == PERFORMANCE_TURBO else (2, 1)
+    return gpu_batch_sizes(mode)
 
 
 def select_supported_model(available_models: Sequence[str]) -> str:
@@ -122,10 +110,25 @@ def short_error(exc: BaseException) -> str:
     return text[:300] or exc.__class__.__name__
 
 
-def default_cpu_threads(mode: str | None = None) -> int:
-    """Choose helper CPU parallelism without changing recognition quality."""
-    logical = os.cpu_count() or 8
-    selected = normalize_performance_mode(mode or current_performance_mode())
-    if selected == PERFORMANCE_TURBO:
-        return min(12, max(4, logical - 2))
-    return min(6, max(2, logical // 4))
+__all__ = [
+    "CPU_COMPUTE_PRIORITY",
+    "GPU_BATCH_SIZES",
+    "GPU_COMPUTE_PRIORITY",
+    "GPU_LOW_MEMORY_PRIORITY",
+    "LOW_MEMORY_BATCH_SIZES",
+    "MODEL_PRIORITY",
+    "PERFORMANCE_BALANCED",
+    "PERFORMANCE_MODE_ENV",
+    "PERFORMANCE_TURBO",
+    "SUPPORTED_PERFORMANCE_MODES",
+    "current_performance_mode",
+    "default_cpu_threads",
+    "is_cuda_oom",
+    "is_cuda_runtime_failure",
+    "normalize_performance_mode",
+    "performance_gpu_batch_sizes",
+    "pick_alternate_compute_type",
+    "pick_compute_type",
+    "select_supported_model",
+    "short_error",
+]
