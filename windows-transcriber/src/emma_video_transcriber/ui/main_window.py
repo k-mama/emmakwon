@@ -43,8 +43,9 @@ class MainWindow(QMainWindow):
         self._allow_close_once = False
 
         self.setWindowTitle("EMMA VIDEO TRANSCRIBER")
-        self.setMinimumSize(QSize(980, 700))
-        self.resize(1180, 800)
+        # The normal, non-maximized window must still show Current Job progress.
+        self.setMinimumSize(QSize(860, 620))
+        self.resize(1080, 700)
         self.setStyleSheet(APP_QSS)
 
         self._build_ui()
@@ -59,11 +60,11 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(root)
 
         page = QVBoxLayout(root)
-        page.setContentsMargins(34, 28, 34, 28)
-        page.setSpacing(18)
+        page.setContentsMargins(24, 20, 24, 20)
+        page.setSpacing(12)
 
         header = QVBoxLayout()
-        header.setSpacing(3)
+        header.setSpacing(2)
         title = QLabel("EMMA VIDEO TRANSCRIBER")
         title.setObjectName("Title")
         subtitle = QLabel("Long videos → clean TXT, processed locally")
@@ -75,15 +76,15 @@ class MainWindow(QMainWindow):
         path_card = QFrame()
         path_card.setObjectName("PathCard")
         path_layout = QVBoxLayout(path_card)
-        path_layout.setContentsMargins(20, 18, 20, 16)
-        path_layout.setSpacing(8)
+        path_layout.setContentsMargins(16, 13, 16, 12)
+        path_layout.setSpacing(6)
 
         input_label = QLabel("VIDEO FILE PATH")
         input_label.setObjectName("InputLabel")
         path_layout.addWidget(input_label)
 
         input_row = QHBoxLayout()
-        input_row.setSpacing(8)
+        input_row.setSpacing(7)
         self.path_input = QLineEdit()
         self.path_input.setObjectName("PathInput")
         self.path_input.setPlaceholderText("Paste one video path here and press Enter")
@@ -110,13 +111,13 @@ class MainWindow(QMainWindow):
         page.addWidget(path_card)
 
         content = QHBoxLayout()
-        content.setSpacing(18)
+        content.setSpacing(12)
 
         queue_card = QFrame()
         queue_card.setObjectName("Card")
         queue_layout = QVBoxLayout(queue_card)
-        queue_layout.setContentsMargins(20, 18, 20, 18)
-        queue_layout.setSpacing(10)
+        queue_layout.setContentsMargins(14, 12, 14, 12)
+        queue_layout.setSpacing(7)
 
         queue_header = QHBoxLayout()
         queue_title = QLabel("QUEUE")
@@ -140,7 +141,7 @@ class MainWindow(QMainWindow):
         self.empty_queue.setObjectName("Muted")
         self.empty_queue.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.empty_queue.setWordWrap(True)
-        self.empty_queue.setMinimumHeight(170)
+        self.empty_queue.setMinimumHeight(120)
         queue_layout.addWidget(self.empty_queue)
 
         self.scroll = QScrollArea()
@@ -149,19 +150,19 @@ class MainWindow(QMainWindow):
         self.scroll_content = QWidget()
         self.scroll_layout = QVBoxLayout(self.scroll_content)
         self.scroll_layout.setContentsMargins(0, 0, 0, 0)
-        self.scroll_layout.setSpacing(9)
+        self.scroll_layout.setSpacing(6)
         self.scroll_layout.addStretch(1)
         self.scroll.setWidget(self.scroll_content)
         self.scroll.hide()
         queue_layout.addWidget(self.scroll, 1)
 
         self.active_panel = ActiveJobPanel()
-        content.addWidget(queue_card, 64)
-        content.addWidget(self.active_panel, 36)
+        content.addWidget(queue_card, 68)
+        content.addWidget(self.active_panel, 32)
         page.addLayout(content, 1)
 
         actions = QHBoxLayout()
-        actions.setSpacing(10)
+        actions.setSpacing(8)
         self.start_button = QPushButton("START TRANSCRIPTION")
         self.start_button.setObjectName("Primary")
         self.start_button.setToolTip("Start or resume the queue (Ctrl+Enter)")
