@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import os
-import tempfile
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from emma_video_transcriber.isolated_worker import TranscriptionWorker
 from emma_video_transcriber.performance import (
     PERFORMANCE_BALANCED,
     PERFORMANCE_MODE_ENV,
@@ -34,16 +36,48 @@ class PerformanceModeTests(unittest.TestCase):
         self.assertEqual(turbo, 12)
         self.assertGreater(turbo, balanced)
 
-    def test_environment_mode_is_normalized(self) -> None:
-        old = os.environ.get(PERFORMANCE_MODE_ENV)
-        try:
-            os.environ[PERFORMANCE_MODE_ENV] = "TURBO"
-            self.assertEqual(normalize_performance_mode(os.environ[PERFORMANCE_MODE_ENV]), PERFORMANCE_TURBO)
-        finally:
-            if old is None:
-                os.environ.pop(PERFORMANCE_MODE_ENV, None)
-            else:
-                os.environ[PERFORMANCE_MODE_ENV] = old
+    def test_fresh_turbo_worker_import_selects_turbo_engine_batch(self) -> None:
+        env = os.environ.copy()
+        env[PERFORMANCE_MODE_ENV] = PERFORMANCE_TURBO
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "from emma_video_transcriber.engine.policy import GPU_BATCH_SIZES; print(','.join(map(str, GPU_BATCH_SIZES)))",
+            ],
+            env=env,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(completed.stdout.strip(), "4,2,1")
+
+
+class _FakeLiveProcess:
+    def __init__(self) -> None:
+        self.returncode: int | None = None
+        self.terminated = False
+
+    def poll(self) -> int | None:
+        return self.returncode
+
+    def terminate(self) -> None:
+        self.terminated = True
+        self.returncode = 1
+
+
+class WorkerControlTests(unittest.TestCase):
+    def test_stop_request_terminates_live_child_and_is_not_just_pause(self) -> None:
+        worker = TranscriptionWorker(Path("jobs.sqlite3"), performance_mode="turbo")
+        fake = _FakeLiveProcess()
+        worker._process = fake  # type: ignore[assignment]
+
+        worker.request_stop()
+
+        self.assertTrue(worker._stop_requested.is_set())
+        self.assertFalse(worker._pause_requested.is_set())
+        self.assertTrue(fake.terminated)
+        self.assertEqual(worker.performance_mode, PERFORMANCE_TURBO)
 
 
 class UiControlBridgeTests(unittest.TestCase):
