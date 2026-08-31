@@ -6,6 +6,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt, QSize, Slot
 from PySide6.QtGui import QCloseEvent, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
+    QComboBox,
     QFileDialog,
     QFrame,
     QHBoxLayout,
@@ -43,7 +44,6 @@ class MainWindow(QMainWindow):
         self._allow_close_once = False
 
         self.setWindowTitle("EMMA VIDEO TRANSCRIBER")
-        # The normal, non-maximized window must still show Current Job progress.
         self.setMinimumSize(QSize(860, 620))
         self.resize(1080, 700)
         self.setStyleSheet(APP_QSS)
@@ -163,11 +163,42 @@ class MainWindow(QMainWindow):
 
         actions = QHBoxLayout()
         actions.setSpacing(8)
+
+        mode_label = QLabel("MODE")
+        mode_label.setObjectName("ModeLabel")
+        actions.addWidget(mode_label)
+
+        self.mode_combo = QComboBox()
+        self.mode_combo.setObjectName("PerformanceMode")
+        self.mode_combo.addItem("BALANCED", "balanced")
+        self.mode_combo.addItem("TURBO", "turbo")
+        self.mode_combo.setToolTip(
+            "Balanced: recommended while using your PC. Turbo: maximum speed when you can spare the PC."
+        )
+        self.mode_combo.currentIndexChanged.connect(self._performance_mode_changed)
+        actions.addWidget(self.mode_combo)
+
         self.start_button = QPushButton("START TRANSCRIPTION")
         self.start_button.setObjectName("Primary")
         self.start_button.setToolTip("Start or resume the queue (Ctrl+Enter)")
         self.start_button.clicked.connect(self.bridge.request_start)
         actions.addWidget(self.start_button, 1)
+
+        self.pause_button = QPushButton("PAUSE")
+        self.pause_button.setObjectName("PauseButton")
+        self.pause_button.setToolTip(
+            "Pause after the current safe segment is saved. Press Resume later to continue."
+        )
+        self.pause_button.clicked.connect(self.bridge.request_pause)
+        actions.addWidget(self.pause_button)
+
+        self.stop_button = QPushButton("STOP")
+        self.stop_button.setObjectName("StopButton")
+        self.stop_button.setToolTip(
+            "Stop the active worker now. Already-saved transcript text and the last checkpoint are preserved."
+        )
+        self.stop_button.clicked.connect(self.bridge.request_stop)
+        actions.addWidget(self.stop_button)
 
         self.open_output_button = QPushButton("OPEN OUTPUT FOLDER")
         self.open_output_button.setObjectName("Secondary")
@@ -194,6 +225,12 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence("Ctrl+Return"), self, activated=self._start_from_shortcut)
         QShortcut(QKeySequence("Ctrl+Enter"), self, activated=self._start_from_shortcut)
         QShortcut(QKeySequence("Ctrl+Shift+O"), self, activated=self.bridge.request_open_output_folder)
+
+    @Slot(int)
+    def _performance_mode_changed(self, index: int) -> None:
+        mode = self.mode_combo.itemData(index)
+        if mode:
+            self.bridge.request_performance_mode(str(mode))
 
     @Slot()
     def _submit_path(self) -> None:
@@ -277,7 +314,7 @@ class MainWindow(QMainWindow):
         self._is_running = bool(running)
         self._refresh_actions()
         if running:
-            self.footer.setText("Transcribing in the background. You can minimize this window and keep using your PC.")
+            self.footer.setText("Transcribing in the background. Pause or Stop whenever you need to.")
         elif not self._close_pending:
             self.footer.setText("Ready. Your original videos are never copied or modified.")
 
@@ -321,9 +358,18 @@ class MainWindow(QMainWindow):
 
     def _refresh_actions(self) -> None:
         actionable = any(job.status in {STATUS_QUEUED, STATUS_PAUSED, STATUS_FAILED} for job in self._jobs)
+        paused_exists = any(job.status == STATUS_PAUSED for job in self._jobs)
         can_interact = not self._close_pending
         self.start_button.setEnabled(bool(self._jobs) and actionable and not self._is_running and can_interact)
-        self.start_button.setText("TRANSCRIBING…" if self._is_running else "START TRANSCRIPTION")
+        if self._is_running:
+            self.start_button.setText("TRANSCRIBING…")
+        elif paused_exists:
+            self.start_button.setText("RESUME TRANSCRIPTION")
+        else:
+            self.start_button.setText("START TRANSCRIPTION")
+        self.pause_button.setEnabled(self._is_running and can_interact)
+        self.stop_button.setEnabled(self._is_running and can_interact)
+        self.mode_combo.setEnabled(not self._is_running and can_interact)
         self.path_input.setEnabled(can_interact)
         self.browse_button.setEnabled(can_interact)
         self.open_output_button.setEnabled(can_interact)
