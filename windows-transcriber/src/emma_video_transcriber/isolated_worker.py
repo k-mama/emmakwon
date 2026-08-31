@@ -11,6 +11,12 @@ from pathlib import Path
 
 from PySide6.QtCore import QObject, Signal, Slot
 
+from .engine.policy import (
+    PERFORMANCE_BALANCED,
+    PERFORMANCE_MODE_ENV,
+    PERFORMANCE_TURBO,
+    normalize_performance_mode,
+)
 from .infra import (
     configure_runtime_environment,
     recent_windows_application_error,
@@ -19,30 +25,29 @@ from .infra import (
 )
 from .infra.process_lifetime import bind_child_to_parent_lifetime, release_parent_lifetime_job
 from .jobs import QueueEvent, SqliteJobStore
+from .output import recover_output
 
 
 class TranscriptionWorker(QObject):
-    """Run every transcription job in a separate OS process.
-
-    QThread is only a coordinator. It never probes NVIDIA/CUDA. The child process
-    owns GPU runtime setup, CTranslate2, faster-whisper, FFmpeg chunking and TXT
-    writes. On Windows each child is bound to the UI lifetime with a Job Object.
-    """
+    """Coordinate one isolated OS worker per transcription job."""
 
     queue_event = Signal(object)
     status_message = Signal(str)
     error = Signal(str)
     finished = Signal()
 
-    def __init__(self, db_path: Path) -> None:
+    def __init__(self, db_path: Path, *, performance_mode: str = PERFORMANCE_BALANCED) -> None:
         super().__init__()
         self.db_path = Path(db_path)
+        self.performance_mode = normalize_performance_mode(performance_mode)
         self._pause_requested = threading.Event()
+        self._stop_requested = threading.Event()
         self._process: subprocess.Popen[bytes] | None = None
         self._control_file: Path | None = None
         self._lifetime_job_handle: int | None = None
 
     def request_pause(self) -> None:
+        """Pause at the next durable chunk boundary."""
         self._pause_requested.set()
         control = self._control_file
         if control is not None:
@@ -52,11 +57,26 @@ class TranscriptionWorker(QObject):
             except OSError:
                 pass
 
+    def request_stop(self) -> None:
+        """Stop the active child promptly while preserving the last checkpoint."""
+        self._stop_requested.set()
+        control = self._control_file
+        if control is not None:
+            try:
+                control.parent.mkdir(parents=True, exist_ok=True)
+                control.write_text("stop", encoding="utf-8")
+            except OSError:
+                pass
+        process = self._process
+        if process is not None and process.poll() is None:
+            try:
+                process.terminate()
+            except OSError:
+                pass
+
     @Slot()
     def run(self) -> None:
         try:
-            # This object still lives inside the Qt parent process even though it
-            # runs on a QThread. Never load/probe GPU-native libraries here.
             configure_runtime_environment(probe_gpu=False)
             store = SqliteJobStore(self.db_path)
             candidates = [
@@ -65,7 +85,7 @@ class TranscriptionWorker(QObject):
             self.queue_event.emit(QueueEvent("queue_status", message=f"{len(candidates)} job(s) ready"))
 
             for candidate in candidates:
-                if self._pause_requested.is_set():
+                if self._pause_requested.is_set() or self._stop_requested.is_set():
                     break
                 job = store.get(candidate.job_id)
                 if job is None:
@@ -77,6 +97,33 @@ class TranscriptionWorker(QObject):
                     continue
 
                 result = self._run_isolated_job(store, job.job_id, force_cpu=False)
+
+                if self._stop_requested.is_set():
+                    latest = store.get(job.job_id)
+                    if latest is not None:
+                        try:
+                            recover_output(
+                                latest.output_path,
+                                committed_ms=latest.current_ms,
+                                job_id=latest.job_id,
+                            )
+                        except Exception as exc:
+                            record_stage(
+                                "intentional_stop_recovery_failed",
+                                job_id=latest.job_id,
+                                error=str(exc),
+                            )
+                        if latest.status == "processing":
+                            latest.status = "paused"
+                            latest.error = None
+                            latest.metadata["intentional_stop"] = "1"
+                            store.update(latest)
+                        self._emit_terminal_snapshot(latest)
+                    self.status_message.emit(
+                        "Stopped. Already-saved transcript text is preserved; this video can be resumed later."
+                    )
+                    break
+
                 if result[0] != 0 and not result[1]:
                     crash_code = self._format_exit_code(result[0])
                     latest = store.get(job.job_id)
@@ -125,7 +172,11 @@ class TranscriptionWorker(QObject):
                 if latest is None:
                     continue
                 self._emit_terminal_snapshot(latest)
-                if latest.status == "paused" or self._pause_requested.is_set():
+                if (
+                    latest.status == "paused"
+                    or self._pause_requested.is_set()
+                    or self._stop_requested.is_set()
+                ):
                     break
 
             self.queue_event.emit(QueueEvent("queue_completed", message="queue run finished"))
@@ -167,24 +218,26 @@ class TranscriptionWorker(QObject):
             command = [sys.executable, "-m", "emma_video_transcriber.worker_process", *args]
 
         env = os.environ.copy()
+        env[PERFORMANCE_MODE_ENV] = self.performance_mode
         if force_cpu:
             env["EMMA_VIDEO_TRANSCRIBER_FORCE_CPU"] = "1"
         else:
             env.pop("EMMA_VIDEO_TRANSCRIBER_FORCE_CPU", None)
 
-        # The worker is compute-heavy by design, but the desktop UI and the rest
-        # of Windows should win CPU scheduling contests. GPU load is separately
-        # bounded by the balanced batch policy. BELOW_NORMAL does not change
-        # inference correctness; it only gives foreground apps scheduling headroom.
         creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
-        if os.name == "nt":
+        if os.name == "nt" and self.performance_mode != PERFORMANCE_TURBO:
             creationflags |= getattr(subprocess, "BELOW_NORMAL_PRIORITY_CLASS", 0)
 
         record_stage(
             "isolated_worker_spawn",
             job_id=job_id,
             force_cpu=force_cpu,
-            priority="below_normal" if os.name == "nt" else "default",
+            performance_mode=self.performance_mode,
+            priority=(
+                "normal"
+                if self.performance_mode == PERFORMANCE_TURBO
+                else "below_normal" if os.name == "nt" else "default"
+            ),
         )
         process = subprocess.Popen(
             command,
@@ -235,6 +288,16 @@ class TranscriptionWorker(QObject):
             structured_error: str | None = None
 
             while process.poll() is None:
+                if self._stop_requested.is_set():
+                    try:
+                        control_file.write_text("stop", encoding="utf-8")
+                    except OSError:
+                        pass
+                    try:
+                        process.terminate()
+                    except OSError:
+                        pass
+                    break
                 if self._pause_requested.is_set():
                     try:
                         control_file.write_text("pause", encoding="utf-8")
@@ -262,6 +325,13 @@ class TranscriptionWorker(QObject):
                     last_status = current.status
                 time.sleep(0.25)
 
+            if process.poll() is None:
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait(timeout=5)
+
             exit_code = int(process.returncode or 0)
             payload = self._read_status(status_file)
             if payload and payload.get("stage") == "fatal_python_error":
@@ -271,6 +341,8 @@ class TranscriptionWorker(QObject):
                 "isolated_worker_exit",
                 job_id=job_id,
                 force_cpu=force_cpu,
+                performance_mode=self.performance_mode,
+                intentional_stop=self._stop_requested.is_set(),
                 exit_code=self._format_exit_code(exit_code),
                 structured_failure=structured_failure,
             )
