@@ -8,6 +8,7 @@ import traceback
 from pathlib import Path
 
 from .engine import FasterWhisperTranscriptionEngine
+from .engine.policy import default_cpu_threads
 from .infra import (
     ModelManager,
     configure_runtime_environment,
@@ -54,6 +55,20 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _configure_balanced_thread_environment() -> int:
+    """Bound helper-library CPU parallelism inside the isolated worker only."""
+    limit = default_cpu_threads()
+    value = str(limit)
+    for name in (
+        "OMP_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+    ):
+        os.environ[name] = value
+    return limit
+
+
 def self_check() -> int:
     """Packaging-only check that the isolated-worker module is importable."""
     configure_runtime_environment()
@@ -70,6 +85,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.force_cpu:
         os.environ["EMMA_VIDEO_TRANSCRIBER_FORCE_CPU"] = "1"
 
+    cpu_thread_limit = _configure_balanced_thread_environment()
     configure_runtime_environment()
     paths = runtime_paths()
     enable_crash_diagnostics()
@@ -79,6 +95,7 @@ def main(argv: list[str] | None = None) -> int:
         job_id=args.job,
         force_cpu=bool(args.force_cpu),
         worker_pid=os.getpid(),
+        cpu_thread_limit=cpu_thread_limit,
     )
     _write_status(
         status_file,
@@ -86,6 +103,7 @@ def main(argv: list[str] | None = None) -> int:
         job_id=args.job,
         message="Starting isolated transcription worker…",
         force_cpu=bool(args.force_cpu),
+        cpu_thread_limit=cpu_thread_limit,
     )
 
     try:
@@ -127,11 +145,13 @@ def main(argv: list[str] | None = None) -> int:
             ),
             device=diagnostics.chosen_device,
             compute_type=diagnostics.chosen_compute_type,
+            cpu_thread_limit=cpu_thread_limit,
         )
 
+        bootstrap = configure_runtime_environment()
         media = MediaPipeline(
-            ffmpeg_path=str(configure_runtime_environment().ffmpeg.ffmpeg),
-            ffprobe_path=str(configure_runtime_environment().ffmpeg.ffprobe),
+            ffmpeg_path=str(bootstrap.ffmpeg.ffmpeg),
+            ffprobe_path=str(bootstrap.ffmpeg.ffprobe),
             temp_dir=paths.temp / "audio-chunks",
         )
         store = SqliteJobStore(Path(args.db))
