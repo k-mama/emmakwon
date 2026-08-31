@@ -8,6 +8,7 @@ from pathlib import Path
 from PySide6.QtCore import QObject, QThread, QTimer, Slot
 from PySide6.QtWidgets import QApplication
 
+from .engine.policy import PERFORMANCE_BALANCED, PERFORMANCE_TURBO, normalize_performance_mode
 from .infra import (
     acquire_single_instance,
     begin_session,
@@ -71,8 +72,6 @@ class ApplicationController(QObject):
     def __init__(self, bridge: UiEventBridge) -> None:
         super().__init__(bridge)
         self.bridge = bridge
-        # Strict parent/UI isolation: only the child worker is allowed to probe
-        # NVIDIA/CUDA native runtime state.
         configure_runtime_environment(probe_gpu=False)
         paths = runtime_paths()
         self.db_path = paths.app_data / "jobs.sqlite3"
@@ -83,6 +82,7 @@ class ApplicationController(QObject):
         self._thread: QThread | None = None
         self._worker: TranscriptionWorker | None = None
         self._close_after_pause = False
+        self._performance_mode = PERFORMANCE_BALANCED
         self._active_job_id: str | None = None
         self._active_started_at = 0.0
         self._active_start_ms = 0
@@ -90,6 +90,9 @@ class ApplicationController(QObject):
 
         bridge.add_videos_requested.connect(self.add_paths)
         bridge.start_transcription_requested.connect(self.start_transcription)
+        bridge.pause_transcription_requested.connect(self.pause_transcription)
+        bridge.stop_transcription_requested.connect(self.stop_transcription)
+        bridge.performance_mode_requested.connect(self.set_performance_mode)
         bridge.open_output_folder_requested.connect(self.open_output_folder)
         bridge.close_action_requested.connect(self.handle_close_action)
         bridge.remove_job_requested.connect(self.remove_job)
@@ -98,7 +101,9 @@ class ApplicationController(QObject):
     def publish_initial_state(self) -> None:
         self.bridge.publish_jobs(self.store.list_all())
         self.bridge.publish_running(False)
-        self.bridge.publish_status_message("Ready. Choose one or more videos. They will be added to the queue immediately.")
+        self.bridge.publish_status_message(
+            "Ready. Balanced mode is selected. Choose one or more videos."
+        )
 
     @Slot(object)
     def add_paths(self, paths: object) -> None:
@@ -134,6 +139,22 @@ class ApplicationController(QObject):
                 f"Added {added} video{'s' if added != 1 else ''}. Ready to transcribe."
             )
 
+    @Slot(str)
+    def set_performance_mode(self, mode: str) -> None:
+        if self._thread is not None and self._thread.isRunning():
+            self.bridge.publish_error("Performance mode cannot be changed while transcription is running.")
+            return
+        selected = normalize_performance_mode(mode)
+        self._performance_mode = selected
+        if selected == PERFORMANCE_TURBO:
+            self.bridge.publish_status_message(
+                "Turbo selected. Maximum throughput; your PC may feel slower while transcribing."
+            )
+        else:
+            self.bridge.publish_status_message(
+                "Balanced selected. Recommended for using your PC while transcription runs."
+            )
+
     @Slot()
     def start_transcription(self) -> None:
         if self._thread is not None and self._thread.isRunning():
@@ -148,10 +169,11 @@ class ApplicationController(QObject):
 
         self._close_after_pause = False
         self.bridge.publish_running(True)
-        self.bridge.publish_status_message("Preparing local transcription…")
+        label = "Turbo" if self._performance_mode == PERFORMANCE_TURBO else "Balanced"
+        self.bridge.publish_status_message(f"Preparing local transcription in {label} mode…")
 
         thread = QThread(self)
-        worker = TranscriptionWorker(self.db_path)
+        worker = TranscriptionWorker(self.db_path, performance_mode=self._performance_mode)
         worker.moveToThread(thread)
 
         thread.started.connect(worker.run)
@@ -166,6 +188,30 @@ class ApplicationController(QObject):
         self._thread = thread
         self._worker = worker
         thread.start()
+
+    @Slot()
+    def pause_transcription(self) -> None:
+        worker = self._worker
+        thread = self._thread
+        if worker is None or thread is None or not thread.isRunning():
+            self.bridge.publish_status_message("Nothing is currently running.")
+            return
+        worker.request_pause()
+        self.bridge.publish_status_message(
+            "Pause requested. Finishing the current safe segment before pausing…"
+        )
+
+    @Slot()
+    def stop_transcription(self) -> None:
+        worker = self._worker
+        thread = self._thread
+        if worker is None or thread is None or not thread.isRunning():
+            self.bridge.publish_status_message("Nothing is currently running.")
+            return
+        worker.request_stop()
+        self.bridge.publish_status_message(
+            "Stopping now. Already-saved transcript text will be preserved."
+        )
 
     @Slot(object)
     def _handle_queue_event(self, event: QueueEvent) -> None:
@@ -209,7 +255,6 @@ class ApplicationController(QObject):
             return
         if event.kind == "queue_completed":
             self.bridge.publish_jobs(self.store.list_all())
-            self.bridge.publish_status_message("Queue finished.")
 
     def _publish_active(self, event: QueueEvent) -> None:
         if not event.job_id:
@@ -306,7 +351,6 @@ class ApplicationController(QObject):
 
 
 def main() -> int:
-    # The Qt parent must not probe/load NVIDIA native code. The job worker owns it.
     configure_runtime_environment(probe_gpu=False)
     enable_crash_diagnostics()
     configure_windows_crash_dumps()
